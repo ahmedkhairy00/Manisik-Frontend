@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 /* import { I18nService } from '../../core/services/i18n.service';
- */import { LucideAngularModule } from 'lucide-angular';
+ */import { LucideAngularModule, Package, Building2, Bus, Search, Settings, CreditCard, CheckCircle, Users, TrendingUp, Headphones, MapPin, Star, Clock, Check, Mail, Shield, ChevronDown } from 'lucide-angular';
 
 @Component({
   selector: 'app-home',
@@ -10,11 +10,11 @@ import { RouterModule } from '@angular/router';
   imports: [
     CommonModule,
     RouterModule,
-    LucideAngularModule,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
 /*   private readonly i18nService = inject(I18nService);
