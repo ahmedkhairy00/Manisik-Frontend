@@ -1,1 +1,294 @@
-<p>transport works!</p>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <mat-toolbar class="transport-toolbar" color="primary">
+    <div class="transport-container">
+      <div class="transport-text">
+        <h1 class="transport-title">Transport Services</h1>
+        <p class="transport-sub">Choose your international and local transport options</p>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <div class="container">
+    <h1 class="international-Transport">International Transport to Saudi Arabia</h1>
+    <div class="transport-tabs">
+      <button class="tab-button active">
+        <span class="material-icons">flight</span>
+        Air Transport
+      </button>
+      <button class="tab-button">
+        <span class="material-icons">directions_boat</span>
+        Sea Transport
+      </button>
+    </div>
+
+    <div class="search-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>From</label>
+          <input type="text" placeholder="Departure city">
+        </div>
+        <div class="form-group">
+          <label>To</label>
+          <select>
+            <option>Jeddah</option>
+            <option>Riyadh</option>
+            <option>Dammam</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Departure Date</label>
+          <input type="date" placeholder="mm/dd/yyyy">
+        </div>
+        <button class="search-button">Search Flights</button>
+      </div>
+    </div>
+
+    <div class="flight-card">
+      <div class="airline-logo">SA</div>
+      <div class="airline-info">
+        <div class="airline-name">
+          <h3>Saudi Arabian Airlines</h3>
+          <div class="rating">
+            <span class="material-icons star-icon">star</span>
+            <strong>4.8</strong> (2340 reviews)
+          </div>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value"><span class="material-icons"
+              style="font-size: 14px; vertical-align: middle;">schedule</span> 8h 30m</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Class</span>
+          <span class="detail-value">Economy</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Stops</span>
+          <span class="direct-badge">Direct</span>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$680</div>
+        <ul class="amenities">
+          <li><span class="material-icons check-icon">check</span> Meals included</li>
+          <li><span class="material-icons check-icon">check</span> 30kg baggage</li>
+          <li><span class="material-icons check-icon">check</span> Entertainment</li>
+        </ul>
+        <button class="book-button">Book Flight</button>
+      </div>
+    </div>
+
+    <div class="flight-card">
+      <div class="airline-logo">AE</div>
+      <div class="airline-info">
+        <div class="airline-name">
+          <h3>Emirates</h3>
+          <div class="rating">
+            <span class="material-icons star-icon">star</span>
+            <strong>4.9</strong> (3120 reviews)
+          </div>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value"><span class="material-icons"
+              style="font-size: 14px; vertical-align: middle;">schedule</span> 9h 15m</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Class</span>
+          <span class="detail-value">Economy</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Stops</span>
+          <span class="stop-badge">1 Stop</span>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$850</div>
+        <ul class="amenities">
+          <li><span class="material-icons check-icon">check</span> Premium meals</li>
+          <li><span class="material-icons check-icon">check</span> 40kg baggage</li>
+          <li><span class="material-icons check-icon">check</span> WiFi</li>
+          <li><span class="material-icons check-icon">check</span> Lounge access</li>
+        </ul>
+        <button class="book-button">Book Flight</button>
+      </div>
+    </div>
+
+    <div class="flight-card">
+      <div class="airline-logo">QA</div>
+      <div class="airline-info">
+        <div class="airline-name">
+          <h3>Qatar Airways</h3>
+          <div class="rating">
+            <span class="material-icons star-icon">star</span>
+            <strong>4.9</strong> (2890 reviews)
+          </div>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value"><span class="material-icons"
+              style="font-size: 14px; vertical-align: middle;">schedule</span> 8h 45m</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Class</span>
+          <span class="detail-value">Economy</span>
+        </div>
+        <div class="flight-details">
+          <span class="detail-label">Stops</span>
+          <span class="direct-badge">Direct</span>
+        </div>
+      </div>
+      <div class="price-section">
+        <div class="price">$820</div>
+        <ul class="amenities">
+          <li><span class="material-icons check-icon">check</span> Gourmet meals</li>
+          <li><span class="material-icons check-icon">check</span> 35kg baggage</li>
+          <li><span class="material-icons check-icon">check</span> Premium entertainment</li>
+        </ul>
+        <button class="book-button">Book Flight</button>
+      </div>
+    </div>
+  </div>
+<div class="container">
+      <div class="header">
+            <h1>Transport Within Saudi Arabia</h1>
+            <p>Choose your preferred mode of transport for travel between cities in Saudi Arabia</p>
+        </div>
+
+        <!-- Material Tabs -->
+        <div class="mat-tabs">
+            <nav class="mat-tab-nav">
+                <a class="mat-tab-link active" data-tab="public-bus">
+                    <span class="material-icons">directions_bus</span>
+                    Public Bus
+                </a>
+                <a class="mat-tab-link" data-tab="train">
+                    <span class="material-icons">train</span>
+                    Train
+                </a>
+                <a class="mat-tab-link" data-tab="uber">
+                    <span class="material-icons">local_taxi</span>
+                    Uber/Careem
+                </a>
+                <a class="mat-tab-link" data-tab="private">
+                    <span class="material-icons">directions_car</span>
+                    Private Car
+                </a>
+            </nav>
+        </div>
+
+        <!-- Services Grid -->
+        <div class="services-grid">
+            <!-- SAPTCO Card -->
+            <div class="mat-card">
+                <div class="card-header">
+                    <div class="service-icon">🚌</div>
+                    <div class="service-info">
+                        <h3 class="mat-card-title">SAPTCO (Public Bus)</h3>
+                        <div class="rating-container">
+                            <span class="material-icons">star</span>
+                            <span class="rating-value">4.3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <div class="info-item">
+                        <span class="mat-caption">Route</span>
+                        <span class="info-value">Jeddah - Makkah</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="mat-caption">Duration</span>
+                        <span class="info-value">1h 30m</span>
+                    </div>
+                </div>
+
+                <div class="amenities-list">
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        AC
+                    </div>
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        Comfortable seats
+                    </div>
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        WiFi
+                    </div>
+                </div>
+
+                <div class="mat-card-actions">
+                    <div class="price-container">
+                        <span class="price-label">From</span>
+                        <span class="price-value">$25</span>
+                    </div>
+                    <button class="mat-raised-button">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Al Khalij Card -->
+            <div class="mat-card">
+                <div class="card-header">
+                    <div class="service-icon">🚍</div>
+                    <div class="service-info">
+                        <h3 class="mat-card-title">Al Khalij Bus Services</h3>
+                        <div class="rating-container">
+                            <span class="material-icons">star</span>
+                            <span class="rating-value">4.5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <div class="info-item">
+                        <span class="mat-caption">Route</span>
+                        <span class="info-value">Makkah - Madinah</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="mat-caption">Duration</span>
+                        <span class="info-value">4h 30m</span>
+                    </div>
+                </div>
+
+                <div class="amenities-list">
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        AC
+                    </div>
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        Reclining seats
+                    </div>
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        Refreshments
+                    </div>
+                    <div class="amenity-item">
+                        <span class="material-icons">check</span>
+                        Prayer stops
+                    </div>
+                </div>
+
+                <div class="mat-card-actions">
+                    <div class="price-container">
+                        <span class="price-label">From</span>
+                        <span class="price-value">$35</span>
+                    </div>
+                    <button class="mat-raised-button">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
