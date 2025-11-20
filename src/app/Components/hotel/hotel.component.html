@@ -18,7 +18,6 @@
   >
     <option value="Makkah" selected>🕋 Makkah</option>
     <option value="Madinah">🕌 Madinah</option>
-    <option value="Jeddah">✈️ Jeddah</option>
   </select>
 
   <!-- Sort Filter -->
@@ -28,8 +27,6 @@
     (change)="onFilterChange()"
   >
     <option value="recommended">Recommended</option>
-    <option value="pricelowtohigh">Price: Low to High</option>
-    <option value="pricehightolow">Price: High to Low</option>
     <option value="distance">Distance</option>
     <option value="rating">Rate</option>
   </select>
@@ -124,13 +121,20 @@
       <div class="p-5">
         <!-- Rating -->
         <div class="flex items-center gap-1 mb-2">
-          <ng-container *ngFor="let star of [].constructor(hotel.rating)">
+          <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
             <lucide-icon
               name="star"
-              class="h-4 w-4 fill-[var(--warning)] text-[var(--warning)]"
+              class="h-4 w-4"
+              [ngClass]="{
+                'text-yellow-500 fill-yellow-500': hotel.starRating >= i,
+                'text-gray-300': hotel.starRating < i
+              }"
             ></lucide-icon>
           </ng-container>
-          <span class="text-[var(--text-secondary)]">{{ hotel.rating }}</span>
+
+          <span class="text-gray-500 ml-1 text-sm"
+            >{{ hotel.starRating }}/5</span
+          >
         </div>
 
         <!-- Hotel Name -->
@@ -140,7 +144,10 @@
         <div class="flex items-center gap-4 mb-3 text-[var(--text-secondary)]">
           <div class="flex items-center gap-1">
             <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
-            <span>{{ hotel.distanceFromHaram }} {{ i18n.translate('hotel.fromHaram') }}</span>
+            <span
+              >{{ hotel.distanceToHaram }}
+              {{ i18n.translate("hotel.fromHaram") }}</span
+            >
           </div>
         </div>
 
@@ -150,21 +157,27 @@
         </p>
 
         <!-- Price & Button -->
-          <div class="flex items-end justify-between">
-          <div>
-            <span class="text-[var(--text-secondary)]">{{ i18n.translate('common.from') }}</span>
+        <div class="flex items-end justify-between">
+          <!-- <div>
+            <span class="text-[var(--text-secondary)]">{{
+              i18n.translate("common.from")
+            }}</span>
             <div class="text-[var(--text-primary)]">
               <span class="text-2xl">${{ hotel.pricePerNight }}</span>
-              <span class="text-[var(--text-secondary)]">{{ i18n.translate('common.perPerson') }}</span>
+              <span class="text-[var(--text-secondary)]">{{
+                i18n.translate("common.perPerson")
+              }}</span>
             </div>
-          </div>
+          </div> -->
           <button
             type="button"
             (click)="viewDetails(hotel.id)"
             class="bg-[var(--primary)] text-white hover:opacity-90 px-4 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-            [attr.aria-label]="i18n.translate('aria.viewDetailsFor') + ' ' + hotel.name"
+            [attr.aria-label]="
+              i18n.translate('aria.viewDetailsFor') + ' ' + hotel.name
+            "
           >
-            {{ i18n.translate('common.viewDetails') }}
+            {{ i18n.translate("common.viewDetails") }}
           </button>
         </div>
       </div>
@@ -193,37 +206,44 @@
           >
             <div class="flex items-center gap-1">
               <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
-              <span>{{ hotel.distanceFromHaram }} {{ i18n.translate('hotel.fromHaram') }}</span>
+              <span
+                >{{ hotel.distanceToHaram }}
+                {{ i18n.translate("hotel.fromHaram") }}</span
+              >
             </div>
           </div>
           <p class="text-[var(--text-secondary)] mb-2 text-sm">
             {{ hotel.description }}
           </p>
-          <div class="flex items-center gap-1 mb-2">
-            <ng-container *ngFor="let star of [].constructor(hotel.rating)">
-              <lucide-icon
-                name="star"
-                class="h-4 w-4 text-[var(--warning)]"
-              ></lucide-icon>
-            </ng-container>
-          </div>
+          <!-- Rating -->
+        <div class="flex items-center gap-1 mb-2">
+          <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
+            <lucide-icon
+              name="star"
+              class="h-4 w-4"
+              [ngClass]="{
+                'text-yellow-500 fill-yellow-500': hotel.starRating >= i,
+                'text-gray-300': hotel.starRating < i
+              }"
+            ></lucide-icon>
+          </ng-container>
+
+          <span class="text-gray-500 ml-1 text-sm"
+            >{{ hotel.starRating }}/5</span
+          >
         </div>
-        <!-- Price & Button -->
-          <div class="flex items-end justify-between">
-          <div>
-            <span class="text-[var(--text-secondary)]">{{ i18n.translate('common.from') }}</span>
-            <div class="text-[var(--text-primary)]">
-              <span class="text-2xl">${{ hotel.pricePerNight }}</span>
-              <span class="text-[var(--text-secondary)]">{{ i18n.translate('common.perPerson') }}</span>
-            </div>
-          </div>
+        </div>
+        <!--  Button -->
+        <div class="flex items-end justify-between">
           <button
             type="button"
             (click)="viewDetails(hotel.id)"
             class="bg-[var(--primary)] text-white hover:opacity-90 px-4 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-            [attr.aria-label]="i18n.translate('aria.viewDetailsFor') + ' ' + hotel.name"
+            [attr.aria-label]="
+              i18n.translate('aria.viewDetailsFor') + ' ' + hotel.name
+            "
           >
-            {{ i18n.translate('common.viewDetails') }}
+            {{ i18n.translate("common.viewDetails") }}
           </button>
         </div>
       </div>

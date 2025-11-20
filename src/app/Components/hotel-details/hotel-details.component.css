@@ -1,4 +1,12 @@
 /* Hotel details styles: keep consistent with global theme variables */
-:host { display:block }
+:host {
+  display: block;
+}
 
-img { border-radius: 8px }
+img {
+  border-radius: 8px;
+}
+.border-primary {
+  border-color: var(--primary) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}

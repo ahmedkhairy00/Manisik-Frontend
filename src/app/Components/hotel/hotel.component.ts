@@ -17,7 +17,7 @@ export class HotelComponent implements OnInit {
   readonly i18n = inject(I18nService);
   viewMode: 'grid' | 'list' = 'grid';
   searchText: string = '';
-  city: string = 'Makkah';
+  city: string = 'Makkah'; // 0 for Makkah, 1 for Madinah
   sortBy: string = 'recommended'; // default option
   loading = false;
 
@@ -39,12 +39,6 @@ export class HotelComponent implements OnInit {
     };
 
     switch (this.sortBy) {
-      case 'pricelowtohigh':
-        params.sortBy = 'pricelowtohigh';
-        break;
-      case 'pricehightolow':
-        params.sortBy = 'pricehightolow';
-        break;
       case 'distance':
         params.sortBy = 'distance';
         break;
@@ -90,13 +84,22 @@ export class HotelComponent implements OnInit {
   onFilterChange() {
     this.loadHotels();
   }
+  getStarArray(rating: number) {
+    const maxStars = 5;
+    return {
+      full: Array(rating).fill(0),
+      empty: Array(maxStars - rating).fill(0),
+    };
+  }
 
   /**
    * Navigate to the Hotel Details page.
    * We only navigate; the HotelDetailsComponent will fetch the hotel by ID
    * using HotelsService (keeps data fetching single-responsibility).
    */
-  viewDetails(hotelId: string | number) {
-    this.router.navigate(['/hotels', hotelId]).catch((err) => console.error('Navigation error:', err));
+  viewDetails(hotelId: number) {
+    this.router
+      .navigate(['/hotels', hotelId])
+      .catch((err) => console.error('Navigation error:', err));
   }
 }

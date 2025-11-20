@@ -1,0 +1,66 @@
+<div class="max-w-3xl mx-auto p-6 bg-[var(--surface)] rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-4">Book Hotel</h2>
+
+  <div *ngIf="hotel" class="border border-[var(--border)] p-4 rounded mb-6 bg-[var(--background)]">
+    <h3 class="text-xl font-semibold">{{ hotel.name }} ({{ hotel.city }})</h3>
+    <p>Room Type: {{ room?.roomType }}</p>
+    <p>Price per night: ${{ room?.pricePerNight }}</p>
+  </div>
+
+  <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()" class="space-y-4">
+    <!-- Check-In Date -->
+    <div>
+      <label class="block mb-1 font-medium">Check-In Date</label>
+      <input
+        type="date"
+        formControlName="checkInDate"
+        class="border border-[var(--border)] rounded px-4 py-2 w-full outline-none focus:ring-2 focus:ring-[var(--primary)]"
+      />
+    </div>
+
+    <!-- Check-Out Date -->
+    <div>
+      <label class="block mb-1 font-medium">Check-Out Date</label>
+      <input
+        type="date"
+        formControlName="checkOutDate"
+        class="border border-[var(--border)] rounded px-4 py-2 w-full outline-none focus:ring-2 focus:ring-[var(--primary)]"
+      />
+    </div>
+
+    <!-- Date Order Error -->
+    <div
+      *ngIf="bookingForm.errors?.['dateOrderInvalid'] && (bookingForm.touched || bookingForm.dirty)"
+      class="text-red-600 text-sm"
+    >
+      Check-in date must be before check-out date.
+    </div>
+
+    <!-- Number of Rooms -->
+    <div>
+      <label class="block mb-1 font-medium">Number of Rooms</label>
+      <input
+        type="number"
+        formControlName="numberOfRooms"
+        min="1"
+        class="border border-[var(--border)] rounded px-4 py-2 w-full outline-none focus:ring-2 focus:ring-[var(--primary)]"
+      />
+    </div>
+
+    <!-- Total Price -->
+    <div class="text-lg font-semibold">
+      Total Price: ${{ totalPrice }}
+    </div>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      class="w-full text-white font-medium px-4 py-2 rounded transition-all duration-200
+        disabled:bg-gray-400 disabled:cursor-not-allowed
+        bg-[var(--primary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+      [disabled]="bookingForm.invalid || bookingForm.pristine"
+    >
+      Book Hotel
+    </button>
+  </form>
+</div>

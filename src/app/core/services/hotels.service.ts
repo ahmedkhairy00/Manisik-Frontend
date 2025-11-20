@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Hotel, HotelSearchParams, Room } from '../../interfaces';
+import { ApiResponse, Hotel, HotelSearchParams, Room } from '../../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +14,6 @@ export class HotelsService {
    * - getHotels: fetches a filtered list (city, filter) and is used by HotelComponent.
    * - getHotelById: fetches a single hotel (used by HotelDetailsComponent).
    * - getImageUrl: helper that resolves image URLs (absolute or via configured image base URL).
-   *
-   * Note: The service does not perform UI concerns such as showing a loading spinner; callers
-   * (components) should set `loading` flags around calls so the UI can react consistently.
    */
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
@@ -47,9 +44,13 @@ export class HotelsService {
       httpParams = httpParams.set('filter', filterValue);
     }
 
-    return this.http.get<Hotel[]>(`${this.apiUrl}/Hotel/getallFiltered`, {
-      params: httpParams,
-    });
+    return this.http
+      .get<ApiResponse<Hotel[]>>(`${this.apiUrl}/Hotel/getallFiltered`, {
+        params: httpParams,
+      })
+      .pipe(
+        map((res) => res.data || []) // extract the array from data
+      );
   }
   getImageUrl(hotel: Hotel): string {
     return hotel.imageUrl.startsWith('http')
@@ -57,36 +58,19 @@ export class HotelsService {
       : `${this.apiUrlForImages}${hotel.imageUrl}`;
   }
 
-  getHotelById(id: string): Observable<Hotel> {
-    return this.http.get<Hotel>(`${this.apiUrl}/hotels/${id}`);
+  getHotelById(id: number | string): Observable<Hotel> {
+    return this.http
+      .get<ApiResponse<Hotel>>(`${this.apiUrl}/Hotel/GetHotelById/${id}`)
+      .pipe(map((res) => res.data as Hotel));
   }
 
   getRooms(hotelId: string): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.apiUrl}/hotels/${hotelId}/rooms`);
+    return this.http.get<Room[]>(`${this.apiUrl}/Hotel/GetHotelsByAllRooms/`);
   }
 
   getRoomById(hotelId: string, roomId: string): Observable<Room> {
     return this.http.get<Room>(
-      `${this.apiUrl}/hotels/${hotelId}/rooms/${roomId}`
+      `${this.apiUrl}/Hotel/${hotelId}/rooms/${roomId}`
     );
   }
 }
-// getHotels(params?: HotelSearchParams): Observable<Hotel[]> {
-//   let httpParams = new HttpParams();
-//   if (params) {
-//     Object.entries(params).forEach(([key, value]) => {
-//       if (value !== undefined && value !== null) {
-//         if (Array.isArray(value)) {
-//           value.forEach(
-//             (v) => (httpParams = httpParams.append(key, v.toString()))
-//           );
-//         } else {
-//           httpParams = httpParams.set(key, value.toString());
-//         }
-//       }
-//     });
-//   }
-//   return this.http.get<Hotel[]>(`${this.apiUrl}/Hotel/`, {
-//     params: httpParams,
-//   });
-// }
