@@ -1,41 +1,133 @@
-<!-- HotelDetailsComponent Template
-     - Displays detailed hotel information fetched by id
-     - Uses HotelsService.getHotelById to fetch data; this keeps fetching responsibilities in the service
--->
-<div class="max-w-4xl mx-auto p-4">
-  <div *ngIf="loading" class="p-8 text-center">Loading hotel details...</div>
+<div class="max-w-5xl mx-auto p-6">
+  <!-- Loading -->
+  <div *ngIf="loading" class="p-8 text-center text-gray-500">
+    Loading hotel details...
+  </div>
 
-  <div *ngIf="!loading && hotel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="rounded overflow-hidden">
-      <img [src]="hotel.imageUrl.startsWith('http') ? hotel.imageUrl : ( '' + hotel.imageUrl )" [alt]="hotel.name" class="w-full h-96 object-cover" />
-    </div>
+  <!-- Hotel Details -->
+  <div
+    *ngIf="!loading && hotel"
+    class="border border-[var(--border)] bg-[var(--background)] rounded-xl overflow-hidden shadow-md flex flex-col md:flex-row transition-all"
+  >
+    <!-- Hotel Image -->
+    <img
+      [src]="getImageUrl(hotel)"
+      [alt]="hotel.name"
+      class="w-full md:w-1/3 h-96 object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
+    />
 
-    <div>
-      <h2 class="text-2xl font-semibold mb-2 text-[var(--text-primary)]">{{ hotel.name }}</h2>
-      <div class="flex items-center gap-3 mb-3 text-[var(--text-secondary)]">
-        <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
-        <span>{{ hotel.city }} &middot; {{ hotel.distanceFromHaram }} km from Haram</span>
+    <!-- Hotel Info -->
+    <div class="p-6 flex-1 flex flex-col justify-between">
+      <div>
+        <!-- Name -->
+        <h2 class="text-3xl font-bold mb-2 text-[var(--text-primary)]">
+          {{ hotel.name }}
+        </h2>
+
+        <!-- Location & Distance -->
+        <div class="flex items-center gap-4 mb-3 text-[var(--text-secondary)]">
+          <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
+          <span
+            >{{ hotel.city }} &middot; {{ hotel.distanceToHaram }} km from
+            Haram</span
+          >
+        </div>
+
+        <!-- Rating -->
+        <div class="flex items-center gap-1 mb-4">
+          <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
+            <lucide-icon
+              name="star"
+              class="h-5 w-5"
+              [ngClass]="{
+                'text-yellow-500 fill-yellow-500': hotel.starRating >= i,
+                'text-gray-300': hotel.starRating < i
+              }"
+            ></lucide-icon>
+          </ng-container>
+          <span class="text-gray-500 ml-2 text-sm"
+            >{{ hotel.starRating }}/5</span
+          >
+        </div>
+
+        <!-- Description -->
+        <p class="text-[var(--text-secondary)] mb-6">{{ hotel.description }}</p>
       </div>
 
-      <div class="mb-4">
-        <span class="text-[var(--text-secondary)]">From</span>
-        <div class="text-[var(--text-primary)] text-2xl">${{ hotel.pricePerNight }} <span class="text-[var(--text-secondary)] text-base">/person</span></div>
-      </div>
-
-      <div class="mb-4">
-        <strong class="text-[var(--text-primary)]">Rate:</strong>
-        <span class="ml-2 text-[var(--text-secondary)]">{{ hotel.rating }} / 5</span>
-      </div>
-
-      <div class="mb-6 text-[var(--text-secondary)]">{{ hotel.description }}</div>
-
-      <!-- Actions (booking etc.) can be added here without changing fetching logic -->
-      <div class="flex gap-3">
-        <button class="bg-[var(--primary)] text-white px-4 py-2 rounded">Book Now</button>
-        <button class="border border-[var(--border)] px-4 py-2 rounded">Contact</button>
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3">
+        <button
+          (click)="toggleRooms()"
+          class="bg-[var(--primary)] text-white px-5 py-2 rounded hover:opacity-90"
+        >
+          {{ showRooms ? "Hide Rooms" : "Show Available Rooms" }}
+        </button>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!loading && !hotel" class="p-8 text-center">Hotel not found.</div>
+  <!-- Rooms section (shown after clicking) -->
+  <div *ngIf="showRooms && hotel?.rooms?.length" class="mt-6">
+    <!-- <h3 class="text-2xl font-semibold mb-4 text-[var(--text-primary)]">
+      Room Types
+    </h3> -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        *ngFor="let room of hotel.rooms"
+        class="border p-4 rounded-lg bg-[var(--background)] hover:shadow-md transition cursor-pointer"
+        [class.border-primary]="selectedRoom?.id === room.id"
+        (click)="selectRoom(room)"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-lg font-semibold text-[var(--text-primary)]">
+              {{ room.roomType }}
+            </div>
+            <div class="text-sm text-[var(--text-secondary)]">
+              Capacity: {{ room.capacity }} person(s)
+            </div>
+          </div>
+
+          <div class="text-right">
+            <div class="text-lg font-bold text-[var(--text-primary)]">
+              ${{ formatPrice(room.pricePerNight) }}
+            </div>
+            <div class="text-sm text-[var(--text-secondary)]">
+              Available: {{ room.availableRooms }} room(s)
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-between items-center">
+          <div
+            *ngIf="selectedRoom?.id === room.id"
+            class="text-sm text-green-600 font-medium"
+          >
+            Selected
+          </div>
+          <button
+            (click)="bookSelectedRoom(); $event.stopPropagation()"
+            class="bg-[var(--primary)] text-white px-3 py-1 rounded text-sm"
+            [disabled]="room.availableRooms <= 0"
+          >
+            Book
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- no rooms -->
+  <div
+    *ngIf="showRooms && (!hotel?.rooms || hotel.rooms.length === 0)"
+    class="mt-6 p-4 text-center text-gray-500 border rounded"
+  >
+    No rooms available at the moment.
+  </div>
+
+  <!-- No hotel found -->
+  <div *ngIf="!loading && !hotel" class="p-8 text-center text-gray-500">
+    Hotel not found.
+  </div>
 </div>

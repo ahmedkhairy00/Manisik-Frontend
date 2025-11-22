@@ -1,8 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HotelsService } from 'src/app/core/services/hotels.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { Room } from 'src/app/interfaces';
 
 /**
  * HotelDetailsComponent
@@ -19,21 +20,26 @@ import { LucideAngularModule } from 'lucide-angular';
   styleUrls: ['./hotel-details.component.css'],
 })
 export class HotelDetailsComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private hotels = inject(HotelsService);
-
+  showRooms = false; // toggles rooms display
+  selectedRoom?: Room;
   loading = true;
   hotel: any = null;
+  private route = inject(ActivatedRoute);
+
+  constructor(private hotelsService: HotelsService, private router: Router) {}
+
+  getImageUrl(hotel: any): string {
+    return this.hotelsService.getImageUrl(hotel);
+  }
 
   ngOnInit(): void {
-    // Read :id from route params and fetch hotel details.
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.loading = false;
       return;
     }
 
-    this.hotels.getHotelById(id).subscribe({
+    this.hotelsService.getHotelById(id).subscribe({
       next: (h) => {
         this.hotel = h;
         this.loading = false;
@@ -43,5 +49,23 @@ export class HotelDetailsComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+  toggleRooms() {
+    this.showRooms = !this.showRooms;
+  }
+  // select a room type card
+  selectRoom(room: Room) {
+    this.selectedRoom = room;
+  }
+
+  bookSelectedRoom() {
+    if (!this.hotel || !this.selectedRoom) return;
+    this.router.navigate(['/booking-hotel'], {
+      queryParams: { hotelId: this.hotel.id, roomId: this.selectedRoom.id },
+    });
+  }
+
+  formatPrice(price: number) {
+    return price?.toFixed(2);
   }
 }

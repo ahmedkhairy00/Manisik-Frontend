@@ -6,31 +6,45 @@ export enum BookingStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
   CANCELLED = 'cancelled',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 export enum BookingType {
   HOTEL = 'hotel',
   TRANSPORT = 'transport',
-  PACKAGE = 'package'
+  PACKAGE = 'package',
 }
 
 export interface HotelBooking {
-  id: string;
-  userId: string;
-  hotelId: string;
-  roomId: string;
-  checkIn: string;
-  checkOut: string;
-  guests: number;
-  totalPrice: number;
-  status: BookingStatus;
-  hotel?: Hotel;
-  room?: Room;
-  user?: User;
-  createdAt: string;
-  updatedAt: string;
+  hotelId: number;
+  hotelName?: string;
+  roomId: number;
+  roomType?: string;
+  city: string;
+  checkInDate: string;
+  checkOutDate: string;
+  numberOfRooms: number;
+  numberOfNights?: number;
+  pricePerNight?: number;
+  totalPrice?: number;
 }
+
+// export interface HotelBooking {
+//   id: string;
+//   userId: string;
+//   hotelId: string;
+//   roomId: string;
+//   checkIn: string;
+//   checkOut: string;
+//   guests: number;
+//   totalPrice: number;
+//   status: BookingStatus;
+//   hotel?: Hotel;
+//   room?: Room;
+//   user?: User;
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 export interface TransportBooking {
   id: string;
@@ -75,4 +89,3 @@ export interface CreateBookingRequest {
     passengers: number;
   };
 }
-

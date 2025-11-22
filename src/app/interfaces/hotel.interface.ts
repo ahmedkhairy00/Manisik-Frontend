@@ -1,31 +1,25 @@
 export interface Hotel {
-  id: string;
+  id: number;
   name: string;
   description: string;
-  location: string;
+  address: string;
   city: string;
   country: string;
-  rating: number;
+  starRating: number;
   imageUrl: string;
-  amenities: string[];
   rooms: Room[];
-  pricePerNight: number;
-  distanceFromHaram?: number;
-  distanceFromNabawi?: number;
+  distanceToHaram?: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface Room {
   id: string;
   hotelId: string;
-  name: string;
-  description: string;
-  maxOccupancy: number;
+  roomType: string;
+  capacity: number;
   pricePerNight: number;
-  amenities: string[];
   imageUrl?: string;
-  available: boolean;
+  isActive: boolean;
 }
 
 export interface HotelSearchParams {
@@ -35,12 +29,11 @@ export interface HotelSearchParams {
   distance?: boolean;
   sortBy?: string;
 }
-// country?: string;
-// checkIn?: string;
-// checkOut?: string;
-// minPrice?: number;
-// maxPrice?: number;
-// guests?: number;
-// amenities?: string[];
-// distanceFromHaram?: number;
-// distanceFromNabawi?: number;
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  errors?: any;
+  timestamp?: string;
+}
