@@ -43,8 +43,8 @@
         <button (click)="setCategory(cat)"
                 class="px-4 py-2 rounded-full text-sm font-medium transition-all"
                 [ngClass]="selectedCategory() === cat
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]'"
+                  ? 'bg-[var(--primary)] text-white border-transparent'
+                  : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--background)] hover:text-[var(--text-primary)]'"
                 style="border-radius: var(--radius-pill)">
           {{ t('home.packages.category.'+cat) }}
         </button>

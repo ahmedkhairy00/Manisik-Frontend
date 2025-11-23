@@ -61,6 +61,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { key: 'nav.home', path: '/', icon: 'home' },
     { key: 'nav.packages', path: '/packages', icon: 'package' },
     { key: 'nav.hotels', path: '/hotels', icon: 'building-2' },
+    { key: 'nav.bookingHotel', path: '/booking-hotel', icon: 'calendar-check' },
     { key: 'nav.transport', path: '/transport', icon: 'bus' },
   ];
 

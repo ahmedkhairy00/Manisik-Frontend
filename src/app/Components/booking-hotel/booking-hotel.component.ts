@@ -12,6 +12,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingHotelService } from 'src/app/core/services/booking-hotel.service';
 import { HotelsService } from 'src/app/core/services/hotels.service';
+import { I18nService } from 'src/app/core/services/i18n.service';
 import { HotelBooking } from 'src/app/interfaces';
 
 @Component({
@@ -21,6 +22,7 @@ import { HotelBooking } from 'src/app/interfaces';
   styleUrl: './booking-hotel.component.css',
 })
 export class BookingHotelComponent implements OnInit {
+  readonly i18n = inject(I18nService);
   bookingForm!: FormGroup;
   hotelId!: number;
   roomId!: number;
@@ -39,8 +41,17 @@ export class BookingHotelComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      this.hotelId = +params['hotelId'];
-      this.roomId = +params['roomId'];
+      const hId = +params['hotelId'];
+      const rId = +params['roomId'];
+
+      if (isNaN(hId) || isNaN(rId)) {
+        console.error('Invalid hotel or room ID');
+        // this.router.navigate(['/hotels']); // Redirect back to hotels
+        return;
+      }
+
+      this.hotelId = hId;
+      this.roomId = rId;
       this.loadHotelDetails();
     });
 
@@ -56,11 +67,6 @@ export class BookingHotelComponent implements OnInit {
 
     // Recalculate total price on changes
     this.bookingForm.valueChanges.subscribe(() => this.calculateTotalPrice());
-
-    // Fetch existing bookings to check for overlapping dates // after user token implemetatiom
-    // this.bookingService.getUserHotelBookings().subscribe({
-    //   next: (bookings) => (this.existingBookings = bookings),
-    // });
   }
 
   loadHotelDetails() {
@@ -103,17 +109,6 @@ export class BookingHotelComponent implements OnInit {
       // 1. Check order
       if (checkInDate >= checkOutDate) return { dateOrderInvalid: true };
 
-      // // 2. Check overlapping with existing bookings in this city
-      // const overlap = this.existingBookings
-      //   .filter((b) => b.city === this.hotel?.city)
-      //   .some(
-      //     (b) =>
-      //       checkInDate < new Date(b.checkOutDate) &&
-      //       checkOutDate > new Date(b.checkInDate)
-      //   );
-
-      // if (overlap) return { overlappingBooking: true };
-
       return null;
     };
   }
@@ -122,14 +117,19 @@ export class BookingHotelComponent implements OnInit {
     if (this.bookingForm.invalid) return;
 
     const { checkInDate, checkOutDate, numberOfRooms } = this.bookingForm.value;
+    
+    // Convert to ISO string for API
+    const checkInISO = new Date(checkInDate).toISOString();
+    const checkOutISO = new Date(checkOutDate).toISOString();
+
     const bookingDto: HotelBooking = {
       hotelId: this.hotel.id,
       hotelName: this.hotel.name,
       roomId: this.room.id,
       roomType: this.room.roomType,
       city: this.hotel.city,
-      checkInDate,
-      checkOutDate,
+      checkInDate: checkInISO,
+      checkOutDate: checkOutISO,
       numberOfRooms,
       numberOfNights: Math.ceil(
         (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) /
@@ -141,9 +141,8 @@ export class BookingHotelComponent implements OnInit {
 
     this.bookingService.bookHotel(bookingDto).subscribe({
       next: (res) => {
-        //alert('Hotel booked successfully!'); // toaster insted
         console.log('Booking successful');
-        this.router.navigate(['/next-step']); // navigate to transport booking or summary**********
+        this.router.navigate(['/dashboard']); 
       },
       error: (err) => console.error('Booking failed', err),
     });

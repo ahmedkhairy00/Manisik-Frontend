@@ -457,6 +457,37 @@ export class I18nService {
     'transport.cities.jeddah': { en: 'Jeddah', ar: 'جدة' },
     'transport.cities.riyadh': { en: 'Riyadh', ar: 'الرياض' },
     'transport.cities.dammam': { en: 'Dammam', ar: 'الدمام' },
+
+    /* HOTEL */
+    'hotel.searchPlaceholder': { en: 'Search by hotel name or area', ar: 'ابحث باسم الفندق أو المنطقة' },
+    'hotel.city.makkah': { en: 'Makkah', ar: 'مكة المكرمة' },
+    'hotel.city.madinah': { en: 'Madinah', ar: 'المدينة المنورة' },
+    'hotel.sort.recommended': { en: 'Recommended', ar: 'موصى به' },
+    'hotel.sort.distance': { en: 'Distance', ar: 'المسافة' },
+    'hotel.sort.rating': { en: 'Rating', ar: 'التقييم' },
+    'hotel.loading': { en: 'Loading hotel details...', ar: 'جاري تحميل تفاصيل الفندق...' },
+    'hotel.notFound': { en: 'Hotel not found.', ar: 'الفندق غير موجود.' },
+    'hotel.hideRooms': { en: 'Hide Rooms', ar: 'إخفاء الغرف' },
+    'hotel.showRooms': { en: 'Show Available Rooms', ar: 'عرض الغرف المتاحة' },
+    'hotel.capacity': { en: 'Capacity', ar: 'السعة' },
+    'hotel.person': { en: 'person(s)', ar: 'شخص' },
+    'hotel.available': { en: 'Available', ar: 'متاح' },
+    'hotel.rooms': { en: 'room(s)', ar: 'غرفة' },
+    'hotel.selected': { en: 'Selected', ar: 'محدد' },
+    'hotel.book': { en: 'Book', ar: 'حجز' },
+    'hotel.noRooms': { en: 'No rooms available at the moment.', ar: 'لا توجد غرف متاحة في الوقت الحالي.' },
+    'nav.bookingHotel': { en: 'Booking Hotel', ar: 'حجز فندق' },
+
+    /* BOOKING HOTEL */
+    'booking.title': { en: 'Book Hotel', ar: 'حجز الفندق' },
+    'booking.checkIn': { en: 'Check-In Date', ar: 'تاريخ الوصول' },
+    'booking.checkOut': { en: 'Check-Out Date', ar: 'تاريخ المغادرة' },
+    'booking.rooms': { en: 'Number of Rooms', ar: 'عدد الغرف' },
+    'booking.totalPrice': { en: 'Total Price', ar: 'السعر الإجمالي' },
+    'booking.submit': { en: 'Book Hotel', ar: 'تأكيد الحجز' },
+    'booking.error.dateOrder': { en: 'Check-in date must be before check-out date.', ar: 'يجب أن يكون تاريخ الوصول قبل تاريخ المغادرة.' },
+    'booking.roomType': { en: 'Room Type', ar: 'نوع الغرفة' },
+    'booking.pricePerNight': { en: 'Price per night', ar: 'السعر لليلة' },
   };
 
   constructor() {

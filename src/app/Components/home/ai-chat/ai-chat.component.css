@@ -24,6 +24,16 @@
   backdrop-filter: blur(10px);
 }
 
+/* Fix buttons in dark mode */
+.ai-chat-header button {
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.ai-chat-header button:hover {
+  background-color: var(--surface);
+}
+
 .ai-chat-messages {
   height: 400px;
   background-color: rgba(var(--primary-rgb), 0.02);

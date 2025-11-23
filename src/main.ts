@@ -57,6 +57,8 @@ import { routes } from './app/app.routes'; // define your routes in a separate f
 
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 
+import { languageInterceptor } from './app/core/interceptors/language.interceptor';
+
 bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
@@ -115,7 +117,7 @@ bootstrapApplication(AppComponent, {
       })
     ),
     provideHttpClient(
-      withInterceptors([loadingInterceptor, authInterceptorInterceptor, errorInterceptor])
+      withInterceptors([loadingInterceptor, authInterceptorInterceptor, errorInterceptor, languageInterceptor])
     ),
   ],
 }).catch((err) => console.error(err));

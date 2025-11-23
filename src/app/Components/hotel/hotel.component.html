@@ -5,30 +5,30 @@
   <!-- Search Input -->
   <input
     type="text"
-    placeholder="Search by hotel name or area"
+    [placeholder]="i18n.translate('hotel.searchPlaceholder')"
     [(ngModel)]="searchText"
-    class="flex-1 min-w-[200px] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] flex-1 min-w-[200px] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
   />
 
   <!-- City Filter -->
   <select
     [(ngModel)]="city"
-    class="border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
     (change)="onFilterChange()"
   >
-    <option value="Makkah" selected>🕋 Makkah</option>
-    <option value="Madinah">🕌 Madinah</option>
+    <option value="Makkah" selected>🕋 {{ i18n.translate('hotel.city.makkah') }}</option>
+    <option value="Madinah">🕌 {{ i18n.translate('hotel.city.madinah') }}</option>
   </select>
 
   <!-- Sort Filter -->
   <select
     [(ngModel)]="sortBy"
-    class="border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
     (change)="onFilterChange()"
   >
-    <option value="recommended">Recommended</option>
-    <option value="distance">Distance</option>
-    <option value="rating">Rate</option>
+    <option value="recommended">{{ i18n.translate('hotel.sort.recommended') }}</option>
+    <option value="distance">{{ i18n.translate('hotel.sort.distance') }}</option>
+    <option value="rating">{{ i18n.translate('hotel.sort.rating') }}</option>
   </select>
 
   <!-- View Toggle -->

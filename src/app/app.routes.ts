@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     // Route for hotel details. Place the more specific route before the list route
+    {path: '', loadComponent: () => import('./Components/home/home.component').then(m => m.HomeComponent)},
     {path: 'hotels/:id', loadComponent: () => import('./Components/hotel-details/hotel-details.component').then(m => m.HotelDetailsComponent),canActivate: [authGuard]},
     {path: 'hotels', loadComponent: () => import('./Components/hotel/hotel.component').then(m => m.HotelComponent) ,canActivate: [authGuard]},
     {path: 'booking-hotel', loadComponent: () => import('./Components/booking-hotel/booking-hotel.component').then(m => m.BookingHotelComponent), canActivate: [authGuard]},
