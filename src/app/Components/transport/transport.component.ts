@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { I18nService } from 'src/app/core/services/i18n.service';
 
 import { MatToolbarModule, MatToolbar } from '@angular/material/toolbar';
 import { NgModule } from '@angular/core';
@@ -8,18 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-
-
-
-
-
-
 import { FormsModule } from '@angular/forms';
 import { ArrivalAirport, TransportSearchParams, TransportType,DepartureAirport, TransportOption } from 'src/app/interfaces/transport.interface';
 
 import { CommonModule } from '@angular/common';
 import { TransportService } from 'src/app/core/services/transport.service';
-import { Transport } from './transport';
+
 import { c } from "../../../../node_modules/@angular/cdk/a11y-module.d-DBHGyKoh";
 
 interface Flight {
@@ -43,14 +38,20 @@ interface Flight {
   styleUrl: './transport.component.css'
 })
 export class TransportComponent {
+
   //convert enum to array of strings to use in dropdown
+  readonly i18n = inject(I18nService);
    arrivalAirports : string[] = Object.values(ArrivalAirport); 
    derpartureAirports : string[] = Object.values(DepartureAirport);
    searchParams:TransportSearchParams={}
    flights:TransportOption[]=[];
  
   constructor(private transportService: TransportService) {
-  
+
+
+
+
+
   }
  
   setTransportType(type: string) {
@@ -62,6 +63,7 @@ export class TransportComponent {
       alert('Please select both departure and arrival airports!');
       return;
   }
+
      console.log(this.searchParams.departureLocation);
      console.log(this.searchParams.arrivalLocation);
      this.transportService.searchByRoute(this.searchParams.departureLocation || '', this.searchParams.arrivalLocation || '').subscribe((response: any) => {
@@ -71,3 +73,7 @@ export class TransportComponent {
     });
   }
 }
+
+  
+
+

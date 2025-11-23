@@ -6,25 +6,76 @@
   right: 20px;
   bottom: 20px;
   /* Increased width so labels like "New Chat" fit on one line comfortably */
-  width: 380px;
-  max-height: 520px;
+  width: 450px;
+  max-height: 600px;
   display: flex;
   flex-direction: column;
   background: var(--background);
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: var(--shadow-heavy);
   overflow: hidden;
   z-index: 60;
+  border: 1px solid var(--border);
+  font-family: 'Poppins', 'Tajawal', sans-serif;
 }
 
 .ai-chat-header {
-  background: linear-gradient(90deg, rgba(var(--primary-rgb),0.08), rgba(var(--primary-rgb),0.04));
+  background: linear-gradient(135deg, rgba(var(--primary-rgb),0.1), rgba(var(--primary-rgb),0.05));
+  backdrop-filter: blur(10px);
+}
+
+/* Fix buttons in dark mode */
+.ai-chat-header button {
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.ai-chat-header button:hover {
+  background-color: var(--surface);
 }
 
 .ai-chat-messages {
-  height: 340px;
+  height: 400px;
+  background-color: rgba(var(--primary-rgb), 0.02);
 }
 
 .ai-chat-input input {
   border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ai-chat-input input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+}
+
+/* Markdown Content Styles */
+:host ::ng-deep .markdown-content strong {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+:host ::ng-deep .markdown-content em {
+  font-style: italic;
+}
+
+:host ::ng-deep .markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep .markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+:host ::ng-deep .markdown-content p:last-child {
+  margin-bottom: 0;
 }

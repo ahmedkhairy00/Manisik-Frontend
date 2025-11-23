@@ -34,10 +34,12 @@ export class HotelComponent implements OnInit {
     this.loading = true;
 
     const params: HotelSearchParams = {
-      city: this.city,
+      //city: this.city,
       sortBy: '', // default empty
     };
-
+    if (this.city && this.city !== 'All') {
+      params.city = this.city;
+    }
     switch (this.sortBy) {
       case 'distance':
         params.sortBy = 'distance';

@@ -11,48 +11,43 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-// New standalone components to keep HomeComponent lightweight and composable
 import { HeroSliderComponent } from './hero-slider/hero-slider.component';
 import { AIChatComponent } from './ai-chat/ai-chat.component';
 import { I18nService } from 'src/app/core/services/i18n.service';
 
-// Interfaces
+/* ----------  INTERFACES – KEYS ONLY  ---------- */
 export interface QuickAction {
   icon: string;
-  title: string;
-  description: string;
   color: string;
   route?: string;
-  titleKey?: string;
-  descriptionKey?: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 export interface Package {
   id: number;
-  title: string;
+  titleKey: string;
   image: string;
   price: number;
-  duration: string;
+  duration: number; // days (number)
   rating: number;
   reviews: number;
   category: string;
-  included: string[];
+  includedKeys: string[]; // translation keys
 }
 
 export interface Step {
   icon: string;
   step: string;
-  title: string;
-  description: string;
-  titleKey?: string;
-  descriptionKey?: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 export interface Statistic {
   icon: string;
   value: number;
   suffix: string;
-  label: string;
+  label: string; // translation key
 }
 
 export interface Testimonial {
@@ -60,204 +55,145 @@ export interface Testimonial {
   name: string;
   avatar: string;
   rating: number;
-  // Use translation keys for testimonial text so content can be localized.
-  textKey?: string;
-  text?: string; // fallback if no key provided (e.g., from backend)
+  textKey: string;
   verified: boolean;
 }
 
 export interface FAQ {
-  // Optionally store translation keys to support i18n. If keys are absent,
-  // `question`/`answer` will be used as provided (useful for backend-driven content).
-  question?: string;
-  answer?: string;
-  questionKey?: string;
-  answerKey?: string;
+  questionKey: string;
+  answerKey: string;
 }
 
+/* ----------  COMPONENT  ---------- */
 @Component({
   selector: 'app-home',
   standalone: true,
-  // Import HeroSliderComponent and AIChatComponent so the home page can use them
-  imports: [CommonModule, RouterModule, LucideAngularModule, FormsModule, HeroSliderComponent, AIChatComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    LucideAngularModule,
+    HeroSliderComponent,
+    AIChatComponent,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  
   private readonly router = inject(Router);
-  // expose i18n service to the template so static text can flip languages
   readonly i18n = inject(I18nService);
 
-  // Hero slider has been moved to a dedicated standalone component: HeroSliderComponent
+  t(key: string): string {
+    return this.i18n.translate(key);
+  }
 
-  // State management
+  /* ----------  STATE  ---------- */
   readonly animateIn = signal<boolean>(false);
   readonly openFAQ = signal<string | null>(null);
   readonly searchQuery = signal<string>('');
   readonly newsletterEmail = signal<string>('');
   readonly isSubmittingNewsletter = signal<boolean>(false);
+  readonly selectedCategory = signal<string>('All');
 
-  // Quick Actions Data (use i18n keys for title/description so these can translate)
+  /* ----------  DATA – KEYS ONLY  ---------- */
   readonly actions: QuickAction[] = [
     {
       icon: 'package',
-      title: 'Book Complete Package',
-      description: 'All-inclusive Umrah planning',
       color: 'rgba(var(--primary-rgb), 0.1)',
       route: '/packages',
-      // keys for translation
-      // titleKey/descriptionKey are optional; fallback to title/description
-      // when backend provides raw strings.
-      // Using keys here ensures these UI items are translated.
-      // Keys: home.actions.0.title, home.actions.0.desc etc.
-      // See I18nService for translations.
+      titleKey: 'home.actions.0.title',
+      descriptionKey: 'home.actions.0.desc',
     },
     {
       icon: 'building-2',
-      title: 'Find Hotels',
-      description: 'Near Haram with best prices',
       color: 'rgba(16, 185, 129, 0.1)',
       route: '/hotels',
+      titleKey: 'home.actions.1.title',
+      descriptionKey: 'home.actions.1.desc',
     },
     {
       icon: 'bus',
-      title: 'Transport Options',
-      description: 'Comfortable & reliable',
       color: 'rgba(245, 158, 11, 0.1)',
       route: '/transport',
+      titleKey: 'home.actions.2.title',
+      descriptionKey: 'home.actions.2.desc',
     },
   ];
 
-  // Featured Packages Data
   readonly packages: Package[] = [
     {
       id: 1,
-      title: 'Premium Umrah Package',
-      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb218ZW58MXx8fHwxNzYxOTExMzQwfDA&ixlib=rb-4.1.0&q=80&w=1080 ',
+      titleKey: 'home.packages.title.premium',
+      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb218ZW58MXx8fHwxNzYxOTExMzQwfDA&ixlib=rb-4.1.0&q=80&w=1080',
       price: 2499,
-      duration: '14 Days',
+      duration: 14,
       rating: 4.8,
       reviews: 234,
       category: 'Premium',
-      included: ['5-Star Hotel', 'Flight Included', 'Visa Assistance', 'Transport']
+      includedKeys: ['5star', 'flights', 'visa', 'transport'],
     },
     {
       id: 2,
-      title: 'Standard Umrah Package',
-      image: 'https://images.unsplash.com/photo-1662104128135-7bd873b2befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwYXJjaGl0ZWN0dXJlJTIwcGF0dGVybnxlbnwxfHx8fDE3NjE5Nzk0NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080 ',
+      titleKey: 'home.packages.title.standard',
+      image: 'https://images.unsplash.com/photo-1662104128135-7bd873b2befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwYXJjaGl0ZWN0dXJlJTIwcGF0dGVybnxlbnwxfHx8fDE3NjE5Nzk0NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
       price: 1799,
-      duration: '10 Days',
+      duration: 10,
       rating: 4.6,
       reviews: 189,
       category: 'Standard',
-      included: ['4-Star Hotel', 'Visa Assistance', 'Transport', 'Breakfast']
+      includedKeys: ['4star', 'visa', 'transport', 'breakfast'],
     },
     {
       id: 3,
-      title: 'Economy Umrah Package',
-      image: 'https://images.unsplash.com/photo-1571909552531-1601eaec8f79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrYWFiYSUyMG1lY2NhJTIwaG9seXxlbnwxfHx8fDE3NjIwMDAzMzd8MA&ixlib=rb-4.1.0&q=80&w=1080 ',
+      titleKey: 'home.packages.title.economy',
+      image: 'https://images.unsplash.com/photo-1571909552531-1601eaec8f79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrYWFiYSUyMG1lY2NhJTIwaG9seXxlbnwxfHx8fDE3NjIwMDAzMzd8MA&ixlib=rb-4.1.0&q=80&w=1080',
       price: 1299,
-      duration: '7 Days',
+      duration: 7,
       rating: 4.5,
       reviews: 156,
       category: 'Economy',
-      included: ['3-Star Hotel', 'Visa Assistance', 'Shared Transport']
+      includedKeys: ['3star', 'visa', 'shared'],
     },
     {
       id: 4,
-      title: 'VIP Umrah Experience',
-      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb218ZW58MXx8fHwxNzYxOTExMzQwfDA&ixlib=rb-4.1.0&q=80&w=1080 ',
+      titleKey: 'home.packages.title.vip',
+      image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb218ZW58MXx8fHwxNzYxOTExMzQwfDA&ixlib=rb-4.1.0&q=80&w=1080',
       price: 4999,
-      duration: '21 Days',
-      rating: 5.0,
+      duration: 21,
+      rating: 5,
       reviews: 98,
       category: 'VIP',
-      included: ['Luxury Hotel', 'Business Class', 'Private Guide', '24/7 Concierge']
-    }
+      includedKeys: ['luxury', 'business', 'guide', 'concierge'],
+    },
   ];
 
-  // Filtered packages based on selected category
-  filteredPackages = computed(() => {
-    const category = this.selectedCategory();
-    if (category === 'All') return this.packages;
-    return this.packages.filter(p => p.category === category);
+  readonly categories = ['All', 'Economy', 'Standard', 'Premium', 'VIP'];
+  readonly filteredPackages = computed(() => {
+    const cat = this.selectedCategory();
+    return cat === 'All' ? this.packages : this.packages.filter(p => p.category === cat);
   });
 
-  // Categories for filter
-  readonly categories = ['All', 'Economy', 'Standard', 'Premium', 'VIP'];
-  selectedCategory = signal('All');
-
-  // How It Works Data
   readonly steps: Step[] = [
-    {
-      icon: 'search',
-      step: '01',
-      // keys: home.steps.0.title / home.steps.0.description
-      title: 'Choose Package/Services',
-      description: 'Browse our curated packages or build your own custom journey',
-      // keep keys optional for translation
-    },
-    {
-      icon: 'settings',
-      step: '02',
-      title: 'Customize Your Trip',
-      description: 'Select hotels, transport, and dates that work best for you'
-    },
-    {
-      icon: 'credit-card',
-      step: '03',
-      title: 'Secure Payment',
-      description: 'Pay securely with multiple payment options and flexible plans'
-    },
-    {
-      icon: 'check-circle',
-      step: '04',
-      title: 'Receive Confirmation',
-      description: 'Get instant confirmation and all travel documents via email'
-    }
+    { icon: 'search', step: '01', titleKey: 'home.steps.0.title', descriptionKey: 'home.steps.0.desc' },
+    { icon: 'settings', step: '02', titleKey: 'home.steps.1.title', descriptionKey: 'home.steps.1.desc' },
+    { icon: 'credit-card', step: '03', titleKey: 'home.steps.2.title', descriptionKey: 'home.steps.2.desc' },
+    { icon: 'check-circle', step: '04', titleKey: 'home.steps.3.title', descriptionKey: 'home.steps.3.desc' },
   ];
 
-  // Statistics Data
   readonly stats: Statistic[] = [
     { icon: 'users', value: 50000, suffix: '+', label: 'stats.totalBookings' },
     { icon: 'trending-up', value: 98, suffix: '%', label: 'stats.satisfactionRate' },
     { icon: 'headphones', value: 24, suffix: '/7', label: 'stats.supportAvailable' },
-    { icon: 'map-pin', value: 200, suffix: '+', label: 'stats.destinations' }
+    { icon: 'map-pin', value: 200, suffix: '+', label: 'stats.destinations' },
   ];
 
-  // Testimonials Data — use translation keys for the message body so it can be
-  // translated via I18nService. Names and avatars remain as-is (user data).
   readonly testimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: 'Ahmed Hassan',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed ',
-      rating: 5,
-      textKey: 'testimonials.items.0',
-      verified: true,
-    },
-    {
-      id: 2,
-      name: 'Fatima Zahra',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima ',
-      rating: 5,
-      textKey: 'testimonials.items.1',
-      verified: true,
-    },
-    {
-      id: 3,
-      name: 'Mohammad Ali',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mohammad ',
-      rating: 5,
-      textKey: 'testimonials.items.2',
-      verified: true,
-    },
+    { id: 1, name: 'Ahmed Hassan', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed', rating: 5, textKey: 'testimonials.items.0', verified: true },
+    { id: 2, name: 'Fatima Zahra', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima', rating: 5, textKey: 'testimonials.items.1', verified: true },
+    { id: 3, name: 'Mohammad Ali', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mohammad', rating: 5, textKey: 'testimonials.items.2', verified: true },
   ];
 
-  // FAQ Data — use translation keys so FAQs are localized. If you later fetch
-  // FAQs from the backend, keep the `question`/`answer` fields and omit keys.
   readonly faqs: FAQ[] = [
     { questionKey: 'faq.items.0.question', answerKey: 'faq.items.0.answer' },
     { questionKey: 'faq.items.1.question', answerKey: 'faq.items.1.answer' },
@@ -270,125 +206,53 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    // Trigger hero animation on load
     setTimeout(() => this.animateIn.set(true), 100);
   }
 
-  ngOnDestroy(): void {
-    // Nothing to clean up in HomeComponent related to hero slider anymore.
-  }
+  ngOnDestroy(): void {}
 
-  /**
-   * Set selected category filter
-   */
+  /* ----------  PUBLIC METHODS  ---------- */
   setCategory(category: string): void {
     this.selectedCategory.set(category);
   }
 
-  /**
-   * Toggle FAQ item open/close state
-   */
-  toggleFAQ(question?: string): void {
-    // If no question/key provided (e.g., backend didn't provide keys), do nothing
-    if (!question) return;
-    this.openFAQ.update((current) => (current === question ? null : question));
+  toggleFAQ(question: string): void {
+    this.openFAQ.update(curr => (curr === question ? null : question));
   }
 
-  /**
-   * Check if FAQ is open
-   */
-  isFAQOpen(question?: string): boolean {
-    if (!question) return false;
+  isFAQOpen(question: string): boolean {
     return this.openFAQ() === question;
   }
 
-  /**
-   * Handle search form submission
-   */
   onSearchSubmit(): void {
-    const query = this.searchQuery().trim();
-    if (query) {
-      this.router
-        .navigate(['/search'], { queryParams: { q: query } })
-        .catch((err) => console.error('Navigation error:', err));
-    }
+    const q = this.searchQuery().trim();
+    if (q) this.router.navigate(['/search'], { queryParams: { q } }).catch(console.error);
   }
 
-  /**
-   * Handle quick action click
-   */
   onActionClick(action: QuickAction): void {
-    if (action.route) {
-      this.router
-        .navigate([action.route])
-        .catch((err) => console.error('Navigation error:', err));
-    }
+    if (action.route) this.router.navigate([action.route]).catch(console.error);
   }
 
-  /**
-   * Handle package view details
-   */
-  onViewPackageDetails(packageId: number): void {
-    this.router
-      .navigate(['/packages', packageId])
-      .catch((err) => console.error('Navigation error:', err));
+  onViewPackageDetails(id: number): void {
+    this.router.navigate(['/packages', id]).catch(console.error);
   }
 
-  /**
-   * Handle view all packages
-   */
   onViewAllPackages(): void {
-    this.router
-      .navigate(['/packages'])
-      .catch((err) => console.error('Navigation error:', err));
+    this.router.navigate(['/packages']).catch(console.error);
   }
 
-  /**
-   * Handle newsletter subscription
-   */
   onNewsletterSubmit(): void {
     const email = this.newsletterEmail().trim();
-    if (!email || !this.isValidEmail(email)) {
-      // TODO: Show error message
-      return;
-    }
-
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return; // TODO toast
     this.isSubmittingNewsletter.set(true);
-    // TODO: Implement newsletter subscription API call
     setTimeout(() => {
       this.isSubmittingNewsletter.set(false);
       this.newsletterEmail.set('');
-      // TODO: Show success message
+      // TODO toast success
     }, 1000);
   }
 
-  /**
-   * Validate email format
-   */
-  private isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  /**
-   * Generate array of numbers for star rating display
-   */
-  getStarArray(count: number): number[] {
-    return Array.from({ length: count }, (_, i) => i);
-  }
-
-  /**
-   * Set hero image by querying the static img element with the alt text used in template.
-   * We keep this out of the template to avoid changing any HTML structure as requested.
-   */
-  private setHeroImage(src: string): void {
-    try {
-      const img = document.querySelector('img[alt="Kaaba in Makkah"]') as HTMLImageElement | null;
-      if (img) {
-        img.src = src;
-      }
-    } catch (err) {
-      // ignore errors when DOM isn't available
-    }
+  getStarArray(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i);
   }
 }

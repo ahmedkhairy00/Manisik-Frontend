@@ -1,1 +1,67 @@
-<p>log-in wotks!</p>
+<div class="login-container p-4">
+  <div class="login-card max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+    <!-- Logo Section -->
+    <div class="logo-section text-center mb-6">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <div class="bg-[#0a5c2d] rounded-xl text-white px-3 py-2 shadow-lg">
+          <span class="text-2xl">🕋</span>
+        </div>
+        <span class="font-bold text-xl text-black">Manisik</span>
+      </div>
+
+      <h1 class="text-2xl font-semibold text-black mb-2">Welcome Back!</h1>
+      <p class="text-gray-500 mb-6">Continue your spiritual journey planning</p>
+
+      <form class="space-y-4" [formGroup]="loginForm" (ngSubmit)="login()">
+        <!-- Email Address -->
+        <div>
+          <label for="email" class="block font-bold text-black mb-1 text-left">Email Address</label>
+          <div class="flex items-center border rounded px-3 py-2">
+            <i class="fas fa-envelope text-gray-500 mr-2"></i>
+            <input type="email" id="email" formControlName="email" placeholder="Enter your Email"
+              class="w-full outline-none bg-transparent text-left" />
+          </div>
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+          <div class="text-red-600 text-sm mt-1 text-left">Email field is required</div>
+          }
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')) {
+          <div class="text-red-600 text-sm mt-1 text-left">Please enter a valid Email Address</div>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block font-bold text-black mb-1 text-left">Password</label>
+          <div class="flex items-center border rounded px-3 py-2">
+            <i class="fas fa-lock text-gray-500 mr-2"></i>
+            <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+              placeholder="Enter your Password" class="w-full outline-none bg-transparent text-left" />
+            <button type="button" (click)="showPassword = !showPassword" class="ml-2 text-gray-500">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+          <div class="text-red-600 text-sm mt-1 text-left">Password field is required</div>
+          }
+          @if (loginForm.hasError('password') && loginForm.get('password')?.touched) {
+          <div class="text-red-600 text-sm mt-1 text-left">Password should contain 6 characters</div>
+          }
+        </div>
+
+        <!-- Remember Me -->
+        <div class="flex justify-between items-center">
+          <label class="inline-flex items-center">
+            <input id="remember" type="checkbox" formControlName="rememberMe" class="form-checkbox text-green-600" />
+            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+          </label>
+        </div>
+
+        <!-- Sign In Button -->
+        <button type="submit"
+          class="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2 rounded-md transition">
+          Login
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

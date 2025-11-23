@@ -1,8 +1,7 @@
-<div class="w-full px-3">
+<div class="w-full px-3 pt-20">
   <app-navbar></app-navbar>
 
   <!-- Global dashboard overlay component. It is always present but shows only when DashboardService.open is true. -->
-  <app-dashboard></app-dashboard>
 
   <!-- Loading Spinner -->
   <!-- Loading Spinner Overlay -->
@@ -12,9 +11,7 @@
     <div class="w-16 h-16 border-6 border-gray-300 border-t-[var(--primary)] rounded-full animate-spin"></div>
   </div>
 
-  <main class="content pt-16 lg:pt-20">
     <router-outlet></router-outlet>  <!-- dynamic content goes here -->
-  </main>
 
   <app-footer></app-footer>
 </div>

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HotelsService } from 'src/app/core/services/hotels.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { Room } from 'src/app/interfaces';
+import { I18nService } from 'src/app/core/services/i18n.service';
 
 /**
  * HotelDetailsComponent
@@ -20,6 +21,7 @@ import { Room } from 'src/app/interfaces';
   styleUrls: ['./hotel-details.component.css'],
 })
 export class HotelDetailsComponent implements OnInit {
+  readonly i18n = inject(I18nService);
   showRooms = false; // toggles rooms display
   selectedRoom?: Room;
   loading = true;

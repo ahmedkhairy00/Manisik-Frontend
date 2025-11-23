@@ -23,8 +23,7 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
   // Slides: each entry contains image url and translation keys for content.
   readonly slides = [
     {
-      image:
-        'https://images.unsplash.com/photo-1571909552531-1601eaec8f79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+      image: '/images/hero/makkah-kaaba.jpg',
       titleKey: 'hero.slides.0.title',
       subtitleKey: 'hero.slides.0.subtitle',
       descKey: 'hero.slides.0.description',
@@ -35,8 +34,7 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
       ],
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1733895422653-cf8a2370f87f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+      image: '/images/hero/madinah-mosque.jpg',
       titleKey: 'hero.slides.1.title',
       subtitleKey: 'hero.slides.1.subtitle',
       descKey: 'hero.slides.1.description',
@@ -47,14 +45,35 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
       ],
     },
     {
-      image:
-        'https://images.unsplash.com/photo-1629971138860-4ff46dfb714f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+      image: '/images/hero/makkah-madinah.jpg',
       titleKey: 'hero.slides.2.title',
       subtitleKey: 'hero.slides.2.subtitle',
       descKey: 'hero.slides.2.description',
       badges: [
         { icon: 'map-pin', textKey: 'hero.badges.destinations' },
         { icon: 'calendar', textKey: 'hero.badges.yearRound' },
+        { icon: 'users', textKey: 'hero.badges.pilgrims' },
+      ],
+    },
+    {
+      image: '/images/hero/mount-arafat.png',
+      titleKey: 'hero.slides.3.title',
+      subtitleKey: 'hero.slides.3.subtitle',
+      descKey: 'hero.slides.3.description',
+      badges: [
+        { icon: 'mountain', textKey: 'hero.badges.destinations' },
+        { icon: 'calendar', textKey: 'hero.badges.yearRound' },
+        { icon: 'users', textKey: 'hero.badges.pilgrims' },
+      ],
+    },
+    {
+      image: '/images/hero/albaqi-cemetery.png',
+      titleKey: 'hero.slides.4.title',
+      subtitleKey: 'hero.slides.4.subtitle',
+      descKey: 'hero.slides.4.description',
+      badges: [
+        { icon: 'map-pin', textKey: 'hero.badges.destinations' },
+        { icon: 'heart', textKey: 'hero.badges.yearRound' },
         { icon: 'users', textKey: 'hero.badges.pilgrims' },
       ],
     },

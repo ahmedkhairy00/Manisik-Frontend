@@ -9,11 +9,11 @@ export class LoadingService {
   public readonly loading$: Observable<boolean> = this.loadingSubject.asObservable();
 
   show(): void {
-    this.loadingSubject.next(true);
+    Promise.resolve().then(() => this.loadingSubject.next(true));
   }
 
   hide(): void {
-    this.loadingSubject.next(false);
+    Promise.resolve().then(() => this.loadingSubject.next(false));
   }
 
   getLoadingValue(): boolean {

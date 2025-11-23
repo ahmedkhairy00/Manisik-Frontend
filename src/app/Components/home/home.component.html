@@ -1,324 +1,384 @@
-<!-- Navbar -->
+<!-- =================================================================
+  HOME  –  100 % KEY-BASED  –  RTL SAFE  –  ALIGNED BUTTONS
+================================================================== -->
+<main [dir]="i18n.isRTL() ? 'rtl' : 'ltr'">
 
-<!-- Hero slider moved into a standalone component. -->
-<app-hero-slider></app-hero-slider>
+  <!-- HERO & CHAT -->
+  <app-hero-slider />
+  <app-ai-chat />
 
-<!-- AI chat widget (floating) included on the home page. This is a standalone component
-     and is positioned via its own CSS to appear fixed at the right-bottom of the screen. -->
-<app-ai-chat></app-ai-chat>
-
-<!-- Quick Actions Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    @for (action of actions; track action.title) {
-      <button
-        type="button"
-        (click)="onActionClick(action)"
-        class="p-8 border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300 hover:-translate-y-2 cursor-pointer group text-left w-full"
-        style="border-radius: var(--radius-card)"
-        [attr.aria-label]="action.title + ' - ' + action.description"
-      >
-        <div
-          class="w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-          [style.background-color]="action.color"
-        >
-          <lucide-icon
-            [name]="action.icon"
-            class="h-8 w-8 text-[var(--primary)]"
-            aria-hidden="true"
-          ></lucide-icon>
-        </div>
-        <h4 class="text-[var(--text-primary)] mb-2 font-semibold">{{ action.title }}</h4>
-        <p class="text-[var(--text-secondary)]">{{ action.description }}</p>
-      </button>
-    }
-  </div>
-</section>
-
-<!-- Featured Packages Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
-  <div class="text-center mb-12">
-    <h2 class="text-[var(--text-primary)] mb-4">{{ i18n.translate('home.trending') }}</h2>
-    <p class="text-[var(--text-secondary)] text-lg">
-      {{ i18n.translate('home.trendingDesc') }}
-    </p>
-  </div>
-
-  <!-- Category Filters -->
-  <div class="flex flex-wrap justify-center gap-3 mb-12">
-    @for (cat of categories; track cat) {
-      <button
-        (click)="setCategory(cat)"
-        class="px-4 py-2 rounded-full text-sm font-medium transition-all"
-        [ngClass]="{
-          'bg-[var(--primary)] text-white': selectedCategory() === cat,
-          'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface)]': selectedCategory() !== cat
-        }"
-        style="border-radius: var(--radius-pill)">
-        {{ cat }}
-      </button>
-    }
-  </div>
-
-  <!-- Packages Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    @for (pkg of filteredPackages(); track pkg.id) {
-      <div
-        class="overflow-hidden border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300 group"
-        style="border-radius: var(--radius-card)">
-        <div class="relative h-48 overflow-hidden">
-          <img
-            [src]="pkg.image"
-            [alt]="pkg.title"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-          <div class="absolute top-3 right-3 bg-[var(--primary)] text-white px-2 py-1 rounded text-xs border-0">
-            {{ pkg.category }}
+  <!-- QUICK ACTIONS -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @for (action of actions; track $index) {
+        <button type="button"
+                (click)="onActionClick(action)"
+                class="group p-8 border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300 hover:-translate-y-2 cursor-pointer text-left w-full"
+                style="border-radius: var(--radius-card)"
+                [attr.aria-label]="t(action.titleKey) + ' - ' + t(action.descriptionKey)">
+          <div class="w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+               [style.background-color]="action.color">
+            <lucide-icon [name]="action.icon"
+                         class="h-8 w-8 text-[var(--primary)]"
+                         aria-hidden="true"></lucide-icon>
           </div>
-        </div>
-        <div class="p-5">
-          <div class="flex items-center gap-1 mb-2">
-            <lucide-icon name="star" class="h-4 w-4 fill-[var(--warning)] text-[var(--warning)]"></lucide-icon>
-            <span class="text-[var(--text-primary)]">{{ pkg.rating }}</span>
-            <span class="text-[var(--text-secondary)]">({{ pkg.reviews }})</span>
-          </div>
-          <h4 class="text-[var(--text-primary)] mb-2">{{ pkg.title }}</h4>
-          <div class="flex items-center gap-4 mb-3 text-[var(--text-secondary)]">
-            <div class="flex items-center gap-1">
-              <lucide-icon name="clock" class="h-4 w-4"></lucide-icon>
-              <span>{{ pkg.duration }}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
-              <span>Makkah</span>
-            </div>
-          </div>
-          <div class="space-y-1 mb-4">
-            @for (item of pkg.included.slice(0, 3); track item) {
-              <div class="flex items-center gap-2 text-[var(--text-secondary)]">
-                <lucide-icon name="check" class="h-3 w-3 text-[var(--success)]"></lucide-icon>
-                <span>{{ item }}</span>
-              </div>
-            }
-          </div>
-          <div class="flex items-end justify-between">
-            <div>
-              <span class="text-[var(--text-secondary)]">From</span>
-              <div class="text-[var(--text-primary)]">
-                <span class="text-2xl">${{ pkg.price }}</span>
-                <span class="text-[var(--text-secondary)]">/person</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              (click)="onViewPackageDetails(pkg.id)"
-              class="bg-[var(--primary)] text-white hover:opacity-90 px-4 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-              [attr.aria-label]="i18n.translate('aria.viewDetailsFor') + ' ' + pkg.title"
-            >
-              {{ i18n.translate('common.viewDetails') }}
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
-
-  <div class="text-center">
-    <button
-      type="button"
-      (click)="onViewAllPackages()"
-      class="border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-      style="border-radius: var(--radius-button)"
-    >
-      {{ i18n.translate('home.viewAllPackages') }}
-    </button>
-  </div>
-</section>
-
-<!-- How It Works Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-  <div class="text-center mb-16">
-    <h2 class="text-[var(--text-primary)] mb-4">{{ i18n.translate('home.howItWorks') }}</h2>
-    <p class="text-[var(--text-secondary)] text-lg">
-      {{ i18n.translate('home.howItWorksDesc') }}
-    </p>
-  </div>
-
-  <div class="relative">
-    <!-- Connecting Line - Desktop -->
-    <div class="hidden lg:block absolute top-20 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-[var(--primary)] via-[var(--primary)] to-[var(--primary)] opacity-20"></div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      @for (step of steps; track step.step) {
-        <div class="relative text-center group">
-          <!-- Step Number Circle -->
-          <div class="relative inline-flex mb-6">
-            <div class="w-20 h-20 rounded-full bg-[var(--primary)] flex items-center justify-center text-white relative z-10 group-hover:scale-110 transition-transform">
-              <lucide-icon [name]="step.icon" class="h-10 w-10"></lucide-icon>
-            </div>
-            <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[var(--success)] flex items-center justify-center text-white z-20">
-              <span>{{ step.step }}</span>
-            </div>
-          </div>
-
-          <h4 class="text-[var(--text-primary)] mb-3">{{ step.titleKey ? i18n.translate(step.titleKey) : step.title }}</h4>
-          <p class="text-[var(--text-secondary)]">{{ step.descriptionKey ? i18n.translate(step.descriptionKey) : step.description }}</p>
-        </div>
+          <h4 class="text-[var(--text-primary)] mb-2 font-semibold">{{ t(action.titleKey) }}</h4>
+          <p class="text-[var(--text-secondary)]">{{ t(action.descriptionKey) }}</p>
+        </button>
       }
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Statistics Section -->
-<section class="bg-[var(--primary)] py-16">
-  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-      @for (stat of stats; track stat.label) {
-        <div class="text-center">
-          <div class="flex justify-center mb-4">
-            <div class="w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
-              <lucide-icon [name]="stat.icon" class="h-8 w-8 text-white"></lucide-icon>
-            </div>
-          </div>
-          <div class="text-4xl text-white mb-2">
-<!--             <app-animated-counter [target]="stat.value" [suffix]="stat.suffix"></app-animated-counter>
- -->          </div>
-          <div class="text-white/80">{{ i18n.translate(stat.label) }}</div>
-        </div>
+  <!-- FEATURED PACKAGES -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
+    <!-- heading -->
+    <div class="text-center mb-12">
+      <h2 class="text-[var(--text-primary)] mb-4">{{ t('home.trending') }}</h2>
+      <p class="text-[var(--text-secondary)] text-lg">{{ t('home.trendingDesc') }}</p>
+    </div>
+
+    <!-- category filter -->
+    <div class="flex flex-wrap justify-center gap-3 mb-12">
+      @for (cat of categories; track $index) {
+        <button (click)="setCategory(cat)"
+                class="px-4 py-2 rounded-full text-sm font-medium transition-all"
+                [ngClass]="selectedCategory() === cat
+                  ? 'bg-[var(--primary)] text-white border-transparent'
+                  : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--background)] hover:text-[var(--text-primary)]'"
+                style="border-radius: var(--radius-pill)">
+          {{ t('home.packages.category.'+cat) }}
+        </button>
       }
     </div>
-  </div>
-</section>
 
-<!-- Testimonials Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
-  <div class="text-center mb-12">
-    <h2 class="text-[var(--text-primary)] mb-4">{{ i18n.translate('testimonials.title') }}</h2>
-    <p class="text-[var(--text-secondary)] text-lg">
-      {{ i18n.translate('testimonials.desc') }}
-    </p>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    @for (testimonial of testimonials; track testimonial.id) {
-      <div class="p-6 border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300"
-           style="border-radius: var(--radius-card)">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-full overflow-hidden bg-[var(--surface)] flex items-center justify-center">
-            <img [src]="testimonial.avatar" [alt]="testimonial.name" class="w-full h-full object-cover">
+    <!-- grid – identical card structure -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      @for (pkg of filteredPackages(); track $index) {
+        <div class="flex flex-col group overflow-hidden border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300"
+             style="border-radius: var(--radius-card)">
+          <!-- image + badge -->
+          <div class="relative h-48 overflow-hidden">
+            <img [src]="pkg.image"
+                 [alt]="t(pkg.titleKey)"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute top-3 right-3 bg-[var(--primary)] text-white px-2 py-1 rounded text-xs border-0">
+              {{ t('home.packages.category.'+pkg.category) }}
+            </div>
           </div>
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <h4 class="text-[var(--text-primary)]">{{ testimonial.name }}</h4>
-              @if (testimonial.verified) {
-                <div class="bg-[var(--success)]/10 text-[var(--success)] border-0 flex items-center gap-1 px-2 py-0.5 rounded text-xs">
-                  <lucide-icon name="check-circle" class="h-3 w-3"></lucide-icon>
-                  <span>Verified</span>
+
+          <!-- content – flex column so bottom row always sits at end -->
+          <div class="p-5 flex flex-col flex-1">
+            <!-- rating -->
+            <div class="flex items-center gap-1 mb-2">
+              <lucide-icon name="star"
+                           class="h-4 w-4 fill-[var(--warning)] text-[var(--warning)]"></lucide-icon>
+              <span class="text-[var(--text-primary)]">{{ pkg.rating }}</span>
+              <span class="text-[var(--text-secondary)]">({{ pkg.reviews }})</span>
+            </div>
+
+            <h4 class="text-[var(--text-primary)] mb-2">{{ t(pkg.titleKey) }}</h4>
+
+            <div class="flex items-center gap-4 mb-3 text-[var(--text-secondary)]">
+              <div class="flex items-center gap-1">
+                <lucide-icon name="clock" class="h-4 w-4"></lucide-icon>
+                <span>{{ pkg.duration }} {{ t('home.packages.duration.days') }}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
+                <span>{{ t('nav.packages') }}</span>
+              </div>
+            </div>
+
+            <!-- included – keys only -->
+            <div class="space-y-1 mb-4">
+              @for (key of pkg.includedKeys.slice(0,3); track $index) {
+                <div class="flex items-center gap-2 text-[var(--text-secondary)]">
+                  <lucide-icon name="check"
+                               class="h-3 w-3 text-[var(--success)]"></lucide-icon>
+                  <span>{{ t('home.packages.included.'+key) }}</span>
                 </div>
               }
             </div>
-            <div class="flex gap-0.5 mt-1" [attr.aria-label]="testimonial.rating + ' out of 5 stars'">
-              @for (star of getStarArray(testimonial.rating); track star) {
-                <lucide-icon
-                  name="star"
-                  class="h-4 w-4 fill-[var(--warning)] text-[var(--warning)]"
-                  aria-hidden="true"
-                ></lucide-icon>
-              }
+
+            <!-- bottom row – always at the bottom -->
+            <div class="mt-auto pt-4 flex items-end justify-between">
+              <div>
+                <span class="text-[var(--text-secondary)]">{{ t('home.packages.from') }}</span>
+                <div class="text-[var(--text-primary)]">
+                  <span class="text-2xl">${{ pkg.price }}</span>
+                  <span class="text-[var(--text-secondary)]">{{ t('home.packages.perPerson') }}</span>
+                </div>
+              </div>
+              <button type="button"
+                      (click)="onViewPackageDetails(pkg.id)"
+                      class="bg-[var(--primary)] text-white hover:opacity-90 px-4 py-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">
+                {{ t('common.viewDetails') }}
+              </button>
             </div>
           </div>
         </div>
-  <p class="text-[var(--text-secondary)] italic">"{{ testimonial.textKey ? i18n.translate(testimonial.textKey) : testimonial.text }}"</p>
-      </div>
-    }
-  </div>
-</section>
-
-<!-- Newsletter Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-  <div class="bg-gradient-to-r from-[var(--primary)] to-[#0a5c2d] rounded-2xl p-8 md:p-12 text-center">
-    <div class="max-w-2xl mx-auto">
-      <lucide-icon name="mail" class="h-12 w-12 text-white mx-auto mb-4"></lucide-icon>
-      <h3 class="text-white mb-4">{{ i18n.translate('home.newsletterTitle') }}</h3>
-      <p class="text-white/90 mb-8">
-        {{ i18n.translate('home.newsletterDesc') }}
-      </p>
-
-      <form
-        (ngSubmit)="onNewsletterSubmit()"
-        class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-4"
-      >
-        <input
-          type="email"
-          [value]="newsletterEmail()"
-          (input)="newsletterEmail.set($any($event.target).value)"
-          placeholder="Enter your email address"
-          class="bg-white border-0 h-12 flex-1 px-4 rounded outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)]"
-          aria-label="Email address for newsletter subscription"
-          required
-        />
-        <button
-          type="submit"
-          [disabled]="isSubmittingNewsletter()"
-          class="bg-[var(--background)] text-[var(--primary)] hover:bg-white h-12 px-8 rounded focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          @if (isSubmittingNewsletter()) {
-            <span>{{ i18n.translate('home.subscribing') }}</span>
-          } @else {
-            <span>{{ i18n.translate('home.subscribe') }}</span>
-          }
-        </button>
-      </form>
-
-      <div class="flex items-center justify-center gap-2 text-white/80">
-        <lucide-icon name="shield" class="h-4 w-4"></lucide-icon>
-        <span>{{ i18n.translate('home.newsletterPrivacy') }}</span>
-      </div>
+      }
     </div>
-  </div>
-</section>
 
-<!-- FAQ Section -->
-<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
-  <div class="text-center mb-12">
-    <h2 class="text-[var(--text-primary)] mb-4">{{ i18n.translate('faq.title') }}</h2>
-    <p class="text-[var(--text-secondary)] text-lg">
-      {{ i18n.translate('faq.desc') }}
-    </p>
-  </div>
+    <!-- “View all” button -->
+    <div class="text-center">
+      <button type="button"
+              (click)="onViewAllPackages()"
+              class="border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+              style="border-radius: var(--radius-button)">
+        {{ t('home.viewAllPackages') }}
+      </button>
+    </div>
+  </section>
 
-  <div class="max-w-3xl mx-auto space-y-4">
-    @for (faq of faqs; track faq.questionKey || faq.question) {
-      <div class="border border-[var(--border)] bg-[var(--background)] rounded-lg overflow-hidden">
-        <button
-          type="button"
-          class="w-full px-6 py-4 text-left flex items-center gap-4 text-[var(--text-primary)] hover:text-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-          (click)="toggleFAQ(faq.questionKey || faq.question)"
-          [attr.aria-expanded]="isFAQOpen(faq.questionKey || faq.question)"
-          [attr.aria-controls]="'faq-answer-' + $index"
-        >
-          <span class="font-medium flex-1">{{ faq.questionKey ? i18n.translate(faq.questionKey) : faq.question }}</span>
-          <!-- Fixed-size icon container so rotating the chevron doesn't change layout width -->
-          <span class="w-6 h-6 flex items-center justify-center flex-none faq-toggle-icon">
-            <lucide-icon
-              name="chevron-down"
-              class="h-5 w-5 transition-transform origin-center"
-              [ngClass]="{ 'rotate-180': isFAQOpen(faq.questionKey || faq.question) }"
-              aria-hidden="true"
-            ></lucide-icon>
-          </span>
-        </button>
-        @if (isFAQOpen(faq.questionKey || faq.question)) {
-          <div
-            [id]="'faq-answer-' + $index"
-            class="px-6 py-4 text-[var(--text-secondary)]"
-            role="region"
-            [attr.aria-labelledby]="'faq-question-' + $index"
-          >
-            {{ faq.answerKey ? i18n.translate(faq.answerKey) : faq.answer }}
+  <!-- HOW IT WORKS -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-16">
+      <h2 class="text-[var(--text-primary)] mb-4">{{ t('home.howItWorks') }}</h2>
+      <p class="text-[var(--text-secondary)] text-lg">{{ t('home.howItWorksDesc') }}</p>
+    </div>
+
+    <div class="relative">
+      <div class="hidden lg:block absolute top-20 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-[var(--primary)] via-[var(--primary)] to-[var(--primary)] opacity-20"></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (step of steps; track $index) {
+          <div class="relative text-center group">
+            <div class="relative inline-flex mb-6">
+              <div class="w-20 h-20 rounded-full bg-[var(--primary)] flex items-center justify-center text-white relative z-10 group-hover:scale-110 transition-transform">
+                <lucide-icon [name]="step.icon" class="h-10 w-10"></lucide-icon>
+              </div>
+              <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[var(--success)] flex items-center justify-center text-white z-20">
+                <span>{{ step.step }}</span>
+              </div>
+            </div>
+
+            <h4 class="text-[var(--text-primary)] mb-3">{{ t(step.titleKey) }}</h4>
+            <p class="text-[var(--text-secondary)]">{{ t(step.descriptionKey) }}</p>
           </div>
         }
       </div>
-    }
-  </div>
-</section>
+    </div>
+  </section>
+
+  <!-- STATISTICS -->
+  <section class="bg-[var(--primary)] py-16">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        @for (stat of stats; track $index) {
+          <div class="text-center">
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
+                <lucide-icon [name]="stat.icon" class="h-8 w-8 text-white"></lucide-icon>
+              </div>
+            </div>
+            <div class="text-4xl text-white mb-2">
+              <span>{{ stat.value }}</span><span>{{ stat.suffix }}</span>
+            </div>
+            <div class="text-white/80">{{ t(stat.label) }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
+    <div class="text-center mb-12">
+      <h2 class="text-[var(--text-primary)] mb-4">{{ t('home.testimonials.title') }}</h2>
+      <p class="text-[var(--text-secondary)] text-lg">{{ t('home.testimonials.desc') }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (testimonial of testimonials; track $index) {
+        <div class="p-6 border border-[var(--border)] bg-[var(--background)] hover:shadow-[var(--shadow-heavy)] transition-all duration-300"
+             style="border-radius: var(--radius-card)">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-[var(--surface)] flex items-center justify-center">
+              <img [src]="testimonial.avatar"
+                   [alt]="testimonial.name"
+                   class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <h4 class="text-[var(--text-primary)]">{{ testimonial.name }}</h4>
+                @if (testimonial.verified) {
+                  <div class="bg-[var(--success)]/10 text-[var(--success)] border-0 flex items-center gap-1 px-2 py-0.5 rounded text-xs">
+                    <lucide-icon name="check-circle" class="h-3 w-3"></lucide-icon>
+                    <span>{{ t('common.verified') }}</span>
+                  </div>
+                }
+              </div>
+              <div class="flex gap-0.5 mt-1"
+                   [attr.aria-label]="testimonial.rating + ' out of 5 stars'">
+                @for (star of getStarArray(testimonial.rating); track $index) {
+                  <lucide-icon name="star"
+                               class="h-4 w-4 fill-[var(--warning)] text-[var(--warning)]"
+                               aria-hidden="true"></lucide-icon>
+                }
+              </div>
+            </div>
+          </div>
+          <p class="text-[var(--text-secondary)] italic">
+            “{{ t(testimonial.textKey) }}”
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-gradient-to-r from-[var(--primary)] to-[#0a5c2d] rounded-2xl p-8 md:p-12 text-center">
+      <div class="max-w-2xl mx-auto">
+        <lucide-icon name="mail" class="h-12 w-12 text-white mx-auto mb-4"></lucide-icon>
+
+        <h3 class="text-white mb-4">{{ t('home.newsletter.title') }}</h3>
+        <p class="text-white/90 mb-8">{{ t('home.newsletter.desc') }}</p>
+
+        <form (ngSubmit)="onNewsletterSubmit()"
+              class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-4">
+          <input type="email"
+                 name="email"
+                 [ngModel]="newsletterEmail()"
+                 (ngModelChange)="newsletterEmail.set($event)"
+                 [placeholder]="t('home.newsletter.emailPlaceholder')"
+                 class="bg-white border-0 h-12 flex-1 px-4 rounded outline-none
+                        focus:ring-2 focus:ring-white focus:ring-offset-2
+                        focus:ring-offset-[var(--primary)]"
+                 aria-label="Email address for newsletter subscription"
+                 required>
+
+          <button type="submit"
+                  [disabled]="isSubmittingNewsletter()"
+                  class="bg-[var(--background)] text-[var(--primary)]
+                         hover:bg-white h-12 px-8 rounded
+                         focus:outline-none focus:ring-2 focus:ring-white
+                         focus:ring-offset-2 focus:ring-offset-[var(--primary)]
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (isSubmittingNewsletter()) {
+              <span>{{ t('home.newsletter.subscribing') }}</span>
+            } @else {
+              <span>{{ t('home.newsletter.subscribe') }}</span>
+            }
+          </button>
+        </form>
+
+        <div class="flex items-center justify-center gap-2 text-white/80">
+          <lucide-icon name="shield" class="h-4 w-4"></lucide-icon>
+          <span>{{ t('home.newsletter.privacy') }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section id="about" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--background)]">
+    <div class="flex flex-col lg:flex-row items-center gap-12">
+      <!-- Image Side -->
+      <div class="w-full lg:w-1/2 relative">
+        <div class="relative rounded-2xl overflow-hidden shadow-xl group">
+          <img src="https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800&auto=format&fit=crop" 
+               [alt]="t('home.about.imageAlt')" 
+               class="w-full h-[400px] object-cover transform transition-transform duration-700 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div class="absolute bottom-6 left-6 right-6 text-white">
+            <div class="flex items-center gap-2 mb-2">
+              <lucide-icon name="shield-check" class="h-6 w-6 text-white"></lucide-icon>
+              <span class="font-semibold">{{ t('home.about.feature1.title') }}</span>
+            </div>
+            <p class="text-sm opacity-90">{{ t('home.about.feature1.desc') }}</p>
+          </div>
+        </div>
+        <!-- Decorative Element -->
+        <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-[var(--primary)]/10 rounded-full blur-xl" style="z-index: -1;"></div>
+        <div class="absolute -top-6 -left-6 w-32 h-32 bg-[var(--secondary)]/10 rounded-full blur-xl" style="z-index: -1;"></div>
+      </div>
+
+      <!-- Text Side -->
+      <div class="w-full lg:w-1/2 space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-sm font-medium">
+          <lucide-icon name="info" class="h-4 w-4"></lucide-icon>
+          <span>{{ t('nav.about') }}</span>
+        </div>
+        
+        <h2 class="text-3xl md:text-4xl font-bold text-[var(--text-primary)] leading-tight">
+          {{ t('home.about.title') }}
+        </h2>
+        
+        <p class="text-[var(--text-secondary)] text-lg leading-relaxed">
+          {{ t('home.about.description') }}
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-lg bg-[var(--surface)] text-[var(--primary)]">
+              <lucide-icon name="users" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h4 class="font-semibold text-[var(--text-primary)]">{{ t('home.about.feature2.title') }}</h4>
+              <p class="text-sm text-[var(--text-secondary)]">{{ t('home.about.feature2.desc') }}</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="p-2 rounded-lg bg-[var(--surface)] text-[var(--primary)]">
+              <lucide-icon name="award" class="h-6 w-6"></lucide-icon>
+            </div>
+            <div>
+              <h4 class="font-semibold text-[var(--text-primary)]">{{ t('home.about.feature1.title') }}</h4>
+              <p class="text-sm text-[var(--text-secondary)]">{{ t('home.about.feature1.desc') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-6">
+          <button class="px-8 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-all shadow-lg shadow-[var(--primary)]/20 flex items-center gap-2 group">
+            {{ t('home.about.cta') }}
+            <lucide-icon name="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-1" [class.rotate-180]="i18n.isRTL()"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-[var(--surface)]">
+    <div class="text-center mb-12">
+      <h2 class="text-[var(--text-primary)] mb-4">{{ t('home.faq.title') }}</h2>
+      <p class="text-[var(--text-secondary)] text-lg">{{ t('home.faq.desc') }}</p>
+    </div>
+
+    <div class="max-w-3xl mx-auto space-y-4">
+      @for (faq of faqs; track $index) {
+        <div class="border border-[var(--border)] bg-[var(--background)] rounded-lg overflow-hidden">
+          <button type="button"
+                  class="w-full px-6 py-4 text-left flex items-center gap-4
+                         text-[var(--text-primary)] hover:text-[var(--primary)]
+                         focus:outline-none focus:ring-2 focus:ring-[var(--primary)]
+                         focus:ring-offset-2"
+                  (click)="toggleFAQ(faq.questionKey)"
+                  [attr.aria-expanded]="isFAQOpen(faq.questionKey)"
+                  [attr.aria-controls]="'faq-ans-'+$index">
+            <span class="font-medium flex-1">{{ t(faq.questionKey) }}</span>
+            <!-- fixed-size container keeps layout stable while icon rotates -->
+            <span class="w-6 h-6 flex items-center justify-center flex-none">
+              <lucide-icon name="chevron-down"
+                           class="h-5 w-5 transition-transform duration-200 origin-center"
+                           [ngClass]="{'rotate-180':isFAQOpen(faq.questionKey)}"
+                           aria-hidden="true"></lucide-icon>
+            </span>
+          </button>
+
+          @if (isFAQOpen(faq.questionKey)) {
+            <div [id]="'faq-ans-'+$index"
+                 class="px-6 py-4 text-[var(--text-secondary)]" role="region">
+              {{ t(faq.answerKey) }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</main>
+
+<!-- Apper Dashboard Component -->
+    <router-outlet></router-outlet>  <!-- dynamic content goes here -->

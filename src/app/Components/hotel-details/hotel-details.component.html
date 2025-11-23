@@ -1,7 +1,7 @@
 <div class="max-w-5xl mx-auto p-6">
   <!-- Loading -->
   <div *ngIf="loading" class="p-8 text-center text-gray-500">
-    Loading hotel details...
+    {{ i18n.translate('hotel.loading') }}
   </div>
 
   <!-- Hotel Details -->
@@ -28,8 +28,7 @@
         <div class="flex items-center gap-4 mb-3 text-[var(--text-secondary)]">
           <lucide-icon name="map-pin" class="h-4 w-4"></lucide-icon>
           <span
-            >{{ hotel.city }} &middot; {{ hotel.distanceToHaram }} km from
-            Haram</span
+            >{{ hotel.city }} &middot; {{ hotel.distanceToHaram }} {{ i18n.translate('hotel.fromHaram') }}</span
           >
         </div>
 
@@ -60,7 +59,7 @@
           (click)="toggleRooms()"
           class="bg-[var(--primary)] text-white px-5 py-2 rounded hover:opacity-90"
         >
-          {{ showRooms ? "Hide Rooms" : "Show Available Rooms" }}
+          {{ showRooms ? i18n.translate('hotel.hideRooms') : i18n.translate('hotel.showRooms') }}
         </button>
       </div>
     </div>
@@ -85,7 +84,7 @@
               {{ room.roomType }}
             </div>
             <div class="text-sm text-[var(--text-secondary)]">
-              Capacity: {{ room.capacity }} person(s)
+              {{ i18n.translate('hotel.capacity') }}: {{ room.capacity }} {{ i18n.translate('hotel.person') }}
             </div>
           </div>
 
@@ -94,7 +93,7 @@
               ${{ formatPrice(room.pricePerNight) }}
             </div>
             <div class="text-sm text-[var(--text-secondary)]">
-              Available: {{ room.availableRooms }} room(s)
+              {{ i18n.translate('hotel.available') }}: {{ room.availableRooms }} {{ i18n.translate('hotel.rooms') }}
             </div>
           </div>
         </div>
@@ -104,14 +103,14 @@
             *ngIf="selectedRoom?.id === room.id"
             class="text-sm text-green-600 font-medium"
           >
-            Selected
+            {{ i18n.translate('hotel.selected') }}
           </div>
           <button
             (click)="bookSelectedRoom(); $event.stopPropagation()"
             class="bg-[var(--primary)] text-white px-3 py-1 rounded text-sm"
             [disabled]="room.availableRooms <= 0"
           >
-            Book
+            {{ i18n.translate('hotel.book') }}
           </button>
         </div>
       </div>
@@ -123,11 +122,11 @@
     *ngIf="showRooms && (!hotel?.rooms || hotel.rooms.length === 0)"
     class="mt-6 p-4 text-center text-gray-500 border rounded"
   >
-    No rooms available at the moment.
+    {{ i18n.translate('hotel.noRooms') }}
   </div>
 
   <!-- No hotel found -->
   <div *ngIf="!loading && !hotel" class="p-8 text-center text-gray-500">
-    Hotel not found.
+    {{ i18n.translate('hotel.notFound') }}
   </div>
 </div>

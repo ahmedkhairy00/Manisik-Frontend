@@ -5,30 +5,39 @@
   <!-- Search Input -->
   <input
     type="text"
-    placeholder="Search by hotel name or area"
+    [placeholder]="i18n.translate('hotel.searchPlaceholder')"
     [(ngModel)]="searchText"
-    class="flex-1 min-w-[200px] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] flex-1 min-w-[200px] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
   />
 
   <!-- City Filter -->
   <select
     [(ngModel)]="city"
-    class="border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
     (change)="onFilterChange()"
   >
-    <option value="Makkah" selected>🕋 Makkah</option>
-    <option value="Madinah">🕌 Madinah</option>
+    <option value="All">{{ i18n.translate("All Cities") }}</option>
+    <option value="Makkah" selected>
+      🕋 {{ i18n.translate("hotel.city.makkah") }}
+    </option>
+    <option value="Madinah">
+      🕌 {{ i18n.translate("hotel.city.madinah") }}
+    </option>
   </select>
 
   <!-- Sort Filter -->
   <select
     [(ngModel)]="sortBy"
-    class="border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
+    class="bg-[var(--background)] text-[var(--text-primary)] border border-[var(--border)] rounded px-4 py-2 outline-none focus:ring-2 focus:ring-[var(--primary)]"
     (change)="onFilterChange()"
   >
-    <option value="recommended">Recommended</option>
-    <option value="distance">Distance</option>
-    <option value="rating">Rate</option>
+    <option value="recommended">
+      {{ i18n.translate("hotel.sort.recommended") }}
+    </option>
+    <option value="distance">
+      {{ i18n.translate("hotel.sort.distance") }}
+    </option>
+    <option value="rating">{{ i18n.translate("hotel.sort.rating") }}</option>
   </select>
 
   <!-- View Toggle -->
@@ -216,22 +225,22 @@
             {{ hotel.description }}
           </p>
           <!-- Rating -->
-        <div class="flex items-center gap-1 mb-2">
-          <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
-            <lucide-icon
-              name="star"
-              class="h-4 w-4"
-              [ngClass]="{
-                'text-yellow-500 fill-yellow-500': hotel.starRating >= i,
-                'text-gray-300': hotel.starRating < i
-              }"
-            ></lucide-icon>
-          </ng-container>
+          <div class="flex items-center gap-1 mb-2">
+            <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
+              <lucide-icon
+                name="star"
+                class="h-4 w-4"
+                [ngClass]="{
+                  'text-yellow-500 fill-yellow-500': hotel.starRating >= i,
+                  'text-gray-300': hotel.starRating < i
+                }"
+              ></lucide-icon>
+            </ng-container>
 
-          <span class="text-gray-500 ml-1 text-sm"
-            >{{ hotel.starRating }}/5</span
-          >
-        </div>
+            <span class="text-gray-500 ml-1 text-sm"
+              >{{ hotel.starRating }}/5</span
+            >
+          </div>
         </div>
         <!--  Button -->
         <div class="flex items-end justify-between">

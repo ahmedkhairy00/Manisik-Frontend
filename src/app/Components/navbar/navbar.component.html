@@ -1,163 +1,183 @@
-<nav
-  class="fixed top-0 left-0 right-0 z-50 bg-[var(--background)]/80 backdrop-blur-md shadow-sm"
-  role="navigation"
-  aria-label="Main navigation"
->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[var(--background)]/80 backdrop-blur-md shadow-sm navbar-transition" role="navigation" aria-label="Main navigation">
   <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 lg:h-20">
+
       <!-- Logo -->
-      <a
-        routerLink="/"
-        class="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 rounded"
-        aria-label="Manisik Home"
-      >
+      <a routerLink="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 rounded" aria-label="Manisik Home">
         <div class="bg-[var(--primary)] text-white px-3 py-2 rounded-lg">
-          <span class="font-bold text-xl" aria-hidden="true">🕋</span>
+          <span class="font-bold text-xl">🕋</span>
         </div>
-        <!-- Use the short app name translation key for tight spaces like the header/logo -->
         <span class="font-bold text-xl text-[var(--text-primary)]">{{ i18n.translate('app.shortName') }}</span>
       </a>
 
       <!-- Desktop Navigation Links -->
       <div class="hidden lg:flex items-center gap-8">
-        @for (link of navLinks; track link.path) {
-          <a
-            [routerLink]="link.path"
-            routerLinkActive="text-[var(--primary)] font-semibold"
-            [routerLinkActiveOptions]="{ exact: link.path === '/' }"
-            (click)="onNavLinkClick()"
-            class="transition-colors text-[var(--text-primary)] hover:text-[var(--primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 rounded px-2 py-1"
-            [attr.aria-current]="link.path === '/' ? 'page' : null"
-          >
+        <ng-container *ngFor="let link of navLinks">
+          <a [routerLink]="link.path" routerLinkActive="bg-[var(--primary)] text-[var(--background)] font-semibold"
+             [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+             (click)="onNavLinkClick()"
+             class="px-4 py-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">
             {{ i18n.translate(link.key) }}
           </a>
-        }
+        </ng-container>
+
+        <!-- About Link -->
+        <a routerLink="/" fragment="about" 
+           class="px-4 py-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 cursor-pointer">
+          {{ i18n.translate('nav.about') }}
+        </a>
       </div>
 
-      <!-- Action Icons -->
+      <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
-        @for (icon of navIcons; track icon.name) {
-            @if (icon.name !== 'menu') {
-            <button
-              type="button"
-              class="nav-icon-btn relative hidden md:flex"
-              [attr.aria-label]="icon.ariaLabel"
-              (click)="onIconClick(icon)"
-              [attr.aria-pressed]="icon.name === 'moon' ? 'false' : null"
-            >
-              <lucide-icon [name]="icon.name" class="h-5 w-5" aria-hidden="true"></lucide-icon>
-                <!--
-                  The globe icon toggles application language and direction (LTR/RTL).
-                  Implementation detail: clicking it calls `handleLanguageChange()` in
-                  `NavbarComponent` which only updates `document.documentElement.dir` and
-                  `document.documentElement.lang`. We intentionally don't alter component
-                  templates — only the top-level `dir` so the whole app flips.
-                -->
-              @if (icon.showBadge && hasCartItems()) {
-                <span
-                  class="absolute -top-1 -right-1 bg-[var(--error)] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-semibold"
-                  [attr.aria-label]="cartCount() + ' items in cart'"
-                >
-                  {{ cartCount() }}
-                </span>
-              }
-            </button>
-          }
-        }
 
-        <!-- Mobile Menu Button -->
-        <button
-          type="button"
-          class="nav-icon-btn md:hidden"
-          [attr.aria-label]="isMobileMenuOpen() ? 'Close menu' : 'Open menu'"
-          [attr.aria-expanded]="isMobileMenuOpen()"
-          (click)="toggleMobileMenu()"
-        >
-          <lucide-icon
-            [name]="isMobileMenuOpen() ? 'x' : 'menu'"
-            class="h-5 w-5"
-            aria-hidden="true"
-          ></lucide-icon>
+        <!-- User Icon with Dropdown -->
+        <div class="relative hidden md:block">
+          <button type="button" class="p-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+                  (click)="openUserModel()" 
+                  [attr.aria-expanded]="isUserDropdownOpen()"
+                  aria-label="User Menu">
+            <lucide-icon name="user" class="h-5 w-5"></lucide-icon>
+          </button>
+
+          <!-- User Dropdown Card -->
+          <div *ngIf="isUserDropdownOpen()" class="absolute right-0 mt-2 w-72 bg-[var(--background)] border border-[var(--border)] shadow-lg rounded-lg overflow-hidden z-50">
+            
+            <!-- Loading state -->
+            <ng-container *ngIf="isLoadingUser()">
+              <div class="p-6 text-center">
+                <div class="animate-spin inline-block w-6 h-6 border-2 border-[var(--primary)] border-t-transparent rounded-full"></div>
+                <p class="mt-2 text-sm text-[var(--text-secondary)]">Loading...</p>
+              </div>
+            </ng-container>
+
+            <!-- User data -->
+            <ng-container *ngIf="!isLoadingUser() && currentUser() as user">
+              <div class="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 p-4 text-white">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <lucide-icon name="user" class="h-6 w-6"></lucide-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-sm truncate">{{ user.firstName }} {{ user.lastName }}</p>
+                    <p class="text-xs opacity-90 truncate">{{ user.email }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4 border-b border-[var(--border)]">
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center gap-2 text-[var(--text-secondary)]">
+                    <lucide-icon name="mail" class="h-4 w-4"></lucide-icon>
+                    <span class="truncate">{{ user.email }}</span>
+                  </div>
+                  <div *ngIf="user.phone" class="flex items-center gap-2 text-[var(--text-secondary)]">
+                    <lucide-icon name="phone" class="h-4 w-4"></lucide-icon>
+                    <span>{{ user.phone }}</span>
+                  </div>
+                  <div *ngIf="user.role" class="flex items-center gap-2">
+                    <lucide-icon name="shield" class="h-4 w-4 text-[var(--primary)]"></lucide-icon>
+                    <span class="text-xs px-2 py-1 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full">{{ user.role }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-2">
+                <button (click)="navigateToDashboard()" class="w-full text-left px-4 py-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--surface)] nav-link-transition flex items-center gap-2">
+                  <lucide-icon name="layout-dashboard" class="h-4 w-4"></lucide-icon>
+                  <span>{{ i18n.translate('dashboard.menu.dashboard') }}</span>
+                </button>
+                <button (click)="navigateToProfile()" class="w-full text-left px-4 py-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--surface)] nav-link-transition flex items-center gap-2">
+                  <lucide-icon name="user-cog" class="h-4 w-4"></lucide-icon>
+                  <span>Profile Settings</span>
+                </button>
+                <button (click)="logOut()" class="w-full text-left px-4 py-2 rounded-lg text-[var(--error)] hover:bg-[var(--error)]/10 nav-link-transition flex items-center gap-2">
+                  <lucide-icon name="log-out" class="h-4 w-4"></lucide-icon>
+                  <span>{{ i18n.translate('nav.logout') }}</span>
+                </button>
+              </div>
+            </ng-container>
+
+            <!-- Error state -->
+            <ng-container *ngIf="!isLoadingUser() && !currentUser()">
+              <div class="p-6 text-center">
+                <lucide-icon name="alert-circle" class="h-8 w-8 text-[var(--error)] mx-auto"></lucide-icon>
+                <p class="mt-2 text-sm text-[var(--text-secondary)]">User data not available</p>
+              </div>
+            </ng-container>
+          </div>
+
+          <div *ngIf="isUserDropdownOpen()" class="fixed inset-0 z-40" (click)="closeUserDropdown()"></div>
+        </div>
+
+        <!-- Language & Theme Buttons -->
+        <button class="hidden md:flex p-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+                (click)="handleLanguageChange()" aria-label="Change Language">
+          <lucide-icon name="globe" class="h-5 w-5"></lucide-icon>
+        </button>
+        <button type="button" class="hidden md:flex p-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+                (click)="handleThemeToggle()" aria-label="Toggle Theme">
+          <lucide-icon [name]="isDarkMode() ? 'sun' : 'moon'" class="h-5 w-5"></lucide-icon>
         </button>
 
-        <!-- Auth buttons grouped and consistent across breakpoints -->
-        <div class="ml-3 hidden md:flex items-center gap-2">
-          <!-- Sign In -> /login, Sign Up -> /signIn (keep existing routes but consistent labels)
-               We use routerLinkActive so the active route reflects the primary color background. -->
-          <a routerLink="/login" routerLinkActive="bg-[var(--primary)] text-white" class="btn-primary px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">
-            {{ i18n.translate('auth.signIn') }}
-          </a>
-          <a routerLink="/signIn" routerLinkActive="bg-[var(--primary)] text-white" class="btn-outline px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">
-            {{ i18n.translate('auth.signUp') }}
-          </a>
-        </div>
+        <!-- Auth Buttons (Desktop) -->
+        <ng-container *ngIf="!UserStatus(); else loggedIn">
+          <a routerLink="/signIn" class="px-4 py-2 bg-[var(--primary)] text-[var(--background)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.signUp')}}</a>
+          <a routerLink="/login" class="px-4 py-2 bg-[var(--surface)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.login')}}</a>
+        </ng-container>
+
+        <ng-template #loggedIn>
+          <a routerLink="/dashboard" class="px-4 py-2 bg-[var(--primary)] text-[var(--background)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('dashboard.menu.dashboard')}}</a>
+          <button (click)="logOut()" class="px-4 py-2 bg-[var(--error)] text-white rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--error)] focus:ring-offset-2">{{i18n.translate('nav.logout')}}</button>
+        </ng-template>
+
+        <!-- Mobile Menu Button -->
+        <button class="lg:hidden p-2 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+                (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen()" aria-label="Toggle Mobile Menu">
+          <lucide-icon *ngIf="!isMobileMenuOpen()" name="menu" class="h-6 w-6"></lucide-icon>
+          <lucide-icon *ngIf="isMobileMenuOpen()" name="x" class="h-6 w-6"></lucide-icon>
+        </button>
+
       </div>
     </div>
 
     <!-- Mobile Menu -->
-    @if (isMobileMenuOpen()) {
-      <div
-        class="lg:hidden border-t border-[var(--border)] bg-[var(--background)]"
-        role="menu"
-        [attr.aria-label]="'Mobile navigation menu'"
-      >
-        <div class="px-4 py-4 space-y-2">
-          @for (link of navLinks; track link.path) {
-            <a
-              [routerLink]="link.path"
-              routerLinkActive="text-[var(--primary)] font-semibold bg-[var(--surface)]"
-              [routerLinkActiveOptions]="{ exact: link.path === '/' }"
-              (click)="onNavLinkClick()"
-              class="block px-4 py-3 rounded-lg text-[var(--text-primary)] hover:text-[var(--primary)] hover:bg-[var(--surface)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-              role="menuitem"
-            >
-              {{ i18n.translate(link.key) }}
-            </a>
-          }
-        </div>
-
-  <!-- Mobile Action Icons -->
-  <div class="px-4 py-4 border-t border-[var(--border)] flex items-center justify-start gap-4">
-          @for (icon of navIcons; track icon.name) {
-            @if (icon.name !== 'menu') {
-              <button
-                type="button"
-                class="flex flex-col items-center gap-1 p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 rounded"
-                [attr.aria-label]="icon.ariaLabel"
-                (click)="onIconClick(icon); closeMobileMenu()"
-              >
-                <lucide-icon [name]="icon.name" class="h-5 w-5" aria-hidden="true"></lucide-icon>
-                @if (icon.showBadge && hasCartItems()) {
-                  <span
-                    class="absolute mt-1 ml-4 bg-[var(--error)] text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                    [attr.aria-label]="cartCount() + ' items in cart'"
-                  >
-                    {{ cartCount() }}
-                  </span>
-                }
-              </button>
-            }
-          }
-        </div>
-
-        <!-- Mobile Auth Buttons (use same labels as desktop and translate) -->
-        <div class="px-4 py-4 border-t border-[var(--border)] space-y-2">
-          <a
-            routerLink="/login"
-            (click)="closeMobileMenu()"
-            class="btn-primary w-full text-center block focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-          >
-            {{ i18n.translate('auth.signIn') }}
+    <div *ngIf="isMobileMenuOpen()" class="lg:hidden border-t border-[var(--border)] bg-[var(--background)]">
+      <div class="py-2">
+        <ng-container *ngFor="let link of navLinks">
+          <a [routerLink]="link.path" routerLinkActive="bg-[var(--primary)] text-[var(--background)] font-semibold"
+             [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+             (click)="onNavLinkClick()"
+             class="block px-4 py-3 rounded-lg text-[var(--text-primary)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition mx-2 my-1">
+            {{ i18n.translate(link.key) }}
           </a>
-          <a
-            routerLink="/signIn"
-            (click)="closeMobileMenu()"
-            class="btn-outline w-full text-center block focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-          >
-            {{ i18n.translate('auth.signUp') }}
-          </a>
-        </div>
+        </ng-container>
       </div>
-    }
+
+      <!-- Mobile Controls -->
+      <div class="px-4 py-3 border-t border-[var(--border)] flex gap-2">
+        <button (click)="handleThemeToggle()" class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition" aria-label="Toggle Theme">
+          <lucide-icon [name]="isDarkMode() ? 'sun' : 'moon'" class="h-5 w-5"></lucide-icon>
+          <span class="text-sm font-medium">{{ isDarkMode() ? 'Light' : 'Dark' }}</span>
+        </button>
+        <button (click)="handleLanguageChange()" class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition" aria-label="Change Language">
+          <lucide-icon name="globe" class="h-5 w-5"></lucide-icon>
+          <span class="text-sm font-medium">Language</span>
+        </button>
+      </div>
+
+      <!-- Mobile Auth Buttons -->
+      <div class="px-4 py-4 border-t border-[var(--border)] flex flex-col gap-2">
+        <ng-container *ngIf="!UserStatus(); else mobileLoggedIn">
+          <a routerLink="/signIn" (click)="onNavLinkClick()" class="w-full text-center px-4 py-3 bg-[var(--primary)] text-[var(--background)] rounded-lg hover:opacity-90 transition-opacity duration-200 font-medium">Sign Up</a>
+          <a routerLink="/login" (click)="onNavLinkClick()" class="w-full text-center px-4 py-3 bg-[var(--surface)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)] hover:text-[var(--background)] nav-link-transition font-medium">Login</a>
+        </ng-container>
+
+        <ng-template #mobileLoggedIn>
+          <a routerLink="/dashboard" (click)="onNavLinkClick()" class="w-full text-center px-4 py-3 bg-[var(--primary)] text-[var(--background)] rounded-lg hover:opacity-90 transition-opacity duration-200 font-medium">Dashboard</a>
+          <button (click)="logOut()" class="w-full text-center px-4 py-3 bg-[var(--error)] text-white rounded-lg hover:opacity-90 transition-opacity duration-200 font-medium">Logout</button>
+        </ng-template>
+      </div>
+    </div>
   </div>
 </nav>

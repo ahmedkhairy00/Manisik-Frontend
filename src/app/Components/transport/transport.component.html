@@ -1,26 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+<section
+  class="transport-section flex flex-col min-h-screen align-items-center bg-[var(--background)] text-[var(--text-primary)]">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-  <mat-toolbar class="transport-toolbar" color="primary">
-    <div class="transport-container">
+  <mat-toolbar class="transport-toolbar">
+    <div class="transport-container ">
       <div class="transport-text">
-        <h1 class="transport-title">Transport Services</h1>
-        <p class="transport-sub">Choose your international and local transport options</p>
+        <h1 class="transport-title"></h1>
+        <p class="transport-sub  "></p>
       </div>
     </div>
   </mat-toolbar>
 
 
   <div class="container">
-    <h1 class="international-Transport">International Transport to Saudi Arabia</h1>
+    <h1 class="international-Transport text-[var(--text-background)]"></h1>
     <div class="transport-tabs">
+
       <!-- <button class="tab-button active" (click)="setTransportType('Air')">
         <span class="material-icons" >flight</span>
         Air Transport
@@ -29,11 +23,22 @@
         <span class="material-icons" >directions_boat</span>
         Sea Transport
       </button> -->
+
+      <button class="tab-button active">
+        <span class="material-icons">flight</span>
+
+      </button>
+      <button class="tab-button">
+        <span class="material-icons">directions_boat</span>
+
+      </button>
+
     </div>
 
-    <div class="search-form">
+    <div class="search-form" style="background: var(--surface); box-shadow: var(--shadow-light);">
       <div class="form-row">
         <div class="form-group">
+
           <label>From</label>
           <select [(ngModel)]="searchParams.departureLocation" placeholder="Select Departure Airport">
 
@@ -52,9 +57,20 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Departure Date</label>
-          <input type="date" placeholder="mm/dd/yyyy">
+          <label style="color: var(--text-secondary);">From</label>
+          <select style="background: var(--background); color: var(--text-primary); border-color: var(--border);">
+            <option>{{ i18n.t('transport.cities.jeddah') }}</option>
+            <option>{{ i18n.t('transport.cities.riyadh') }}</option>
+            <option>{{ i18n.t('transport.cities.dammam') }}</option>
+
+          </select>
         </div>
+        <div class="form-group">
+          <label style="color: var(--text-secondary);">{{ i18n.t('transport.search.departure') }}</label>
+          <input type="date" placeholder="mm/dd/yyyy"
+            style="background: var(--background); color: var(--text-primary); border-color: var(--border);">
+        </div>
+
         <div class="form-group">
           <label>Return Date</label>
           <input type="date" placeholder="mm/dd/yyyy">
@@ -62,42 +78,57 @@
         <button class="search-button" (click)="searchflights()">Search Flights</button>
       </div>
     </div>
-    
+
     <div class="flight-card" [ngClass]="{'hidden': flights.length === 0}" *ngFor="let flight of flights">
       <div class="airline-logo">SA</div>
-      <div class="airline-info">
-        <div class="airline-name">
-          <h3>Saudi Arabian Airlines</h3>
-          <div class="rating">
-            <span class="material-icons star-icon">star</span>
-            <strong>4.8</strong> (2340 reviews)
-          </div>
-        </div>
-        <div class="flight-details">
-          <span class="detail-label">Duration</span>
-          <span class="detail-value"><span class="material-icons"
-              style="font-size: 14px; vertical-align: middle;">schedule</span> 8h 30m</span>
-        </div>
-        <div class="flight-details">
-          <span class="detail-label">Class</span>
-          <span class="detail-value">Economy</span>
-        </div>
-        <div class="flight-details">
-          <span class="detail-label">Stops</span>
-          <span class="direct-badge">Direct</span>
-        </div>
-      </div>
-      <div class="price-section">
-        <div class="price">$680</div>
-        <ul class="amenities">
-          <li><span class="material-icons check-icon">check</span> Meals included</li>
-          <li><span class="material-icons check-icon">check</span> 30kg baggage</li>
-          <li><span class="material-icons check-icon">check</span> Entertainment</li>
-        </ul>
-        <button class="book-button">Book Flight</button>
-      </div>
+
+      <button class="search-button" style="background: var(--primary); color: white;">{{
+        i18n.t('transport.search.button') }}</button>
     </div>
   </div>
+
+  <div class="flight-card" style="background: var(--surface); box-shadow: var(--shadow-light);">
+    <div class="airline-logo" style="background: var(--background); color: var(--text-primary);">SA</div>
+
+    <div class="airline-info">
+      <div class="airline-name">
+        <h3 style="color: var(--text-primary);">Saudi Arabian Airlines</h3>
+        <div class="rating" style="color: var(--text-secondary);">
+          <span class="material-icons star-icon">star</span>
+          <strong>4.8</strong> (2340 {{ i18n.t('transport.reviews') }})
+        </div>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.duration')
+          }}</span>
+        <span class="detail-value" style="color: var(--text-primary);"><span class="material-icons"
+            style="font-size: 14px; vertical-align: middle;">schedule</span> 8h 30m</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.class') }}</span>
+        <span class="detail-value" style="color: var(--text-primary);">{{ i18n.t('transport.flight.economy') }}</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.stops') }}</span>
+        <span class="direct-badge">{{ i18n.t('transport.flight.direct') }}</span>
+      </div>
+    </div>
+    <div class="price-section">
+      <div class="price" style="color: var(--primary);">$680</div>
+      <ul class="amenities" style="color: var(--text-secondary);">
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.meals') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> 30kg {{
+          i18n.t('transport.flight.baggage') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.entertainment') }}</li>
+      </ul>
+      <button class="book-button" style="background: var(--primary); color: white;">{{ i18n.t('transport.book.button')
+        }}</button>
+    </div>
+  </div>
+ 
+
 
 
 
@@ -232,6 +263,227 @@
       </div>
     </div>
   </div>
-</body>
+ 
 
-</html>
+
+  <div class="flight-card" style="background: var(--surface); box-shadow: var(--shadow-light);">
+    <div class="airline-logo" style="background: var(--background); color: var(--text-primary);">AE</div>
+    <div class="airline-info">
+      <div class="airline-name">
+        <h3 style="color: var(--text-primary);">Emirates</h3>
+        <div class="rating" style="color: var(--text-secondary);">
+          <span class="material-icons star-icon">star</span>
+          <strong>4.9</strong> (3120 {{ i18n.t('transport.reviews') }})
+        </div>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.duration')
+          }}</span>
+        <span class="detail-value" style="color: var(--text-primary);"><span class="material-icons"
+            style="font-size: 14px; vertical-align: middle;">schedule</span> 9h 15m</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.class') }}</span>
+        <span class="detail-value" style="color: var(--text-primary);">{{ i18n.t('transport.flight.economy') }}</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.stops') }}</span>
+        <span class="stop-badge">{{ i18n.t('transport.flight.oneStop') }}</span>
+      </div>
+    </div>
+    <div class="price-section">
+      <div class="price" style="color: var(--primary);">$850</div>
+      <ul class="amenities" style="color: var(--text-secondary);">
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.premiumMeals') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> 40kg {{
+          i18n.t('transport.flight.baggage') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.wifi') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.lounge') }}</li>
+      </ul>
+      <button class="book-button" style="background: var(--primary); color: white;">{{ i18n.t('transport.book.button')
+        }}</button>
+    </div>
+  </div>
+
+  <div class="flight-card" style="background: var(--surface); box-shadow: var(--shadow-light);">
+    <div class="airline-logo" style="background: var(--background); color: var(--text-primary);">QA</div>
+    <div class="airline-info">
+      <div class="airline-name">
+        <h3 style="color: var(--text-primary);">Qatar Airways</h3>
+        <div class="rating" style="color: var(--text-secondary);">
+          <span class="material-icons star-icon">star</span>
+          <strong>4.9</strong> (2890 {{ i18n.t('transport.reviews') }})
+        </div>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.duration')
+          }}</span>
+        <span class="detail-value" style="color: var(--text-primary);"><span class="material-icons"
+            style="font-size: 14px; vertical-align: middle;">schedule</span> 8h 45m</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.class') }}</span>
+        <span class="detail-value" style="color: var(--text-primary);">{{ i18n.t('transport.flight.economy') }}</span>
+      </div>
+      <div class="flight-details">
+        <span class="detail-label" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.stops') }}</span>
+        <span class="direct-badge">{{ i18n.t('transport.flight.direct') }}</span>
+      </div>
+    </div>
+    <div class="price-section">
+      <div class="price" style="color: var(--primary);">$820</div>
+      <ul class="amenities" style="color: var(--text-secondary);">
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.gourmetMeals') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> 35kg {{
+          i18n.t('transport.flight.baggage') }}</li>
+        <li><span class="material-icons check-icon" style="color: var(--primary);">check</span> {{
+          i18n.t('transport.flight.premiumEntertainment') }}</li>
+      </ul>
+      <button class="book-button" style="background: var(--primary); color: white;">{{ i18n.t('transport.book.button')
+        }}</button>
+    </div>
+  </div>
+ 
+  <div class="container">
+    <div class="header">
+      <h1 style="color: var(--text-primary);">{{ i18n.t('transport.domestic.title') }}</h1>
+      <p style="color: var(--text-secondary);">{{ i18n.t('transport.domestic.subtitle') }}</p>
+    </div>
+
+    <!-- Material Tabs -->
+    <div class="mat-tabs" style="background: var(--surface); box-shadow: var(--shadow-light);">
+      <nav class="mat-tab-nav">
+        <a class="mat-tab-link active" data-tab="public-bus">
+          <span class="material-icons">directions_bus</span>
+          {{ i18n.t('transport.tabs.publicBus') }}
+        </a>
+        <a class="mat-tab-link" data-tab="train">
+          <span class="material-icons">train</span>
+          {{ i18n.t('transport.tabs.train') }}
+        </a>
+        <a class="mat-tab-link" data-tab="uber">
+          <span class="material-icons">local_taxi</span>
+          {{ i18n.t('transport.tabs.uber') }}
+        </a>
+        <a class="mat-tab-link" data-tab="private">
+          <span class="material-icons">directions_car</span>
+          {{ i18n.t('transport.tabs.private') }}
+        </a>
+      </nav>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="services-grid">
+      <!-- SAPTCO Card -->
+      <div class="mat-card" style="background: var(--surface); box-shadow: var(--shadow-light);">
+        <div class="card-header">
+          <div class="service-icon">🚌</div>
+          <div class="service-info">
+            <h3 class="mat-card-title" style="color: var(--text-primary);">{{ i18n.t('transport.service.saptco') }}</h3>
+            <div class="rating-container">
+              <span class="material-icons">star</span>
+              <span class="rating-value">4.3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-info">
+          <div class="info-item">
+            <span class="mat-caption" style="color: var(--text-secondary);">{{ i18n.t('transport.route') }}</span>
+            <span class="info-value" style="color: var(--text-primary);">{{ i18n.t('transport.route.jeddahMakkah')
+              }}</span>
+          </div>
+          <div class="info-item">
+            <span class="mat-caption" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.duration')
+              }}</span>
+            <span class="info-value" style="color: var(--text-primary);">1h 30m</span>
+          </div>
+        </div>
+
+        <div class="amenities-list">
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.ac') }}
+          </div>
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.comfortSeats') }}
+          </div>
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.wifi') }}
+          </div>
+        </div>
+
+        <div class="mat-card-actions">
+          <div class="price-container">
+            <span class="price-label" style="color: var(--text-secondary);">{{ i18n.t('transport.price.from') }}</span>
+            <span class="price-value" style="color: var(--primary);">$25</span>
+          </div>
+          <button class="mat-raised-button" style="background: var(--primary); color: white;">{{
+            i18n.t('transport.book.now') }}</button>
+        </div>
+      </div>
+
+      <!-- Al Khalij Card -->
+      <div class="mat-card" style="background: var(--surface); box-shadow: var(--shadow-light);">
+        <div class="card-header">
+          <div class="service-icon">🚍</div>
+          <div class="service-info">
+            <h3 class="mat-card-title" style="color: var(--text-primary);">{{ i18n.t('transport.service.alkhalij') }}
+            </h3>
+            <div class="rating-container">
+              <span class="material-icons">star</span>
+              <span class="rating-value">4.5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-info">
+          <div class="info-item">
+            <span class="mat-caption" style="color: var(--text-secondary);">{{ i18n.t('transport.route') }}</span>
+            <span class="info-value" style="color: var(--text-primary);">{{ i18n.t('transport.route.makkahMadinah')
+              }}</span>
+          </div>
+          <div class="info-item">
+            <span class="mat-caption" style="color: var(--text-secondary);">{{ i18n.t('transport.flight.duration')
+              }}</span>
+            <span class="info-value" style="color: var(--text-primary);">4h 30m</span>
+          </div>
+        </div>
+
+        <div class="amenities-list">
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.ac') }}
+          </div>
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.recliningSeats') }}
+          </div>
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.refreshments') }}
+          </div>
+          <div class="amenity-item" style="color: var(--text-secondary);">
+            <span class="material-icons" style="color: var(--success);">check</span>
+            {{ i18n.t('transport.amenity.prayerStops') }}
+          </div>
+        </div>
+
+        <div class="mat-card-actions">
+          <div class="price-container">
+            <span class="price-label" style="color: var(--text-secondary);">{{ i18n.t('transport.price.from') }}</span>
+            <span class="price-value" style="color: var(--primary);">$35</span>
+          </div>
+          <button class="mat-raised-button" style="background: var(--primary); color: white;">{{
+            i18n.t('transport.book.now') }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
