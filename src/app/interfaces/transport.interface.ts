@@ -4,7 +4,23 @@ export enum TransportType {
   VAN = 'van',
   PRIVATE = 'private'
 }
-
+ export enum ArrivalAirport
+{
+    
+    Jeddah='Jeddah',
+    Madinah='Madinah',
+    Taif='Taif'
+}
+ export enum DepartureAirport
+ {
+     
+     CairoInternational='CairoInternational',        // CAI
+     BorgElArabAlexandria='BorgElArabAlexandria',      // HBE
+     SharmElSheikhInternational='SharmElSheikhInternational',// SSH
+     HurghadaInternational='HurghadaInternational',     // HRG
+     AssiutInternational='AssiutInternational',       // ATZ
+     SohagInternational='SohagInternational'         // HMB
+ }
 export interface TransportOption {
   id: string;
   name: string;
@@ -30,7 +46,7 @@ export interface TransportSearchParams {
   departureDate?: string;
   returnDate?: string;
   passengers?: number;
-  type?: TransportType;
+  type?: string;
   minPrice?: number;
   maxPrice?: number;
 }

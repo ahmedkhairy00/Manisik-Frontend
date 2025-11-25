@@ -22,7 +22,16 @@ export class TransportService {
     }
     return this.http.get<TransportOption[]>(`${this.apiUrl}/transport`, { params: httpParams });
   }
+ searchByRoute(departure: string, arrival: string): Observable<TransportOption[]> {
+  const params = new HttpParams()
+    .set('departureAirport', departure)
+    .set('arrivalAirport', arrival);
 
+  return this.http.get<TransportOption[]>(
+    `${this.apiUrl}/InternationalTransport/SearchByRoute`,
+    { params }
+  );
+}
   getTransportOptionById(id: string): Observable<TransportOption> {
     return this.http.get<TransportOption>(`${this.apiUrl}/transport/${id}`);
   }
