@@ -49,41 +49,89 @@ export class I18nService {
       en: 'Subscribe to our newsletter and be the first to know about special offers, travel guides, and updates.',
       ar: 'اشترك في نشرتنا الإخبارية لتكون أول من يتلقى العروض والدلائل والتحديثات.',
     },
-    'home.newsletter.emailPlaceholder': { en: 'Enter your email address', ar: 'أدخل بريدك الإلكتروني' },
-    'home.newsletter.subscribing': { en: 'Subscribing...', ar: 'جاري الاشتراك...' },
+    'home.newsletter.emailPlaceholder': {
+      en: 'Enter your email address',
+      ar: 'أدخل بريدك الإلكتروني',
+    },
+    'home.newsletter.subscribing': {
+      en: 'Subscribing...',
+      ar: 'جاري الاشتراك...',
+    },
     'home.newsletter.subscribe': { en: 'Subscribe', ar: 'اشترك' },
-    'home.newsletter.privacy': { en: 'Your privacy is protected. Unsubscribe anytime.', ar: 'خصوصيتك محمية. يمكنك إلغاء الاشتراك في أي وقت.' },
+    'home.newsletter.privacy': {
+      en: 'Your privacy is protected. Unsubscribe anytime.',
+      ar: 'خصوصيتك محمية. يمكنك إلغاء الاشتراك في أي وقت.',
+    },
 
     // Quick Actions
     'home.actions.0.title': { en: 'Umrah Packages', ar: 'باقات العمرة' },
-    'home.actions.0.desc': { en: 'All-inclusive spiritual journeys', ar: 'رحلات روحانية شاملة' },
+    'home.actions.0.desc': {
+      en: 'All-inclusive spiritual journeys',
+      ar: 'رحلات روحانية شاملة',
+    },
     'home.actions.1.title': { en: 'Hotels', ar: 'الفنادق' },
-    'home.actions.1.desc': { en: 'Comfortable stays near Haram', ar: 'إقامة مريحة بالقرب من الحرم' },
+    'home.actions.1.desc': {
+      en: 'Comfortable stays near Haram',
+      ar: 'إقامة مريحة بالقرب من الحرم',
+    },
     'home.actions.2.title': { en: 'Transport', ar: 'النقل' },
-    'home.actions.2.desc': { en: 'Reliable travel options', ar: 'خيارات سفر موثوقة' },
+    'home.actions.2.desc': {
+      en: 'Reliable travel options',
+      ar: 'خيارات سفر موثوقة',
+    },
 
     // Packages
-    'home.packages.title.premium': { en: 'Premium Umrah Package', ar: 'باقة العمرة المميزة' },
-    'home.packages.title.standard': { en: 'Standard Umrah Package', ar: 'باقة العمرة القياسية' },
-    'home.packages.title.economy': { en: 'Economy Umrah Package', ar: 'باقة العمرة الاقتصادية' },
-    'home.packages.title.vip': { en: 'VIP Umrah Experience', ar: 'تجربة كبار الشخصيات' },
+    'home.packages.title.premium': {
+      en: 'Premium Umrah Package',
+      ar: 'باقة العمرة المميزة',
+    },
+    'home.packages.title.standard': {
+      en: 'Standard Umrah Package',
+      ar: 'باقة العمرة القياسية',
+    },
+    'home.packages.title.economy': {
+      en: 'Economy Umrah Package',
+      ar: 'باقة العمرة الاقتصادية',
+    },
+    'home.packages.title.vip': {
+      en: 'VIP Umrah Experience',
+      ar: 'تجربة كبار الشخصيات',
+    },
     'home.packages.category.All': { en: 'All', ar: 'الكل' },
     'home.packages.category.Premium': { en: 'Premium', ar: 'مميزة' },
     'home.packages.category.Standard': { en: 'Standard', ar: 'قياسية' },
     'home.packages.category.Economy': { en: 'Economy', ar: 'اقتصادية' },
     'home.packages.category.VIP': { en: 'VIP', ar: 'كبار الشخصيات' },
     'home.packages.included.5star': { en: '5-Star Hotel', ar: 'فندق 5 نجوم' },
-    'home.packages.included.flights': { en: 'Flights Included', ar: 'شامل الطيران' },
-    'home.packages.included.visa': { en: 'Visa Processing', ar: 'تجهيز التأشيرة' },
-    'home.packages.included.transport': { en: 'Luxury Transport', ar: 'نقل فاخر' },
+    'home.packages.included.flights': {
+      en: 'Flights Included',
+      ar: 'شامل الطيران',
+    },
+    'home.packages.included.visa': {
+      en: 'Visa Processing',
+      ar: 'تجهيز التأشيرة',
+    },
+    'home.packages.included.transport': {
+      en: 'Luxury Transport',
+      ar: 'نقل فاخر',
+    },
     'home.packages.included.4star': { en: '4-Star Hotel', ar: 'فندق 4 نجوم' },
     'home.packages.included.breakfast': { en: 'Breakfast', ar: 'إفطار' },
     'home.packages.included.3star': { en: '3-Star Hotel', ar: 'فندق 3 نجوم' },
-    'home.packages.included.shared': { en: 'Shared Transport', ar: 'نقل مشترك' },
+    'home.packages.included.shared': {
+      en: 'Shared Transport',
+      ar: 'نقل مشترك',
+    },
     'home.packages.included.luxury': { en: 'Luxury Suite', ar: 'جناح فاخر' },
-    'home.packages.included.business': { en: 'Business Class', ar: 'درجة رجال الأعمال' },
+    'home.packages.included.business': {
+      en: 'Business Class',
+      ar: 'درجة رجال الأعمال',
+    },
     'home.packages.included.guide': { en: 'Private Guide', ar: 'مرشد خاص' },
-    'home.packages.included.concierge': { en: '24/7 Concierge', ar: 'كونسيرج 24/7' },
+    'home.packages.included.concierge': {
+      en: '24/7 Concierge',
+      ar: 'كونسيرج 24/7',
+    },
     'home.packages.duration.days': { en: 'Days', ar: 'أيام' },
     'home.packages.from': { en: 'From', ar: 'من' },
     'home.packages.perPerson': { en: '/ person', ar: '/ شخص' },
@@ -140,12 +188,18 @@ export class I18nService {
       en: 'Your privacy is protected. Unsubscribe anytime.',
       ar: 'خصوصيتك محمية. يمكنك إلغاء الاشتراك في أي وقت.',
     },
-    'home.testimonials.title': { en: 'What Our Pilgrims Say', ar: 'آراء الحجاج' },
+    'home.testimonials.title': {
+      en: 'What Our Pilgrims Say',
+      ar: 'آراء الحجاج',
+    },
     'home.testimonials.desc': {
       en: 'Real experiences from verified travelers',
       ar: 'تجارب حقيقية من مسافرين موثوقين',
     },
-    'home.faq.title': { en: 'Frequently Asked Questions', ar: 'الأسئلة الشائعة' },
+    'home.faq.title': {
+      en: 'Frequently Asked Questions',
+      ar: 'الأسئلة الشائعة',
+    },
     'home.faq.desc': {
       en: 'Find answers to common questions about booking your Umrah journey',
       ar: 'اعثر على إجابات للأسئلة الشائعة حول حجز رحلة العمرة',
@@ -199,7 +253,7 @@ export class I18nService {
     'hero.slides.4.title': { en: 'Visit Al-Baqi', ar: 'زيارة البقيع' },
     'hero.slides.4.subtitle': { en: 'Jannat Al-Baqi', ar: 'جنة البقيع' },
     'hero.slides.4.description': {
-      en: 'Pay respects at the historic cemetery near the Prophet\'s Mosque',
+      en: "Pay respects at the historic cemetery near the Prophet's Mosque",
       ar: 'زر المقبرة التاريخية بالقرب من المسجد النبوي',
     },
     // Badges used in hero slides
@@ -319,18 +373,42 @@ export class I18nService {
     'dashboard.recentActivity': { en: 'Recent Activity', ar: 'النشاط الأخير' },
     'dashboard.menu.myBookings': { en: 'My Bookings', ar: 'حجوزاتي' },
     'dashboard.menu.payments': { en: 'Payments', ar: 'المدفوعات' },
-    'dashboard.menu.manageUsers': { en: 'Manage Users', ar: 'إدارة المستخدمين' },
+    'dashboard.menu.manageUsers': {
+      en: 'Manage Users',
+      ar: 'إدارة المستخدمين',
+    },
     'dashboard.menu.manageHotels': { en: 'Manage Hotels', ar: 'إدارة الفنادق' },
-    'dashboard.welcome.user': { en: 'Welcome back to your spiritual journey dashboard. Your next trip is in 45 days!', ar: 'مرحبًا بك في لوحة تحكم رحلتك الروحية. رحلتك القادمة بعد 45 يومًا!' },
-    'dashboard.welcome.admin': { en: 'Welcome back to the admin dashboard. Manage your platform efficiently.', ar: 'مرحبًا بك في لوحة تحكم المسؤول. أدر منصتك بكفاءة.' },
-    'dashboard.welcome.hotelManager': { en: 'Welcome back to your hotel management dashboard. Monitor your bookings and reviews.', ar: 'مرحبًا بك في لوحة تحكم إدارة الفندق. راقب حجوزاتك وتقييماتك.' },
+    'dashboard.welcome.user': {
+      en: 'Welcome back to your spiritual journey dashboard. Your next trip is in 45 days!',
+      ar: 'مرحبًا بك في لوحة تحكم رحلتك الروحية. رحلتك القادمة بعد 45 يومًا!',
+    },
+    'dashboard.welcome.admin': {
+      en: 'Welcome back to the admin dashboard. Manage your platform efficiently.',
+      ar: 'مرحبًا بك في لوحة تحكم المسؤول. أدر منصتك بكفاءة.',
+    },
+    'dashboard.welcome.hotelManager': {
+      en: 'Welcome back to your hotel management dashboard. Monitor your bookings and reviews.',
+      ar: 'مرحبًا بك في لوحة تحكم إدارة الفندق. راقب حجوزاتك وتقييماتك.',
+    },
     'dashboard.stats.savedItems': { en: 'Saved Items', ar: 'العناصر المحفوظة' },
-    'dashboard.stats.hotelsPackages': { en: 'Hotels & packages', ar: 'فنادق وباقات' },
-    'dashboard.stats.loyaltyPoints': { en: 'Loyalty Points', ar: 'نقاط الولاء' },
-    'dashboard.stats.earnMore': { en: 'Earn more rewards', ar: 'اكسب المزيد من المكافآت' },
+    'dashboard.stats.hotelsPackages': {
+      en: 'Hotels & packages',
+      ar: 'فنادق وباقات',
+    },
+    'dashboard.stats.loyaltyPoints': {
+      en: 'Loyalty Points',
+      ar: 'نقاط الولاء',
+    },
+    'dashboard.stats.earnMore': {
+      en: 'Earn more rewards',
+      ar: 'اكسب المزيد من المكافآت',
+    },
     'dashboard.trips.daysLeft': { en: 'days left', ar: 'أيام متبقية' },
     'dashboard.trips.viewDetails': { en: 'View Details', ar: 'عرض التفاصيل' },
-    'dashboard.trips.downloadDocs': { en: 'Download Docs', ar: 'تحميل المستندات' },
+    'dashboard.trips.downloadDocs': {
+      en: 'Download Docs',
+      ar: 'تحميل المستندات',
+    },
 
     // Footer translations (a subset)
     'footer.aboutTitle': { en: 'About Manisik', ar: 'حول منـاسك' },
@@ -349,20 +427,38 @@ export class I18nService {
     'footer.blog': { en: 'Blog', ar: 'المدونة' },
     'footer.careers': { en: 'Careers', ar: 'وظائف' },
     'footer.press': { en: 'Press', ar: 'الصحافة' },
-    'footer.services.umrahPackages': { en: 'Umrah Packages', ar: 'باقات العمرة' },
+    'footer.services.umrahPackages': {
+      en: 'Umrah Packages',
+      ar: 'باقات العمرة',
+    },
     'footer.services.hotelsMakkah': { en: 'Hotels in Makkah', ar: 'فنادق مكة' },
-    'footer.services.hotelsMadinah': { en: 'Hotels in Madinah', ar: 'فنادق المدينة' },
+    'footer.services.hotelsMadinah': {
+      en: 'Hotels in Madinah',
+      ar: 'فنادق المدينة',
+    },
     'footer.services.airTransport': { en: 'Air Transport', ar: 'النقل الجوي' },
-    'footer.services.groundTransport': { en: 'Ground Transport', ar: 'النقل البري' },
-    'footer.services.travelInsurance': { en: 'Travel Insurance', ar: 'تأمين السفر' },
+    'footer.services.groundTransport': {
+      en: 'Ground Transport',
+      ar: 'النقل البري',
+    },
+    'footer.services.travelInsurance': {
+      en: 'Travel Insurance',
+      ar: 'تأمين السفر',
+    },
     'footer.helpCenter': { en: 'Help Center', ar: 'مركز المساعدة' },
     'footer.contactUs': { en: 'Contact Us', ar: 'اتصل بنا' },
     'footer.faqs': { en: 'FAQs', ar: 'الأسئلة الشائعة' },
     'footer.terms': { en: 'Terms of Service', ar: 'شروط الخدمة' },
     'footer.privacy': { en: 'Privacy Policy', ar: 'سياسة الخصوصية' },
     'footer.cookies': { en: 'Cookie Policy', ar: 'سياسة ملفات تعريف الارتباط' },
-    'footer.businessHours': { en: 'Business Hours: 9 AM - 6 PM', ar: 'ساعات العمل: 9 صباحًا - 6 مساءً' },
-    'footer.supportAvailable': { en: 'Support Available 24/7', ar: 'الدعم متاح 24/7' },
+    'footer.businessHours': {
+      en: 'Business Hours: 9 AM - 6 PM',
+      ar: 'ساعات العمل: 9 صباحًا - 6 مساءً',
+    },
+    'footer.supportAvailable': {
+      en: 'Support Available 24/7',
+      ar: 'الدعم متاح 24/7',
+    },
     'footer.weAccept': { en: 'We Accept', ar: 'نقبل' },
     'transport.reviews': { en: 'reviews', ar: 'مراجعة' },
     'common.from': { en: 'From', ar: 'من' },
@@ -398,33 +494,57 @@ export class I18nService {
 
     // About Section
     'home.about.title': { en: 'About Manisik', ar: 'عن مناسك' },
-    'home.about.description': { 
-      en: 'Manisik is your trusted partner for spiritual journeys. We specialize in providing comprehensive Umrah services, ensuring a seamless and spiritually enriching experience for pilgrims from around the world. Our dedicated team works tirelessly to handle all logistics, allowing you to focus on your worship.', 
-      ar: 'مناسك هي شريكك الموثوق للرحلات الروحانية. نحن متخصصون في تقديم خدمات عمرة شاملة، مما يضمن تجربة سلسة ومثرية روحياً للحجاج من جميع أنحاء العالم. يعمل فريقنا المتفاني بلا كلل للتعامل مع جميع الخدمات اللوجستية، مما يتيح لك التركيز على عبادتك.' 
+    'home.about.description': {
+      en: 'Manisik is your trusted partner for spiritual journeys. We specialize in providing comprehensive Umrah services, ensuring a seamless and spiritually enriching experience for pilgrims from around the world. Our dedicated team works tirelessly to handle all logistics, allowing you to focus on your worship.',
+      ar: 'مناسك هي شريكك الموثوق للرحلات الروحانية. نحن متخصصون في تقديم خدمات عمرة شاملة، مما يضمن تجربة سلسة ومثرية روحياً للحجاج من جميع أنحاء العالم. يعمل فريقنا المتفاني بلا كلل للتعامل مع جميع الخدمات اللوجستية، مما يتيح لك التركيز على عبادتك.',
     },
     'home.about.imageAlt': { en: 'Pilgrims at Kaaba', ar: 'حجاج في الكعبة' },
     'home.about.feature1.title': { en: 'Trusted Service', ar: 'خدمة موثوقة' },
-    'home.about.feature1.desc': { en: 'Licensed by Ministry of Hajj & Umrah', ar: 'مرخصة من وزارة الحج والعمرة' },
+    'home.about.feature1.desc': {
+      en: 'Licensed by Ministry of Hajj & Umrah',
+      ar: 'مرخصة من وزارة الحج والعمرة',
+    },
     'home.about.feature2.title': { en: '24/7 Support', ar: 'دعم 24/7' },
-    'home.about.feature2.desc': { en: 'Dedicated team to assist you anytime', ar: 'فريق مخصص لمساعدتك في أي وقت' },
+    'home.about.feature2.desc': {
+      en: 'Dedicated team to assist you anytime',
+      ar: 'فريق مخصص لمساعدتك في أي وقت',
+    },
     'home.about.cta': { en: 'Learn More', ar: 'اعرف المزيد' },
 
     /*  TRANSPORT  */
     'transport.title': { en: 'Transport Services', ar: 'خدمات النقل' },
-    'transport.subtitle': { en: 'Choose your international and local transport options', ar: 'اختر خيارات النقل الدولية والمحلية' },
-    'transport.international.title': { en: 'International Transport to Saudi Arabia', ar: 'النقل الدولي إلى المملكة العربية السعودية' },
+    'transport.subtitle': {
+      en: 'Choose your international and local transport options',
+      ar: 'اختر خيارات النقل الدولية والمحلية',
+    },
+    'transport.international.title': {
+      en: 'International Transport to Saudi Arabia',
+      ar: 'النقل الدولي إلى المملكة العربية السعودية',
+    },
     'transport.international.air': { en: 'Air Transport', ar: 'النقل الجوي' },
     'transport.international.sea': { en: 'Sea Transport', ar: 'النقل البحري' },
-    'transport.domestic.title': { en: 'Transport Within Saudi Arabia', ar: 'النقل داخل المملكة العربية السعودية' },
-    'transport.domestic.subtitle': { en: 'Choose your preferred mode of transport for travel between cities in Saudi Arabia', ar: 'اختر وسيلة النقل المفضلة لديك للسفر بين المدن في السعودية' },
+    'transport.domestic.title': {
+      en: 'Transport Within Saudi Arabia',
+      ar: 'النقل داخل المملكة العربية السعودية',
+    },
+    'transport.domestic.subtitle': {
+      en: 'Choose your preferred mode of transport for travel between cities in Saudi Arabia',
+      ar: 'اختر وسيلة النقل المفضلة لديك للسفر بين المدن في السعودية',
+    },
     'transport.tabs.publicBus': { en: 'Public Bus', ar: 'حافلة عامة' },
     'transport.tabs.train': { en: 'Train', ar: 'قطار' },
     'transport.tabs.uber': { en: 'Uber/Careem', ar: 'أوبر/كريم' },
     'transport.tabs.private': { en: 'Private Car', ar: 'سيارة خاصة' },
     'transport.search.from': { en: 'From', ar: 'من' },
     'transport.search.to': { en: 'To', ar: 'إلى' },
-    'transport.search.departure': { en: 'Departure Date', ar: 'تاريخ المغادرة' },
-    'transport.search.fromPlaceholder': { en: 'Departure city', ar: 'مدينة المغادرة' },
+    'transport.search.departure': {
+      en: 'Departure Date',
+      ar: 'تاريخ المغادرة',
+    },
+    'transport.search.fromPlaceholder': {
+      en: 'Departure city',
+      ar: 'مدينة المغادرة',
+    },
     'transport.search.button': { en: 'Search Flights', ar: 'ابحث عن رحلات' },
     'transport.flight.duration': { en: 'Duration', ar: 'المدة' },
     'transport.flight.class': { en: 'Class', ar: 'الدرجة' },
@@ -439,17 +559,35 @@ export class I18nService {
     'transport.flight.entertainment': { en: 'Entertainment', ar: 'ترفيه' },
     'transport.flight.wifi': { en: 'WiFi', ar: 'واي فاي' },
     'transport.flight.lounge': { en: 'Lounge access', ar: 'دخول الصالة' },
-    'transport.flight.premiumEntertainment': { en: 'Premium entertainment', ar: 'ترفيه متميز' },
+    'transport.flight.premiumEntertainment': {
+      en: 'Premium entertainment',
+      ar: 'ترفيه متميز',
+    },
     'transport.book.button': { en: 'Book Flight', ar: 'احجز رحلة' },
     'transport.book.now': { en: 'Book Now', ar: 'احجز الآن' },
-    'transport.service.saptco': { en: 'SAPTCO (Public Bus)', ar: 'سابتكو (حافلة عامة)' },
-    'transport.service.alkhalij': { en: 'Al Khalij Bus Services', ar: 'خدمات حافلات الخليج' },
+    'transport.service.saptco': {
+      en: 'SAPTCO (Public Bus)',
+      ar: 'سابتكو (حافلة عامة)',
+    },
+    'transport.service.alkhalij': {
+      en: 'Al Khalij Bus Services',
+      ar: 'خدمات حافلات الخليج',
+    },
     'transport.route': { en: 'Route', ar: 'المسار' },
     'transport.route.jeddahMakkah': { en: 'Jeddah - Makkah', ar: 'جدة - مكة' },
-    'transport.route.makkahMadinah': { en: 'Makkah - Madinah', ar: 'مكة - المدينة' },
+    'transport.route.makkahMadinah': {
+      en: 'Makkah - Madinah',
+      ar: 'مكة - المدينة',
+    },
     'transport.amenity.ac': { en: 'AC', ar: 'مكيف' },
-    'transport.amenity.comfortSeats': { en: 'Comfortable seats', ar: 'مقاعد مريحة' },
-    'transport.amenity.recliningSeats': { en: 'Reclining seats', ar: 'مقاعد قابلة للإمالة' },
+    'transport.amenity.comfortSeats': {
+      en: 'Comfortable seats',
+      ar: 'مقاعد مريحة',
+    },
+    'transport.amenity.recliningSeats': {
+      en: 'Reclining seats',
+      ar: 'مقاعد قابلة للإمالة',
+    },
     'transport.amenity.wifi': { en: 'WiFi', ar: 'واي فاي' },
     'transport.amenity.refreshments': { en: 'Refreshments', ar: 'مرطبات' },
     'transport.amenity.prayerStops': { en: 'Prayer stops', ar: 'محطات صلاة' },
@@ -459,23 +597,33 @@ export class I18nService {
     'transport.cities.dammam': { en: 'Dammam', ar: 'الدمام' },
 
     /* HOTEL */
-    'hotel.searchPlaceholder': { en: 'Search by hotel name or area', ar: 'ابحث باسم الفندق أو المنطقة' },
+    'hotel.searchPlaceholder': {
+      en: 'Search by hotel name or area',
+      ar: 'ابحث باسم الفندق أو المنطقة',
+    },
     'hotel.city.makkah': { en: 'Makkah', ar: 'مكة المكرمة' },
     'hotel.city.madinah': { en: 'Madinah', ar: 'المدينة المنورة' },
     'hotel.sort.recommended': { en: 'Recommended', ar: 'موصى به' },
     'hotel.sort.distance': { en: 'Distance', ar: 'المسافة' },
     'hotel.sort.rating': { en: 'Rating', ar: 'التقييم' },
-    'hotel.loading': { en: 'Loading hotel details...', ar: 'جاري تحميل تفاصيل الفندق...' },
+    'hotel.loading': {
+      en: 'Loading hotel details...',
+      ar: 'جاري تحميل تفاصيل الفندق...',
+    },
     'hotel.notFound': { en: 'Hotel not found.', ar: 'الفندق غير موجود.' },
     'hotel.hideRooms': { en: 'Hide Rooms', ar: 'إخفاء الغرف' },
-    'hotel.showRooms': { en: 'Show Available Rooms', ar: 'عرض الغرف المتاحة' },
+    'hotel.showRooms': { en: 'Show Rooms', ar: 'عرض الغرف ' },
     'hotel.capacity': { en: 'Capacity', ar: 'السعة' },
     'hotel.person': { en: 'person(s)', ar: 'شخص' },
     'hotel.available': { en: 'Available', ar: 'متاح' },
+    'hotel.unavailable': { en: 'Unavailable', ar: 'غير متاح' },
     'hotel.rooms': { en: 'room(s)', ar: 'غرفة' },
     'hotel.selected': { en: 'Selected', ar: 'محدد' },
     'hotel.book': { en: 'Book', ar: 'حجز' },
-    'hotel.noRooms': { en: 'No rooms available at the moment.', ar: 'لا توجد غرف متاحة في الوقت الحالي.' },
+    'hotel.noRooms': {
+      en: 'No rooms available at the moment.',
+      ar: 'لا توجد غرف متاحة في الوقت الحالي.',
+    },
     'nav.bookingHotel': { en: 'Booking Hotel', ar: 'حجز فندق' },
 
     /* BOOKING HOTEL */
@@ -485,7 +633,10 @@ export class I18nService {
     'booking.rooms': { en: 'Number of Rooms', ar: 'عدد الغرف' },
     'booking.totalPrice': { en: 'Total Price', ar: 'السعر الإجمالي' },
     'booking.submit': { en: 'Book Hotel', ar: 'تأكيد الحجز' },
-    'booking.error.dateOrder': { en: 'Check-in date must be before check-out date.', ar: 'يجب أن يكون تاريخ الوصول قبل تاريخ المغادرة.' },
+    'booking.error.dateOrder': {
+      en: 'Check-in date must be before check-out date.',
+      ar: 'يجب أن يكون تاريخ الوصول قبل تاريخ المغادرة.',
+    },
     'booking.roomType': { en: 'Room Type', ar: 'نوع الغرفة' },
     'booking.pricePerNight': { en: 'Price per night', ar: 'السعر لليلة' },
   };
