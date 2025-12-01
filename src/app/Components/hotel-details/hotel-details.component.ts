@@ -55,8 +55,12 @@ export class HotelDetailsComponent implements OnInit {
   toggleRooms() {
     this.showRooms = !this.showRooms;
   }
-  // select a room type card
+
   selectRoom(room: Room) {
+    if (!room.isActive) {
+      return;
+    }
+
     this.selectedRoom = room;
   }
 

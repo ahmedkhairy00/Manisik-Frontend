@@ -100,8 +100,18 @@
               ${{ formatPrice(room.pricePerNight) }}
             </div>
             <div class="text-sm text-[var(--text-secondary)]">
-              {{ i18n.translate("hotel.available") }}:
-              {{ room.availableRooms }} {{ i18n.translate("hotel.rooms") }}
+              <!-- {{ i18n.translate("hotel.available") }}: -->
+              <span *ngIf="room.availableRooms > 0">
+                {{ i18n.translate("hotel.available") }}:
+                {{ room.availableRooms }} {{ i18n.translate("hotel.rooms") }}
+              </span>
+
+              <span
+                *ngIf="room.availableRooms == 0"
+                class="text-red-500 font-medium"
+              >
+                {{ i18n.translate("hotel.unavailable") }}
+              </span>
             </div>
           </div>
         </div>
@@ -117,6 +127,8 @@
             (click)="bookSelectedRoom(); $event.stopPropagation()"
             class="bg-[var(--primary)] text-white px-3 py-1 rounded text-sm"
             [disabled]="room.availableRooms <= 0 || !room.isActive"
+            [class.opacity-50]="!room.isActive"
+            [class.cursor-not-allowed]="!room.isActive"
           >
             {{ i18n.translate("hotel.book") }}
           </button>
