@@ -22,6 +22,20 @@ export class AuthService {
     this.checkAuth().subscribe();
   }
 
+  // Merged from remote/local: Helper methods
+  getToken(): string | null {
+    return this.getCookie('token');
+  }
+
+  // Helper to read cookie (missing in file, adding safe implementation or relying on httpOnly)
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  }
+
+
   /**
    * Login with email and password
    * Backend sets httpOnly secure cookie with token
@@ -199,9 +213,11 @@ export class AuthService {
   /**
    * Expose token for Authorization header fallback
    */
+  /*
   getToken(): string | null {
     try { return localStorage.getItem('auth_token'); } catch (e) { return null; }
   }
+  */
 
   // Per-user booking draft helpers (still OK to use localStorage for this)
   getBookingData(): any {

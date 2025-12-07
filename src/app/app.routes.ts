@@ -14,11 +14,15 @@ export const routes: Routes = [
     // Booking transport/ground pages (individual booking forms)
     {path: 'booking-transport', loadComponent: () => import('./Components/booking-transport/booking-transport.component').then(m => m.BookingTransportComponent), canActivate: [authGuard]},
     {path: 'booking-ground', loadComponent: () => import('./Components/booking-ground/booking-ground.component').then(m => m.BookingGroundComponent), canActivate: [authGuard]},
+    // Booking International Transport (from remote)
+    {path: 'booking/international', loadComponent: () => import('./Components/booking-international-transport/booking-international-transport.component').then(m => m.BookingInternationalTransportComponent)},
+    
     {path: 'signIn', loadComponent: () => import('./Components/sign-in/sign-in.component').then(m => m.SignInComponent)},
     {path: 'login', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent)},
     {path: 'dashboard', loadComponent: () => import('./Components/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [authGuard]},
     {path: 'profile', loadComponent: () => import('./Components/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard]},
-    {path: '**', redirectTo: ''}
 
+    {path: '**', redirectTo: ''}
+     
 
 ];

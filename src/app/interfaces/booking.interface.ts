@@ -1,5 +1,4 @@
 import { User } from './user.interface';
-import { Hotel, Room } from './hotel.interface';
 import { TransportOption } from './transport.interface';
 
 export enum BookingStatus {

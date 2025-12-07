@@ -52,6 +52,7 @@ import { provideRouter } from '@angular/router';
 import { withInMemoryScrolling } from '@angular/router';
 import {ToastrModule} from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { routes } from './app/app.routes'; // define your routes in a separate file
 
