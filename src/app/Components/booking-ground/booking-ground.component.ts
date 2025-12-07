@@ -97,7 +97,12 @@ export class BookingGroundComponent implements OnInit {
               const current = this.auth.getBookingData() || {};
               const draft: any = { ...(current || {}) };
               if (pending && pending.length) {
-                draft.groundData = pending[pending.length - 1];
+                const latest = pending[pending.length - 1];
+                draft.groundData = latest;
+                // Store server's bookingId
+                if (latest.bookingId) {
+                  draft.bookingId = latest.bookingId;
+                }
               } else {
                 draft.groundData = res.data; // ✅ Use response data, not payload
               }
@@ -118,7 +123,7 @@ export class BookingGroundComponent implements OnInit {
       error: (err: any) => {
         console.error('Booking ground transport failed', err);
         const msg = err?.error?.message || 'Failed to book ground transport';
-        this.toastr.error(msg, 'Error');
+        this.toastr.error(msg);
         this.isSubmitting = false;
       },
       complete: () => (this.isSubmitting = false),

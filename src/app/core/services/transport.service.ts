@@ -12,16 +12,7 @@ export class TransportService {
   private readonly apiUrl = environment.apiUrl;
 
 
-  searchByRoute(departure: string, arrival: string): Observable<TransportOption[]> {
-    const params = new HttpParams()
-      .set('departureAirport', departure)
-      .set('arrivalAirport', arrival);
-
-    return this.http.get<TransportOption[]>(
-      `${this.apiUrl}/InternationalTransport/SearchByRoute`,
-      { params }
-    );
-  }
+    
   getAllInternationalTransports(): Observable<{ success: boolean; message: string; data: any[] }> {
     return this.http.get<{ success: boolean; message: string; data: any[] }>(`${this.apiUrl}/InternationalTransport/GetAllTransports`);
   }

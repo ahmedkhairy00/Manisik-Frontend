@@ -228,9 +228,29 @@ export class AuthService {
   clearUserBookingData(): void {
     try {
       const user = this.getCurrentUserValue();
-      const key = user?.id ? `user_booking_data_${user.id}` : 'user_booking_data_anonymous';
-      localStorage.removeItem(key);
-    } catch (e) {}
+      const userId = user?.id || 'anonymous';
+      
+      // Clear main booking data (single source of truth)
+      const mainKey = user?.id ? `user_booking_data_${user.id}` : 'user_booking_data_anonymous';
+      localStorage.removeItem(mainKey);
+      
+      // Clear legacy fragmented keys (for backward compatibility cleanup)
+      localStorage.removeItem(`makkah_hotel_booking_draft_${userId}`);
+      localStorage.removeItem(`madinah_hotel_booking_draft_${userId}`);
+      localStorage.removeItem(`hotel_booking_draft_${userId}`);
+      localStorage.removeItem(`ground_booking_draft_${userId}`);
+      localStorage.removeItem(`transport_booking_draft_${userId}`);
+      
+      // Clear cached bookings list
+      localStorage.removeItem(`user_bookings_${userId}`);
+      
+      // Clear completed bookings tracking (server handles status now)
+      localStorage.removeItem('completed_bookings');
+      
+      console.log('🧹 Cleared all booking data from localStorage for user:', userId);
+    } catch (e) {
+      console.warn('Failed to clear booking data:', e);
+    }
   }
 
   updateCurrentUser(user: any): void {

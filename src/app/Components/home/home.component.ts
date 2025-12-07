@@ -10,11 +10,14 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import { HeroSliderComponent } from './hero-slider/hero-slider.component';
 import { AIChatComponent } from './ai-chat/ai-chat.component';
 import { I18nService } from 'src/app/core/services/i18n.service';
 import { QuickAction, HomePackage, Step, Statistic, Testimonial, FAQ } from 'src/app/interfaces';
+import { ToastrService } from 'ngx-toastr';
+import { environment } from 'src/environments/environment';
 
 /* ----------  INTERFACES imported from src/app/interfaces  ---------- */
 /* ----------  COMPONENT  ---------- */
@@ -35,6 +38,8 @@ import { QuickAction, HomePackage, Step, Statistic, Testimonial, FAQ } from 'src
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly toastr = inject(ToastrService);
   readonly i18n = inject(I18nService);
 
   t(key: string): string {
@@ -142,9 +147,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   readonly testimonials: Testimonial[] = [
-    { id: 1, name: 'Ahmed Hassan', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed', rating: 5, textKey: 'testimonials.items.0', verified: true },
-    { id: 2, name: 'Fatima Zahra', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima', rating: 5, textKey: 'testimonials.items.1', verified: true },
-    { id: 3, name: 'Mohammad Ali', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mohammad', rating: 5, textKey: 'testimonials.items.2', verified: true },
+    { id: 1, name: 'Ahmed Hassan', avatar: '/images/testimonials/ahmed.svg', rating: 5, textKey: 'testimonials.items.0', verified: true },
+    { id: 2, name: 'Fatima Zahra', avatar: '/images/testimonials/fatima.svg', rating: 5, textKey: 'testimonials.items.1', verified: true },
+    { id: 3, name: 'Mohammad Ali', avatar: '/images/testimonials/mohammad.svg', rating: 5, textKey: 'testimonials.items.2', verified: true },
   ];
 
   readonly faqs: FAQ[] = [
@@ -196,13 +201,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onNewsletterSubmit(): void {
     const email = this.newsletterEmail().trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return; // TODO toast
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.toastr.warning('Please enter a valid email address');
+      return;
+    }
     this.isSubmittingNewsletter.set(true);
-    setTimeout(() => {
-      this.isSubmittingNewsletter.set(false);
-      this.newsletterEmail.set('');
-      // TODO toast success
-    }, 1000);
+    
+    this.http.post<any>(`${environment.apiUrl}/Subscriber/Subscribe`, { email }).subscribe({
+      next: (response) => {
+        this.toastr.success(response?.message || 'Successfully subscribed! Check your email for confirmation.');
+        this.newsletterEmail.set('');
+        this.isSubmittingNewsletter.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.message || 'Subscription failed. Please try again.';
+        this.toastr.error(message);
+        this.isSubmittingNewsletter.set(false);
+      }
+    });
   }
 
   getStarArray(n: number): number[] {

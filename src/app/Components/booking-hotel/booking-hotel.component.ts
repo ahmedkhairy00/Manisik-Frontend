@@ -43,7 +43,8 @@ export class BookingHotelComponent implements OnInit {
   room: any = null;
   totalPrice: number = 0;
   existingBookings: HotelBooking[] = [];
-  pendingBooking: any = null; // Store pending booking if any
+  pendingBooking: any = null; // Store conflicting pending booking if any
+  allPendingBookings: any[] = []; // Store all pending bookings
 
   ngOnInit(): void {
     // Check for pending bookings first
@@ -84,13 +85,24 @@ export class BookingHotelComponent implements OnInit {
   checkPendingBookings() {
     this.bookingsService.getMyPendingHotelBookings().subscribe({
       next: (bookings) => {
-        if (bookings && bookings.length > 0) {
-          this.pendingBooking = bookings[0];
-          // If pending booking matches current hotel/room, we could pre-fill
-          // For now just showing the alert is enough
-        }
+        this.allPendingBookings = bookings || [];
+        this.checkForCityConflict();
       }
     });
+  }
+
+  checkForCityConflict() {
+    if (!this.hotel || !this.allPendingBookings.length) {
+      this.pendingBooking = null;
+      return;
+    }
+
+    // Find if there is a pending booking with the SAME city as the current hotel
+    const conflict = this.allPendingBookings.find(
+      (pb) => pb.city?.toLowerCase() === this.hotel.city?.toLowerCase()
+    );
+
+    this.pendingBooking = conflict || null;
   }
 
   discardPendingBooking() {
@@ -153,6 +165,7 @@ export class BookingHotelComponent implements OnInit {
     this.hotelsService.getHotelById(this.hotelId).subscribe({
       next: (hotel) => {
         this.hotel = hotel;
+        this.checkForCityConflict(); // Check conflict after hotel details loaded
         this.room = hotel.rooms.find((r: any) => r.id === this.roomId);
         if (!this.room) {
           this.toastr.error(
@@ -258,6 +271,11 @@ export class BookingHotelComponent implements OnInit {
               const draft: any = { ...(current || {}) };
 
               if (pending && pending.length) {
+                // Extract server's bookingId from the first pending hotel
+                if (pending[0].bookingId) {
+                  draft.bookingId = pending[0].bookingId;
+                }
+                
                 // Map by city name (case-insensitive)
                 pending.forEach((p: any) => {
                   const city = (p.city || '').toString().toLowerCase();
@@ -315,8 +333,15 @@ export class BookingHotelComponent implements OnInit {
         });
       },
       error: (err: any) => {
+        // Show only the backend message in toaster
         const errorMsg = err?.error?.message || this.i18n.translate('booking.error.failed');
-        this.toastr.error(errorMsg, this.i18n.translate('error'));
+        this.toastr.error(errorMsg);
+        
+        // If it's a city conflict, suggest discarding existing booking
+        if (errorMsg.toLowerCase().includes('already booked') && errorMsg.toLowerCase().includes('city')) {
+          // Refresh pending bookings to show the discard option
+          this.checkPendingBookings();
+        }
       },
     });
   }

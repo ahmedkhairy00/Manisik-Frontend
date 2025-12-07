@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -59,7 +60,9 @@ import {
   CreditCard, 
   Plane, 
   Bus, 
-  Building
+  Building,
+  RefreshCw,
+  Trash2
 } from 'lucide-angular';
 
 @Component({
@@ -73,7 +76,7 @@ import {
   templateUrl: './booking-package.component.html',
   styleUrls: ['./booking-package.component.css'],
 })
-export class BookingPackageComponent implements OnDestroy {
+export class BookingPackageComponent implements OnInit, OnDestroy {
   @ViewChild('cardElement')
   set cardElementRef(value: ElementRef<HTMLDivElement> | undefined) {
     this.cardElementHost = value;
@@ -141,18 +144,38 @@ export class BookingPackageComponent implements OnDestroy {
     // For lucide-angular 0.553.0 with standalone components, we usually import the icons directly in the imports array or use a provider.
     // Let's check how it was done in other components or just add them to the imports array which is the standard way for standalone.
     
-    this.loadHotels();
-    this.ensureBookingId();
-    this.loadPassengerData();
-    this.checkBookingStatus();
-    
     // Initialize countries
     this.countries = this.countriesService.getCountries();
-    // Default to Egypt
-    this.selectedPhoneCountry = this.countriesService.getCountryByCode('EG') || null;
+    // Add "None" option as requested
+    this.countries.unshift({
+      name: 'None',
+      nameAr: 'لا يوجد',
+      code: 'NONE',
+      dialCode: '',
+      flag: '🏳️'
+    });
 
-    // If local draft is missing, try load pending pieces from server
-    this.loadPendingFromServerIfMissing();
+    // Default to Egypt if available, otherwise just leave null
+    const eg = this.countriesService.getCountryByCode('EG');
+    this.selectedPhoneCountry = eg || null;
+  }
+
+  ngOnInit() {
+    this.loadHotels();
+
+    // CRITICAL FIX: storage depends on user ID, so we must wait for auth check
+    this.auth.currentUser$.subscribe(user => {
+       // Only run initialization logic once we have a definitive user state (null or Object)
+       // Note: currentUser$ starts as null, so we might want to skip the very first emission if it's default value
+       // But auth service checkAuth() emits quickly. 
+       
+       this.ensureBookingId();
+       this.loadPassengerData();
+       this.checkBookingStatus();
+       
+       // If local draft is missing or partial, try load pending pieces from server
+       this.loadPendingFromServerIfMissing();
+    });
   }
 
   ngOnDestroy(): void {
@@ -169,37 +192,117 @@ export class BookingPackageComponent implements OnDestroy {
 
   private async loadPendingFromServerIfMissing() {
     try {
-      const current = this.auth.getBookingData() || {};
-      const hasLocal = !!(current.makkahHotelData || current.madinahHotelData || current.transportData || current.groundData);
-      if (hasLocal) return; // nothing to fetch
-
-      // Fetch pending pieces in parallel
+      // ALWAYS fetch from server to ensure sync across devices/sessions
       const [hotels, grounds, internationals] = await Promise.all([
         firstValueFrom(this.bookingsService.getMyPendingHotelBookings()),
         firstValueFrom(this.bookingsService.getMyPendingGroundBookings()),
         firstValueFrom(this.bookingsService.getMyPendingTransportBookings())
       ]);
 
-      const draft: any = { ...(current || {}) };
+      const draft: any = {};
+      let hasServerData = false;
+      let serverBookingId: number | null = null;
 
-      // Map server results into local draft shape. Take latest entries if arrays returned.
+      // Map server hotel results - check for BOTH Makkah and Madinah
       if (hotels && hotels.length) {
-        const last = hotels[hotels.length - 1];
-        // support server naming variations
-        draft.makkahHotelData = last.city === 'Makkah' || last.city === 'مكة' ? last : draft.makkahHotelData;
-        draft.madinahHotelData = last.city === 'Madinah' || last.city === 'المدينة' ? last : draft.madinahHotelData;
+        for (const hotel of hotels) {
+          // Extract server's bookingId
+          if (!serverBookingId && hotel.bookingId) {
+            serverBookingId = hotel.bookingId;
+          }
+
+          const city = (hotel.city || '').toLowerCase();
+          if (city === 'makkah' || city === 'مكة') {
+            draft.makkahHotelData = {
+              hotelId: hotel.hotelId,
+              roomId: hotel.roomId,
+              hotelName: hotel.hotelName,
+              roomType: hotel.roomType,
+              checkInDate: hotel.checkInDate,
+              checkOutDate: hotel.checkOutDate,
+              numberOfRooms: hotel.numberOfRooms,
+              totalPrice: hotel.totalPrice,
+              bookingHotelId: hotel.bookingHotelId,
+              bookingId: hotel.bookingId
+            };
+            hasServerData = true;
+          } else if (city === 'madinah' || city === 'المدينة') {
+            draft.madinahHotelData = {
+              hotelId: hotel.hotelId,
+              roomId: hotel.roomId,
+              hotelName: hotel.hotelName,
+              roomType: hotel.roomType,
+              checkInDate: hotel.checkInDate,
+              checkOutDate: hotel.checkOutDate,
+              numberOfRooms: hotel.numberOfRooms,
+              totalPrice: hotel.totalPrice,
+              bookingHotelId: hotel.bookingHotelId,
+              bookingId: hotel.bookingId
+            };
+            hasServerData = true;
+          }
+        }
       }
 
+      // Map server ground transport results
       if (grounds && grounds.length) {
-        draft.groundData = grounds[grounds.length - 1];
+        const ground = grounds[grounds.length - 1];
+        if (!serverBookingId && ground.bookingId) {
+          serverBookingId = ground.bookingId;
+        }
+        draft.groundData = {
+          groundTransportId: ground.groundTransportId,
+          serviceName: ground.serviceName,
+          serviceDate: ground.serviceDate,
+          pickupLocation: ground.pickupLocation,
+          dropoffLocation: ground.dropoffLocation,
+          numberOfPassengers: ground.numberOfPassengers,
+          totalPrice: ground.totalPrice,
+          bookingGroundTransportId: ground.bookingGroundTransportId,
+          bookingId: ground.bookingId
+        };
+        hasServerData = true;
       }
 
+      // Map server international transport results
       if (internationals && internationals.length) {
-        draft.transportData = internationals[internationals.length - 1];
+        const transport = internationals[internationals.length - 1];
+        if (!serverBookingId && transport.bookingId) {
+          serverBookingId = transport.bookingId;
+        }
+        draft.transportData = {
+          transportId: transport.internationalTransportId || transport.transportId,
+          carrierName: transport.carrierName,
+          transportType: transport.transportType,
+          numberOfSeats: transport.numberOfSeats,
+          totalPrice: transport.totalPrice,
+          bookingInternationalTransportId: transport.bookingInternationalTransportId,
+          bookingId: transport.bookingId
+        };
+        hasServerData = true;
       }
 
       // Save to local storage for fast access
-      this.auth.saveBookingData(draft);
+      if (hasServerData) {
+        // Store server's bookingId as the source of truth
+        if (serverBookingId) {
+          draft.bookingId = serverBookingId;
+          this.bookingId = serverBookingId;
+        }
+        this.auth.saveBookingData(draft);
+        console.log('📦 Synced pending bookings from server:', {
+          bookingId: serverBookingId,
+          makkah: !!draft.makkahHotelData,
+          madinah: !!draft.madinahHotelData,
+          ground: !!draft.groundData,
+          transport: !!draft.transportData
+        });
+      } else {
+        // Server has no pending data - clear local storage to stay in sync
+        console.log('🧹 Server reported no pending bookings. Clearing local storage.');
+        this.auth.clearUserBookingData();
+        this.bookingId = 0;
+      }
 
       // Re-evaluate status
       this.checkBookingStatus();
@@ -240,6 +343,57 @@ export class BookingPackageComponent implements OnDestroy {
     ) {
       this.totalAmount = this.calculateTotalAmount(snapshot);
     }
+  }
+
+  /**
+   * Reset all booking status for a fresh booking after completing a main booking
+   */
+  /**
+   * Reset all booking status for a fresh booking after completing a main booking
+   */
+  private resetBookingStatus() {
+    this.hotelBookedMessage = '';
+    this.transportBookedMessage = '';
+    this.groundBookedMessage = '';
+    this.totalAmount = 0;
+    this.bookingId = 0;
+    
+    // Reset passenger form to defaults
+    this.passenger = {
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      email: '',
+      phone: '',
+      passport: '',
+      passportExpiry: '',
+      passportIssuingCountry: '',
+      nationality: '',
+      gender: 0,
+    };
+    
+    console.log('🔄 Booking status reset for new booking');
+  }
+
+  /**
+   * Public manual reset for user "Start Fresh"
+   */
+  async resetBooking() {
+     const confirm = window.confirm(this.i18nService.t('Are you sure you want to clear all booking data and start fresh?'));
+     if(!confirm) return;
+
+     this.auth.clearUserBookingData();
+     this.resetBookingStatus();
+     
+     // Generate new ID immediately
+     this.ensureBookingId();
+     
+     this.toastr.info('Booking form has been reset.', 'Cleared');
+     
+     // Force reload to ensure no lingering state provided by services
+     // window.location.reload(); 
+     // OR just re-init checks
+     this.checkBookingStatus();
   }
 
   // ---------------- Booking Actions ----------------
@@ -394,17 +548,21 @@ export class BookingPackageComponent implements OnDestroy {
       throw new Error('Booking ID not found in response');
     }
 
-    this.auth.clearUserBookingData();
+    // Booking saved, proceeding to payment
+    // Data will be cleared after successful payment in confirmStripePayment
+    
     return bookingId;
   } catch (error: any) {
     console.error('❌ Error:', error);
     console.error('❌ Error Response:', error?.error);
     
     const errorMsg = error?.error?.message || error?.error?.title || 'فشل إنشاء الحجز';
-    this.toastr.error(errorMsg, 'خطأ');
+    this.toastr.error(errorMsg);
     throw error;
   }
 }
+
+
   private async initStripePayment() {
     this.paymentError = '';
 
@@ -429,10 +587,10 @@ export class BookingPackageComponent implements OnDestroy {
       console.error('Stripe init error', error);
 
       if (error.status === 404) {
-        this.toastr.error('نقطة نهاية الدفع غير موجودة. يرجى الاتصال بالدعم.', 'خطأ');
+        this.toastr.error('نقطة نهاية الدفع غير موجودة. يرجى الاتصال بالدعم.');
       } else {
         const errorMsg = error?.error?.message || 'فشل تهيئة الدفع. الرجاء المحاولة مرة أخرى.';
-        this.toastr.error(errorMsg, 'خطأ');
+        this.toastr.error(errorMsg);
       }
       throw error;
     } finally {
@@ -462,16 +620,47 @@ export class BookingPackageComponent implements OnDestroy {
 
       if (result.error) {
         this.paymentError = result.error.message || 'فشل الدفع.';
-        this.toastr.error(this.paymentError, 'Stripe');
+        this.toastr.error(this.paymentError);
         return;
       }
 
       if (result.paymentIntent?.status === 'succeeded') {
+        // IMPORTANT: Call backend to confirm payment and update booking status
+        // This ensures the booking is marked as Confirmed before we clear localStorage
+        try {
+          const confirmResponse = await fetch(`${environment.apiUrl}/Stripe/ConfirmPayment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ paymentIntentId: result.paymentIntent.id })
+          });
+          
+          if (!confirmResponse.ok) {
+            console.warn('Failed to confirm payment on backend, webhook will handle it');
+          } else {
+            console.log('Payment confirmed on backend successfully');
+          }
+        } catch (confirmErr) {
+          console.warn('Error confirming payment on backend:', confirmErr);
+          // Don't block - webhook will handle it as fallback
+        }
+
         this.paymentSuccess = 'تم الدفع بنجاح!';
         this.toastr.success(this.paymentSuccess, 'Stripe');
-        this.clearBookingCache();
+        
+        // Save ID before reset
+        const completedBookingId = this.bookingId;
+
+        // Clear all booking data from localStorage (server has confirmed status now)
+        this.auth.clearUserBookingData();
+        
+        // Reset component status for fresh booking
+        this.resetBookingStatus();
+        
         // Navigate to confirmation with booking id and payment intent
-        this.router.navigate(['/booking-confirmation', this.bookingId], {
+        this.router.navigate(['/booking-confirmation', completedBookingId], {
           queryParams: {
             paymentIntentId: result.paymentIntent.id,
           },
@@ -480,24 +669,33 @@ export class BookingPackageComponent implements OnDestroy {
     } catch (err) {
       console.error('Stripe confirmation error', err);
       this.paymentError = err instanceof Error ? err.message : 'حدث خطأ أثناء الدفع.';
-      this.toastr.error(this.paymentError, 'Stripe');
+      this.toastr.error(this.paymentError);
     } finally {
       this.isPaymentProcessing = false;
     }
   }
 
+  /**
+   * Cancel payment and close the payment modal
+   */
+  cancelPayment() {
+    this.clientSecret = null;
+    this.paymentError = '';
+    this.paymentSuccess = '';
+    this.cleanupStripe();
+    this.toastr.info('Payment cancelled', 'Info');
+  }
+
   // ---------------- Utilities ----------------
   private ensureBookingId() {
     const userData = this.auth.getBookingData();
-    if (userData?.bookingId) {
+
+    // Use server's bookingId if available (set when booking items are created)
+    if (userData?.bookingId && typeof userData.bookingId === 'number') {
       this.bookingId = userData.bookingId;
     } else {
-      // If no booking ID exists in the user data, generate one and save it
-      this.bookingId = Math.floor(Math.random() * 1000000);
-      this.auth.saveBookingData({
-        ...userData,
-        bookingId: this.bookingId,
-      });
+      // No booking ID yet - will be set when first booking item is created on server
+      this.bookingId = 0;
     }
   }
 
@@ -532,12 +730,49 @@ export class BookingPackageComponent implements OnDestroy {
       this.coerceAmount(data.makkahHotel?.totalPrice) + this.coerceAmount(data.madinahHotel?.totalPrice);
     const transportTotals =
       this.coerceAmount(data.internationalTransport?.totalPrice) + this.coerceAmount(data.groundTransport?.totalPrice);
-    return hotelTotals + transportTotals;
+    const subtotal = hotelTotals + transportTotals;
+    const tax = Math.round(subtotal * 0.05 * 100) / 100; // 5% tax
+    const serviceFee = 25; // Flat service fee
+    return Math.round((subtotal + tax + serviceFee) * 100) / 100;
   }
 
   private coerceAmount(value: any): number {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  // Price breakdown helpers for Stripe modal
+  getSubtotal(): number {
+    const snapshot = this.getBookingSnapshotFromStorage();
+    const makkah = this.coerceAmount(snapshot.makkahHotel?.totalPrice);
+    const madinah = this.coerceAmount(snapshot.madinahHotel?.totalPrice);
+    const transport = this.coerceAmount(snapshot.internationalTransport?.totalPrice);
+    const ground = this.coerceAmount(snapshot.groundTransport?.totalPrice);
+    return makkah + madinah + transport + ground;
+  }
+
+  getTax(): number {
+    // 5% tax
+    return Math.round(this.getSubtotal() * 0.05 * 100) / 100;
+  }
+
+  getServiceFee(): number {
+    // Flat $25 service fee
+    return 25;
+  }
+
+  // Individual price getters for HTML template
+  get makkahHotelData() {
+    return this.getBookingSnapshotFromStorage().makkahHotel;
+  }
+  get madinahHotelData() {
+    return this.getBookingSnapshotFromStorage().madinahHotel;
+  }
+  get transportData() {
+    return this.getBookingSnapshotFromStorage().internationalTransport;
+  }
+  get groundData() {
+    return this.getBookingSnapshotFromStorage().groundTransport;
   }
 
   private loadPassengerData() {
@@ -590,10 +825,18 @@ export class BookingPackageComponent implements OnDestroy {
   }
 
   private isPassengerInfoValid(): boolean {
-    if (!this.passenger.firstName || !this.passenger.lastName || !this.passenger.email || !this.passenger.phone) {
-      this.toastr.warning('يرجى إكمال بيانات المسافر الأساسية.', 'بيانات ناقصة');
+    const p = this.passenger;
+    if (!p.firstName || !p.lastName || !p.email || !p.phone || !p.passport || !p.passportExpiry || !p.nationality) {
+      this.toastr.warning('Please complete all passenger information', 'Missing Data');
       return false;
     }
+
+    if (!p.passportIssuingCountry) {
+      this.toastr.warning('Please select a passport issuing country', 'Missing Data');
+      return false;
+    }
+    
     return true;
   }
+
 }

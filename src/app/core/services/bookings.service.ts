@@ -14,57 +14,8 @@ export class BookingsService {
   private readonly apiUrl = environment.apiUrl;
 
   constructor() {
-    // Sync pending bookings whenever user logs in
-    this.auth.currentUser$.subscribe(user => {
-      if (user) {
-        this.syncPendingBookings(user);
-      }
-    });
-  }
-
-  /**
-   * Fetches pending bookings from backend and updates localStorage
-   * This enables cross-device draft synchronization
-   */
-  private syncPendingBookings(user: any): void {
-    if (!user?.id) return;
-
-    // 1. Sync Hotel Bookings
-    this.getMyPendingHotelBookings().subscribe({
-      next: (bookings) => {
-        if (bookings && bookings.length > 0) {
-          // Store latest pending booking in localStorage
-          const latest = bookings[0]; 
-          const key = `hotel_booking_draft_${user.id}`;
-          localStorage.setItem(key, JSON.stringify(latest));
-        }
-      },
-      error: () => console.warn('Failed to sync pending hotel bookings')
-    });
-
-    // 2. Sync Ground Transport Bookings
-    this.getMyPendingGroundBookings().subscribe({
-      next: (bookings) => {
-        if (bookings && bookings.length > 0) {
-          const latest = bookings[0];
-          const key = `ground_booking_draft_${user.id}`;
-          localStorage.setItem(key, JSON.stringify(latest));
-        }
-      },
-      error: () => console.warn('Failed to sync pending ground bookings')
-    });
-
-    // 3. Sync International Transport Bookings
-    this.getMyPendingTransportBookings().subscribe({
-      next: (bookings) => {
-        if (bookings && bookings.length > 0) {
-          const latest = bookings[0];
-          const key = `transport_booking_draft_${user.id}`;
-          localStorage.setItem(key, JSON.stringify(latest));
-        }
-      },
-      error: () => console.warn('Failed to sync pending transport bookings')
-    });
+    // Pending bookings sync is now handled by BookingPackageComponent
+    // using AuthService.saveBookingData() for single source of truth
   }
 
   // Compatibility: returns list of bookings (uses /Booking/AllBookings)
@@ -254,15 +205,17 @@ export class BookingsService {
 
   // Update booking status
   updateStatus(id: string, status: string): Observable<any> {
+    const headers = { 'Content-Type': 'application/json' };
     return this.http
-      .put<ApiResponse<BookingDto>>(`${this.apiUrl}/Booking/UpdateStatus/${id}`, { status }, { withCredentials: true })
+      .put<ApiResponse<BookingDto>>(`${this.apiUrl}/Booking/UpdateStatus/${id}`, JSON.stringify(status), { headers, withCredentials: true })
       .pipe(map(res => res.data as any));
   }
 
   // Update payment status
   updatePaymentStatus(id: string, paymentStatus: string): Observable<any> {
+    const headers = { 'Content-Type': 'application/json' };
     return this.http
-      .put<ApiResponse<BookingDto>>(`${this.apiUrl}/Booking/UpdatePaymentStatus/${id}`, { paymentStatus }, { withCredentials: true })
+      .put<ApiResponse<BookingDto>>(`${this.apiUrl}/Booking/UpdatePaymentStatus/${id}`, JSON.stringify(paymentStatus), { headers, withCredentials: true })
       .pipe(map(res => res.data as any));
   }
 

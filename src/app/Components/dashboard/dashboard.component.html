@@ -110,7 +110,9 @@
             <div class="absolute top-0 right-0 w-64 h-64 bg-[var(--color-bg)]/10 rounded-full -mr-16 -mt-16 blur-3xl">
             </div>
             <div class="relative z-10">
-              <h2 class="text-3xl font-bold mb-2">{{ i18n.t('dashboard.welcome') }} 👋</h2>
+              <h2 class="text-3xl font-bold mb-2"><span> {{i18n.t('dashboard.welcome')}} </span> {{currentUserName()}}
+                👋
+              </h2>
               <p class="text-white/90 text-lg">{{ getWelcomeMessage() }}</p>
             </div>
           </div>
@@ -230,35 +232,68 @@
             <div *ngFor="let booking of filteredBookings()"
               class="bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--border)] shadow-sm hover:shadow-md transition-all duration-200">
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="flex items-start gap-4">
+                <div class="flex items-start gap-4 flex-1">
                   <div
-                    class="w-14 h-14 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] font-bold text-lg">
-                    #{{ booking.id }}</div>
-                  <div>
-                    <div class="flex items-center gap-3 mb-1">
-                      <h4 class="font-bold text-lg text-[var(--color-text)]">{{ getBookingType(booking) }}</h4>
+                    class="w-14 h-14 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] font-bold text-lg shrink-0">
+                    {{ (booking.type === 'Hajj' || booking.type === '1') ? '🕋' : '🕌' }}</div>
+                  <div class="space-y-1 w-full">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <!-- Booking Number -->
+                      <h4 class="font-bold text-lg text-[var(--color-text)]">{{ getBookingNumber(booking) }}</h4>
+
+                      <!-- Status Badge -->
                       <span class="px-2.5 py-1 rounded-full text-xs font-medium border" [ngClass]="{
                         'bg-green-50 text-green-700 border-green-200': booking.status === 'Confirmed',
                         'bg-yellow-50 text-yellow-700 border-yellow-200': booking.status === 'Pending',
-                        'bg-red-50 text-red-700 border-red-200': booking.status === 'Cancelled'
+                        'bg-red-50 text-red-700 border-red-200': booking.status === 'Cancelled',
+                        'bg-blue-50 text-blue-700 border-blue-200': booking.status === 'Completed'
                       }">{{ booking.status }}</span>
+
+                      <!-- Trip Type Badge -->
+                      <span
+                        class="px-2 py-0.5 rounded-md text-xs bg-gray-100 dark:bg-gray-800 text-[var(--color-text-muted)] border border-[var(--border)]">
+                        {{ getBookingType(booking) }}
+                      </span>
                     </div>
-                    <div class="text-sm text-[var(--color-text-muted)]">📅 {{ i18n.t('dashboard.created') }}: {{
-                      formatDate(booking.createdAt) }}</div>
+
+                    <!-- User Name (Admin Only) -->
+                    <div *ngIf="role() === 'Admin'"
+                      class="text-sm font-medium text-[var(--color-text)] flex items-center gap-2">
+                      <lucide-icon name="user" class="w-3.5 h-3.5 text-[var(--color-text-muted)]"></lucide-icon>
+                      {{ getUserName(booking.userId) }}
+                    </div>
+
+                    <!-- Date & Price -->
+                    <div class="text-xs text-[var(--color-text-muted)] flex items-center gap-3">
+                      <span>📅 {{ formatDate(booking.createdAt) }}</span>
+                      <span class="font-semibold text-[var(--primary)]">💰 {{ booking.totalPrice | currency:'USD'
+                        }}</span>
+                    </div>
                   </div>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                  <button *ngIf="role() === 'Admin' && booking.status === 'Pending'"
-                    (click)="updateBookingStatus((booking.id), 'Confirmed')"
-                    class="px-4 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-sm font-medium transition-colors">✅
-                    {{ i18n.t('dashboard.confirm') }}</button>
-                  <button *ngIf="role() === 'Admin' && booking.status !== 'Cancelled'"
-                    (click)="updateBookingStatus((booking.id), 'Cancelled')"
-                    class="px-4 py-2 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 text-sm font-medium transition-colors">❌
-                    {{ i18n.t('common.cancel') }}</button>
-                  <button *ngIf="canCancelBooking(booking)" (click)="cancelBooking(booking)"
-                    class="px-4 py-2 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 text-sm font-medium transition-colors">❌
-                    {{ i18n.t('dashboard.cancelBooking') }}</button>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-2 items-center">
+
+                  <!-- Admin Status Dropdown -->
+                  <div *ngIf="role() === 'Admin'" class="relative">
+                    <select (change)="updateBookingStatus(booking.id!, $any($event.target).value)"
+                      [value]="booking.status"
+                      class="px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-sm font-medium focus:ring-2 focus:ring-[var(--primary)]/20 outline-none cursor-pointer">
+                      <option value="Pending">Pending</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+
+                  <!-- User Cancel Button (Only if allowed) -->
+                  <button *ngIf="role() === 'User' && canCancelBooking(booking)" (click)="cancelBooking(booking)"
+                    class="px-4 py-2 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 text-sm font-medium transition-colors flex items-center gap-2">
+                    <lucide-icon name="x-circle" class="w-4 h-4"></lucide-icon>
+                    {{ i18n.t('dashboard.cancelBooking') }}
+                  </button>
+
                 </div>
               </div>
             </div>
@@ -564,20 +599,79 @@
           <input type="text" [(ngModel)]="hotelFormData.address"
             class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.pricePerNight') }} (SAR)</label>
-          <input type="number" [(ngModel)]="hotelFormData.pricePerNight"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.availableRooms') }}</label>
-          <input type="number" [(ngModel)]="hotelFormData.availableRooms"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-        </div>
+
         <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.distanceToHaram') }} (km)</label>
           <input type="number" step="0.1" [(ngModel)]="hotelFormData.distanceToHaram"
             class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+        </div>
+
+        <!-- Rooms Section -->
+        <div class="md:col-span-2">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-medium">{{ i18n.t('dashboard.rooms') }}</label>
+            <button (click)="addRoom()" type="button"
+              class="text-xs px-2 py-1 bg-[var(--primary)] text-white rounded hover:opacity-90">
+              + {{ i18n.t('common.add') }}
+            </button>
+          </div>
+
+          <div class="space-y-3 mb-4">
+            <div *ngFor="let room of hotelFormData.rooms; let i = index"
+              class="p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--border)] relative">
+              <button (click)="removeRoom(i)" type="button"
+                class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <lucide-icon name="trash-2" class="w-4 h-4"></lucide-icon>
+              </button>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pr-8">
+                <div>
+                  <label class="text-xs text-[var(--color-text-muted)] block mb-1">Type <span
+                      class="text-red-500">*</span></label>
+                  <select [(ngModel)]="room.roomType" required
+                    class="w-full px-2 py-1 text-sm rounded border border-[var(--border)] bg-[var(--color-surface)] text-[var(--color-text)]">
+                    <option value="Single">Single</option>
+                    <option value="Double">Double</option>
+                    <option value="Triple">Triple</option>
+                    <option value="Quadruple">Quadruple</option>
+                    <option value="Suite">Suite</option>
+                    <option value="Family">Family</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-[var(--color-text-muted)] block mb-1">Capacity <span
+                      class="text-red-500">*</span></label>
+                  <input type="number" [(ngModel)]="room.capacity" min="1" required
+                    class="w-full px-2 py-1 text-sm rounded border border-[var(--border)] bg-[var(--color-surface)] text-[var(--color-text)]">
+                </div>
+                <div>
+                  <label class="text-xs text-[var(--color-text-muted)] block mb-1">Price <span
+                      class="text-red-500">*</span></label>
+                  <input type="number" [(ngModel)]="room.pricePerNight" min="1" required
+                    class="w-full px-2 py-1 text-sm rounded border border-[var(--border)] bg-[var(--color-surface)] text-[var(--color-text)]"
+                    [class.border-red-500]="!room.pricePerNight || room.pricePerNight < 1">
+                </div>
+                <div>
+                  <label class="text-xs text-[var(--color-text-muted)] block mb-1">Avail. <span
+                      class="text-red-500">*</span></label>
+                  <input type="number" [(ngModel)]="room.availableRooms" min="0" required
+                    class="w-full px-2 py-1 text-sm rounded border border-[var(--border)] bg-[var(--color-surface)] text-[var(--color-text)]">
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!hotelFormData.rooms?.length"
+              class="text-center py-4 bg-[var(--color-bg)] rounded-xl border border-[var(--border)] border-dashed text-sm text-[var(--color-text-muted)]">
+              No rooms added. Please add at least one room.
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.description') }}</label>
+          <textarea [(ngModel)]="hotelFormData.description" rows="3"
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"></textarea>
         </div>
 
         <!-- Image Upload -->
@@ -620,106 +714,110 @@
         <div class="md:col-span-2">
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.carrierName') }}</label>
           <input type="text" [(ngModel)]="internationalTransportFormData.carrierName"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.transportType') }}</label>
+          <label class="block text-sm font-medium mb-1.5">Transport Type</label>
           <select [(ngModel)]="internationalTransportFormData.internationalTransportType"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
             <option value="Flight">Flight</option>
             <option value="Ship">Ship</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.pricePerNight') }} (SAR)</label>
-          <input type="number" [(ngModel)]="internationalTransportFormData.price"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-        </div>
-        <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.departureAirport') }}</label>
           <input type="text" [(ngModel)]="internationalTransportFormData.departureAirport"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.arrivalAirport') }}</label>
           <input type="text" [(ngModel)]="internationalTransportFormData.arrivalAirport"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.departureDate') }}</label>
           <input type="datetime-local" [(ngModel)]="internationalTransportFormData.departureDate"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.arrivalDate') }}</label>
           <input type="datetime-local" [(ngModel)]="internationalTransportFormData.arrivalDate"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Price (SAR)</label>
+          <input type="number" [(ngModel)]="internationalTransportFormData.price"
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Total Seats</label>
+          <input type="number" [(ngModel)]="internationalTransportFormData.totalSeats"
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.availableSeats') }}</label>
           <input type="number" [(ngModel)]="internationalTransportFormData.availableSeats"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none">
+        </div>
+        <div class="flex gap-3">
+          <button (click)="saveInternationalTransport()"
+            class="flex-1 px-4 py-3 rounded-xl bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity">{{
+            i18n.t('common.save') }}</button>
+          <button (click)="showInternationalTransportModal.set(false)"
+            class="flex-1 px-4 py-3 rounded-xl bg-[var(--color-bg)] border border-[var(--border)] font-medium hover:bg-[var(--color-surface)] transition-colors">{{
+            i18n.t('common.cancel') }}</button>
         </div>
       </div>
-      <div class="flex gap-3">
-        <button (click)="saveInternationalTransport()"
-          class="flex-1 px-4 py-3 rounded-xl bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity">{{
-          i18n.t('common.save') }}</button>
-        <button (click)="showInternationalTransportModal.set(false)"
-          class="flex-1 px-4 py-3 rounded-xl bg-[var(--color-bg)] border border-[var(--border)] font-medium hover:bg-[var(--color-surface)] transition-colors">{{
-          i18n.t('common.cancel') }}</button>
-      </div>
     </div>
-  </div>
 
-  <!-- Ground Transport Modal -->
-  <div *ngIf="showGroundTransportModal()"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn"
-    (click)="showGroundTransportModal.set(false)">
-    <div
-      class="bg-[var(--color-surface)] rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-[var(--border)] my-8 transform transition-all scale-100"
-      (click)="$event.stopPropagation()">
-      <h3 class="text-2xl font-bold mb-6">{{ selectedGroundTransport() ? i18n.t('dashboard.editTransport') :
-        i18n.t('dashboard.addTransport') }}</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.serviceName') }}</label>
-          <input type="text" [(ngModel)]="groundTransportFormData.serviceName"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+    <!-- Ground Transport Modal -->
+    <div *ngIf="showGroundTransportModal()"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn"
+      (click)="showGroundTransportModal.set(false)">
+      <div
+        class="bg-[var(--color-surface)] rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-[var(--border)] my-8 transform transition-all scale-100"
+        (click)="$event.stopPropagation()">
+        <h3 class="text-2xl font-bold mb-6">{{ selectedGroundTransport() ? i18n.t('dashboard.editTransport') :
+          i18n.t('dashboard.addTransport') }}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.serviceName') }}</label>
+            <input type="text" [(ngModel)]="groundTransportFormData.serviceName"
+              class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.transportType') }}</label>
+            <select [(ngModel)]="groundTransportFormData.type"
+              class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+              <option value="PrivateCar">Private Car</option>
+              <option value="SharedBus">Shared Bus</option>
+              <option value="Taxi">Taxi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.capacity') }}</label>
+            <input type="number" [(ngModel)]="groundTransportFormData.capacity"
+              class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.pricePerNight') }} (SAR)</label>
+            <input type="number" [(ngModel)]="groundTransportFormData.pricePerPerson"
+              class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.description') }}</label>
+            <textarea [(ngModel)]="groundTransportFormData.description" rows="3"
+              class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]"></textarea>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.transportType') }}</label>
-          <select [(ngModel)]="groundTransportFormData.type"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-            <option [value]="0">Private Car</option>
-            <option [value]="1">Shared Bus</option>
-            <option [value]="2">Taxi</option>
-          </select>
+        <div class="flex gap-3">
+          <button (click)="saveGroundTransport()"
+            class="flex-1 px-4 py-3 rounded-xl bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity">{{
+            i18n.t('common.save') }}</button>
+          <button (click)="showGroundTransportModal.set(false)"
+            class="flex-1 px-4 py-3 rounded-xl bg-[var(--color-bg)] border border-[var(--border)] font-medium hover:bg-[var(--color-surface)] transition-colors">{{
+            i18n.t('common.cancel') }}</button>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.capacity') }}</label>
-          <input type="number" [(ngModel)]="groundTransportFormData.capacity"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.pricePerNight') }} (SAR)</label>
-          <input type="number" [(ngModel)]="groundTransportFormData.pricePerPerson"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]">
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1.5">{{ i18n.t('dashboard.description') }}</label>
-          <textarea [(ngModel)]="groundTransportFormData.description" rows="3"
-            class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none text-[var(--color-text)]"></textarea>
-        </div>
-      </div>
-      <div class="flex gap-3">
-        <button (click)="saveGroundTransport()"
-          class="flex-1 px-4 py-3 rounded-xl bg-[var(--primary)] text-white font-medium hover:opacity-90 transition-opacity">{{
-          i18n.t('common.save') }}</button>
-        <button (click)="showGroundTransportModal.set(false)"
-          class="flex-1 px-4 py-3 rounded-xl bg-[var(--color-bg)] border border-[var(--border)] font-medium hover:bg-[var(--color-surface)] transition-colors">{{
-          i18n.t('common.cancel') }}</button>
       </div>
     </div>
   </div>
-</div>

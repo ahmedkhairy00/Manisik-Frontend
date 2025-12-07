@@ -356,8 +356,8 @@ export class I18nService {
     'dashboard.menu.transport': { en: 'Transport', ar: 'النقل' },
     'dashboard.menu.users': { en: 'Users', ar: 'المستخدمون' },
     'dashboard.welcome': {
-      en: 'Welcome back, John!',
-      ar: 'مرحبًا بعودتك، جون!',
+      en: 'Welcome back, !',
+      ar: 'مرحبًا بعودتك، !',
     },
     'dashboard.greeting': { en: 'As-salamu alaykum', ar: 'السلام عليكم' },
     'dashboard.subtitle': {
@@ -577,6 +577,7 @@ export class I18nService {
     'common.filter': { en: 'Filter', ar: 'تصفية' },
     'common.apply': { en: 'Apply', ar: 'تطبيق' },
     'common.reset': { en: 'Reset', ar: 'إعادة تعيين' },
+    'common.all': { en: 'All', ar: 'الكل' },
 
     // About Section
     'home.about.title': { en: 'About Manisik', ar: 'عن مناسك' },

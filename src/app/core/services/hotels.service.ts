@@ -73,4 +73,9 @@ export class HotelsService {
       `${this.apiUrl}/Hotel/${hotelId}/rooms/${roomId}`
     );
   }
+  deleteHotel(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Hotel/${id}`);
+  }
+
+
 }

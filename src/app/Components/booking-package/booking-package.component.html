@@ -2,7 +2,15 @@
 
   <!-- Trip Type Selection -->
   <section>
-    <h2 class="text-2xl font-bold mb-6 text-[var(--color-text)]">{{ i18nService.t('home.trending') }}</h2>
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <h2 class="text-2xl font-bold text-[var(--color-text)]">{{ i18nService.t('home.trending') }}</h2>
+
+      <button (click)="resetBooking()"
+        class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium border border-red-200 dark:border-red-800/30">
+        <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon>
+        <span>{{ i18nService.language() === 'ar' ? 'بدء حجز جديد (مسح البيانات)' : 'Start Fresh (Clear Data)' }}</span>
+      </button>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div
         class="border border-[var(--border)] rounded-2xl shadow-sm p-1 cursor-pointer hover:scale-[1.02] transition-all duration-300 bg-[var(--color-surface)] group"
@@ -11,10 +19,9 @@
         (keydown.enter)="chooseTrip('umrah')" (keydown.space)="chooseTrip('umrah')"
         [attr.aria-pressed]="selectedTripType === 'umrah'">
         <div class="relative h-48 rounded-xl overflow-hidden mb-3">
-          <img src="assets/images/umrah.jpg"
+          <img src="/images/hero/umrah.jpg"
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            alt="Umrah pilgrimage"
-            onerror="this.src='https://images.unsplash.com/photo-1565552629477-ff9785a277d1?q=80&w=1000&auto=format&fit=crop'" />
+            alt="Umrah pilgrimage" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
             <h3 class="text-xl font-bold text-white">🕋 {{ i18nService.t('docs.umrah.title') }}</h3>
           </div>
@@ -32,10 +39,9 @@
         (keydown.enter)="chooseTrip('hajj')" (keydown.space)="chooseTrip('hajj')"
         [attr.aria-pressed]="selectedTripType === 'hajj'">
         <div class="relative h-48 rounded-xl overflow-hidden mb-3">
-          <img src="assets/images/hajj.jpg"
+          <img src="/images/hero/HiJ.jpg"
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            alt="Hajj pilgrimage"
-            onerror="this.src='https://images.unsplash.com/photo-1537181534458-45d61194285d?q=80&w=1000&auto=format&fit=crop'" />
+            alt="Hajj pilgrimage" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
             <h3 class="text-xl font-bold text-white">✈ {{ i18nService.t('docs.hajj.title') }}</h3>
           </div>
@@ -449,33 +455,182 @@
     </div>
   </section>
 
-  <!-- Stripe Element -->
-  <section *ngIf="clientSecret"
-    class="bg-[var(--color-surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm animate-fadeIn">
-    <h2 class="text-xl font-bold mb-4 text-[var(--color-text)]">Enter Card Details</h2>
-    <div class="border border-[var(--border)] rounded-xl p-4 bg-[var(--color-bg)] mb-4">
-      <div #cardElement class="stripe-card-element" aria-label="Credit card input"></div>
-    </div>
+  <!-- Stripe Payment Modal -->
+  <div *ngIf="clientSecret"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div
+      class="bg-[var(--color-surface)] w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden border border-[var(--border)]">
+      <!-- Header with Stripe branding -->
+      <div class="bg-gradient-to-r from-[#635bff] to-[#7a73ff] px-6 py-5 text-white">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <svg class="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
+            </svg>
+            <div>
+              <h2 class="text-lg font-bold">Secure Payment</h2>
+              <p class="text-sm text-white/80">Powered by Stripe</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <lucide-icon name="shield-check" class="w-6 h-6 text-white/80"></lucide-icon>
+          </div>
+        </div>
+      </div>
 
-    <div *ngIf="paymentError"
-      class="p-4 mb-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-2" role="alert">
-      <lucide-icon name="alert-circle" class="w-5 h-5"></lucide-icon>
-      {{ paymentError }}
-    </div>
+      <!-- Payment Form Body -->
+      <div class="p-6 space-y-5">
+        <!-- Passenger Info -->
+        <div class="bg-[var(--color-bg)] rounded-xl p-4 border border-[var(--border)]">
+          <h4 class="font-bold text-[var(--color-text)] mb-3 flex items-center gap-2 text-sm">
+            <lucide-icon name="user" class="w-4 h-4 text-[var(--primary)]"></lucide-icon>
+            Passenger Details
+          </h4>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <span class="text-[var(--color-text-muted)]">Name:</span>
+            <span class="text-[var(--color-text)] font-medium">{{ passenger.firstName }} {{ passenger.lastName }}</span>
+            <span class="text-[var(--color-text-muted)]">Email:</span>
+            <span class="text-[var(--color-text)] font-medium truncate">{{ passenger.email }}</span>
+            <span class="text-[var(--color-text-muted)]">Nationality:</span>
+            <span class="text-[var(--color-text)] font-medium">{{ passenger.nationality }}</span>
+          </div>
+        </div>
 
-    <div *ngIf="paymentSuccess"
-      class="p-4 mb-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center gap-2"
-      role="status">
-      <lucide-icon name="check-circle" class="w-5 h-5"></lucide-icon>
-      {{ paymentSuccess }}
-    </div>
+        <!-- Price Breakdown -->
+        <div class="bg-[var(--color-bg)] rounded-xl p-4 border border-[var(--border)]">
+          <h4 class="font-bold text-[var(--color-text)] mb-3 flex items-center gap-2 text-sm">
+            <lucide-icon name="receipt" class="w-4 h-4 text-[var(--primary)]"></lucide-icon>
+            Price Breakdown
+          </h4>
+          <div class="space-y-2 text-sm">
+            <!-- Makkah Hotel -->
+            <div *ngIf="makkahHotelData" class="flex justify-between items-center">
+              <span class="text-[var(--color-text-muted)] flex items-center gap-2">
+                <lucide-icon name="building-2" class="w-4 h-4"></lucide-icon>
+                Makkah Hotel
+              </span>
+              <span class="text-[var(--color-text)] font-medium">${{ makkahHotelData.totalPrice || 0 }}</span>
+            </div>
+            <!-- Madinah Hotel -->
+            <div *ngIf="madinahHotelData" class="flex justify-between items-center">
+              <span class="text-[var(--color-text-muted)] flex items-center gap-2">
+                <lucide-icon name="building" class="w-4 h-4"></lucide-icon>
+                Madinah Hotel
+              </span>
+              <span class="text-[var(--color-text)] font-medium">${{ madinahHotelData.totalPrice || 0 }}</span>
+            </div>
+            <!-- International Transport -->
+            <div *ngIf="transportData" class="flex justify-between items-center">
+              <span class="text-[var(--color-text-muted)] flex items-center gap-2">
+                <lucide-icon name="plane" class="w-4 h-4"></lucide-icon>
+                International Transport
+              </span>
+              <span class="text-[var(--color-text)] font-medium">${{ transportData.totalPrice || 0 }}</span>
+            </div>
+            <!-- Ground Transport -->
+            <div *ngIf="groundData" class="flex justify-between items-center">
+              <span class="text-[var(--color-text-muted)] flex items-center gap-2">
+                <lucide-icon name="bus" class="w-4 h-4"></lucide-icon>
+                Ground Transport
+              </span>
+              <span class="text-[var(--color-text)] font-medium">${{ groundData.totalPrice || 0 }}</span>
+            </div>
 
-    <button
-      class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
-      (click)="confirmStripePayment()" [disabled]="isPaymentProcessing">
-      <div *ngIf="isPaymentProcessing"
-        class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-      {{ isPaymentProcessing ? 'Processing Payment...' : 'Pay Now' }}
-    </button>
-  </section>
+            <div class="border-t border-[var(--border)] my-2 pt-2">
+              <!-- Subtotal -->
+              <div class="flex justify-between items-center">
+                <span class="text-[var(--color-text-muted)]">Subtotal</span>
+                <span class="text-[var(--color-text)] font-medium">${{ getSubtotal() }}</span>
+              </div>
+              <!-- Tax -->
+              <div class="flex justify-between items-center">
+                <span class="text-[var(--color-text-muted)]">Tax (5%)</span>
+                <span class="text-[var(--color-text)] font-medium">${{ getTax() }}</span>
+              </div>
+              <!-- Service Fee -->
+              <div class="flex justify-between items-center">
+                <span class="text-[var(--color-text-muted)]">Service Fee</span>
+                <span class="text-[var(--color-text)] font-medium">${{ getServiceFee() }}</span>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="flex justify-between items-center pt-2 border-t border-[var(--border)]">
+              <span class="text-[var(--color-text)] font-bold text-base">Total</span>
+              <span class="text-2xl font-bold text-[#635bff]">${{ totalAmount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Input Container -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-[var(--color-text)] flex items-center gap-2">
+            <lucide-icon name="credit-card" class="w-4 h-4 text-[var(--primary)]"></lucide-icon>
+            Card Information
+          </label>
+          <div class="border-2 border-[var(--border)] rounded-xl p-4 bg-[var(--color-bg)]
+                      focus-within:border-[#635bff] focus-within:ring-2 focus-within:ring-[#635bff]/20 transition-all">
+            <div #cardElement class="stripe-card-element min-h-[24px]" aria-label="Credit card input"></div>
+          </div>
+          <p class="text-xs text-[var(--color-text-muted)] flex items-center gap-1">
+            <lucide-icon name="lock" class="w-3.5 h-3.5"></lucide-icon>
+            Your payment info is encrypted and secure
+          </p>
+        </div>
+
+        <!-- Accepted Cards -->
+        <div class="flex items-center justify-center gap-4 py-2">
+          <div class="px-3 py-1.5 bg-[var(--color-bg)] rounded-lg border border-[var(--border)]">
+            <span class="text-xs font-bold text-blue-600">VISA</span>
+          </div>
+          <div class="px-3 py-1.5 bg-[var(--color-bg)] rounded-lg border border-[var(--border)]">
+            <span class="text-xs font-bold text-orange-500">Mastercard</span>
+          </div>
+          <div class="px-3 py-1.5 bg-[var(--color-bg)] rounded-lg border border-[var(--border)]">
+            <span class="text-xs font-bold text-blue-400">AMEX</span>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="paymentError"
+          class="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 flex items-start gap-3">
+          <lucide-icon name="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></lucide-icon>
+          <span class="text-sm">{{ paymentError }}</span>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="paymentSuccess"
+          class="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl border border-green-200 dark:border-green-800 flex items-start gap-3">
+          <lucide-icon name="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></lucide-icon>
+          <span class="text-sm">{{ paymentSuccess }}</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-3 pt-2">
+          <button class="w-full py-4 bg-[#635bff] hover:bg-[#5851ea] text-white font-semibold rounded-xl transition-all 
+                   shadow-lg shadow-[#635bff]/25 hover:shadow-xl hover:shadow-[#635bff]/30 
+                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            (click)="confirmStripePayment()" [disabled]="isPaymentProcessing">
+            <div *ngIf="isPaymentProcessing"
+              class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <lucide-icon *ngIf="!isPaymentProcessing" name="lock" class="w-5 h-5"></lucide-icon>
+            {{ isPaymentProcessing ? 'Processing Payment...' : 'Pay $' + totalAmount }}
+          </button>
+
+          <button class="w-full py-3 text-[var(--color-text-muted)] hover:text-[var(--color-text)]
+                   font-medium transition-colors text-sm" (click)="cancelPayment()" [disabled]="isPaymentProcessing">
+            Cancel and go back
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-[var(--color-bg)] border-t border-[var(--border)]">
+        <p class="text-xs text-[var(--color-text-muted)] text-center">
+          By confirming, you agree to our Terms of Service and Privacy Policy
+        </p>
+      </div>
+    </div>
+  </div>
 </div>

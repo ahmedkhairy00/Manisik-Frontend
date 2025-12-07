@@ -17,7 +17,7 @@ export class HotelComponent implements OnInit {
   readonly i18n = inject(I18nService);
   viewMode: 'grid' | 'list' = 'grid';
   searchText: string = '';
-  city: string = 'Makkah'; // 0 for Makkah, 1 for Madinah
+  city: string = 'All'; // Show all hotels by default
   sortBy: string = 'recommended'; // default option
   loading = false;
 
