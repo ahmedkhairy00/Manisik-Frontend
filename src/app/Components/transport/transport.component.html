@@ -1,162 +1,3 @@
-<<<<<<< HEAD
-<section class="transport-section flex flex-col min-h-screen align-items-center bg-[var(--color-bg)] text-[var(--color-text)]">
-
-  <mat-toolbar class="transport-toolbar">
-    <div class="transport-container">
-      <div class="transport-text">
-        <h1 class="transport-title">{{ i18n.t('transport.title') }}</h1>
-        <p class="transport-sub">{{ i18n.t ('transport.subtitle') }}</p>
-      </div>
-    </div>
-  </mat-toolbar>
-
-  <div class="container mt-8">
-
-    <!-- Tabs -->
-    <div class="transport-tabs">
-      <button class="tab-button" [class.active]="activeTab === 'international'" (click)="setActiveTab('international')">
-        <span class="material-icons">flight</span>
-        International
-      </button>
-      <button class="tab-button" [class.active]="activeTab === 'ground'" (click)="setActiveTab('ground')">
-        <span class="material-icons">directions_bus</span>
-        Ground
-      </button>
-    </div>
-
-    <!-- International Transport Section -->
-    <div *ngIf="activeTab === 'international'">
-
-      <!-- International Filters -->
-      <div class="search-form" style="background: var(--color-surface); box-shadow: var(--shadow-light);">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="text-[var(--color-text)]">Type</label>
-            <select [(ngModel)]="internationalSearchParams.type" class="bg-[var(--color-bg)] text-[var(--color-text)] border border-[var(--border)]" (change)="filterInternational()">
-              <option value="All" class="bg-[var(--color-bg)] text-[var(--color-text)]">All</option>
-              <option value="Plane" class="bg-[var(--color-bg)] text-[var(--color-text)]">Plane</option>
-              <option value="Ship" class="bg-[var(--color-bg)] text-[var(--color-text)]">Ship</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="text-[var(--color-text)]">From</label>
-            <select [(ngModel)]="internationalSearchParams.departure" class="bg-[var(--color-bg)] text-[var(--color-text)] border border-[var(--border)]" (change)="filterInternational()">
-              <option value="" class="bg-[var(--color-bg)] text-[var(--color-text)]">All</option>
-              <option *ngFor="let airport of departureAirports" [value]="airport">{{ airport }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="text-[var(--color-text)]">To</label>
-            <select [(ngModel)]="internationalSearchParams.arrival" class="bg-[var(--color-bg)] text-[var(--color-text)] border border-[var(--border)]" (change)="filterInternational()">
-              <option value="" class="bg-[var(--color-bg)] text-[var(--color-text)]">All</option>
-              <option *ngFor="let airport of arrivalAirports" [value]="airport">{{ airport }}</option>
-            </select>
-          </div>
-          <button class="search-button bg-[var(--primary)] text-white" (click)="filterInternational()">Filter</button>
-        </div>
-      </div>
-
-      <!-- International List -->
-      <div class="flight-card" *ngFor="let transport of filteredInternationalTransports" style="background: var(--color-surface); box-shadow: var(--shadow-light);">
-        <div class="airline-logo" style="background: var(--color-bg); color: var(--color-text);">
-          <span class="material-icons">{{ transport.internationalTransportType === 'Plane' ? 'flight' : 'directions_boat' }}</span>
-        </div>
-
-        <div class="airline-info">
-          <div class="airline-name">
-            <h3 class="text-[var(--color-text)]">{{ transport.carrierName }}</h3>
-            <div class="rating" style="color: var(--color-text-muted);">
-              <span class="material-icons star-icon">star</span>
-              <strong>{{ transport.flightNumber }}</strong>
-            </div>
-          </div>
-          <div class="flight-details">
-            <span class="detail-label" style="color: var(--color-text-muted);">Departure</span>
-            <span class="detail-value" style="color: var(--color-text);">{{ transport.departureAirport }}</span>
-          </div>
-          <div class="flight-details">
-            <span class="detail-label" style="color: var(--color-text-muted);">Arrival</span>
-            <span class="detail-value" style="color: var(--color-text);">{{ transport.arrivalAirport }}</span>
-          </div>
-          <div class="flight-details">
-            <span class="detail-label" style="color: var(--color-text-muted);">Date</span>
-            <span class="detail-value" style="color: var(--color-text);">{{ transport.departureDate | date }}</span>
-          </div>
-        </div>
-
-        <div class="price-section flex flex-col items-end gap-2">
-          <div class="price" style="color: var(--primary);">${{ transport.price }}</div>
-          <div class="seats" class="text-xs text-[var(--color-text-muted)] mb-2">
-            {{ transport.availableSeats }} seats left
-          </div>
-          <button class="book-button mt-2" style="background: var(--primary); color: white;" (click)="bookTransport(transport)">
-            {{ i18n.t('transport.book.button') }}
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="filteredInternationalTransports.length === 0" class="no-results">
-        <p>No international transport options found.</p>
-      </div>
-    </div>
-
-    <!-- Ground Transport Section -->
-    <div *ngIf="activeTab === 'ground'">
-
-      <!-- Ground Filters -->
-      <div class="search-form" style="background: var(--color-surface); box-shadow: var(--shadow-light);">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="text-[var(--color-text)]">Service Type</label>
-            <select [(ngModel)]="groundSearchParams.type" class="bg-[var(--color-bg)] text-[var(--color-text)] border border-[var(--border)]" (change)="filterGround()">
-              <option value="All" class="bg-[var(--color-bg)] text-[var(--color-text)]">All</option>
-              <option value="PrivateCar" class="bg-[var(--color-bg)] text-[var(--color-text)]">Private Car</option>
-              <option value="SharedBus" class="bg-[var(--color-bg)] text-[var(--color-text)]">Shared Bus</option>
-              <option value="Taxi" class="bg-[var(--color-bg)] text-[var(--color-text)]">Taxi</option>
-            </select>
-          </div>
-          <button class="search-button bg-[var(--primary)] text-white" (click)="filterGround()">Filter</button>
-        </div>
-      </div>
-
-      <!-- Ground List -->
-      <div class="flight-card" *ngFor="let transport of filteredGroundTransports" style="background: var(--color-surface); box-shadow: var(--shadow-light);">
-        <div class="airline-logo" style="background: var(--color-bg); color: var(--color-text);">
-          <span class="material-icons">directions_bus</span>
-        </div>
-
-        <div class="airline-info">
-          <div class="airline-name">
-            <h3 class="text-[var(--color-text)]">{{ transport.serviceName }}</h3>
-            <div class="rating" style="color: var(--color-text-muted);">
-              <span class="material-icons star-icon">star</span>
-              <strong>{{ transport.description }}</strong>
-            </div>
-          </div>
-          <div class="flight-details">
-            <span class="detail-label" style="color: var(--color-text-muted);">Capacity</span>
-            <span class="detail-value" style="color: var(--color-text);">{{ transport.capacity }} Persons</span>
-          </div>
-          <div class="flight-details">
-            <span class="detail-label" style="color: var(--color-text-muted);">Type</span>
-            <span class="detail-value" style="color: var(--color-text);">{{ transport.serviceName }}</span>
-          </div>
-        </div>
-
-        <div class="price-section flex flex-col items-end gap-2">
-          <div class="price" style="color: var(--primary);">${{ transport.pricePerPerson }}</div>
-          <div class="seats" class="text-xs text-[var(--color-text-muted)] mb-2">
-            per person
-          </div>
-          <button class="book-button mt-2" style="background: var(--primary); color: white;" (click)="bookTransport(transport)">
-            {{ i18n.t('transport.book.button') }}
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="filteredGroundTransports.length === 0" class="no-results">
-        <p>No ground transport options found.</p>
-=======
 <!-- Toolbar -->
 <div class="bg-green-700 text-white py-16 shadow-none flex flex-col items-start ">
   <div class="w-full max-w-[1150px] mx-auto px-6">
@@ -167,18 +8,57 @@
   </div>
 </div>
 
+<!-- Pending Bookings Alerts -->
+<div *ngIf="pendingTransportBooking" class="container mx-auto px-6 max-w-[1200px] mt-6">
+  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center">
+        <span class="material-icons text-yellow-600 mr-2">info</span>
+        <p class="text-sm text-yellow-700">
+          You have a pending international transport booking.
+        </p>
+      </div>
+      <div>
+        <button class="text-red-600 hover:text-red-800 text-sm font-bold ml-4" (click)="discardTransportDraft()">
+          Discard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="pendingGroundBooking" class="container mx-auto px-6 max-w-[1200px] mt-2">
+  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center">
+        <span class="material-icons text-yellow-600 mr-2">info</span>
+        <p class="text-sm text-yellow-700">
+          You have a pending ground transport booking.
+        </p>
+      </div>
+      <div>
+        <button class="text-red-600 hover:text-red-800 text-sm font-bold ml-4" (click)="discardGroundDraft()">
+          Discard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- International Transport -->
 <div class="container mx-auto px-6 max-w-[1200px] mt-10">
   <h1 class="text-3xl font-bold text-gray-900 mb-3">International Transport to Saudi Arabia</h1>
 
   <!-- Tabs -->
   <div class="flex gap-2 mb-8">
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow active:bg-gray-100 active:text-gray-900"
-            (click)="setTransportType('Plane')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow active:bg-gray-100 active:text-gray-900"
+      (click)="setTransportType('Plane')">
       <span class="material-icons">flight</span> Air Transport
     </button>
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
-            (click)="setTransportType('Ship')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
+      (click)="setTransportType('Ship')">
       <span class="material-icons">directions_boat</span> Sea Transport
     </button>
   </div>
@@ -187,47 +67,50 @@
   <div class="bg-white p-8 rounded shadow mb-8">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
       <div class="flex flex-col">
-      <label class="text-xs text-gray-600 mb-2">From</label>
-      <select [(ngModel)]="searchParams.departureLocation" 
-              class="px-4 py-3 border border-gray-300 rounded focus:border-green-700"
-              ngDefaultControl
-              required>
-        <option [ngValue]="null"  disabled selected>Select Departure Airport</option>
-        <option *ngFor="let departureAirport of departureAirports" [ngValue]="departureAirport">
-          {{ departureAirport }}
-        </option>
-      </select>
-    </div>
+        <label class="text-xs text-gray-600 mb-2">From</label>
+        <select [(ngModel)]="searchParams.departureLocation"
+          class="px-4 py-3 border border-gray-300 rounded focus:border-green-700" ngDefaultControl required>
+          <option [ngValue]="null" disabled selected>Select Departure Airport</option>
+          <option *ngFor="let departureAirport of departureAirports" [ngValue]="departureAirport">
+            {{ departureAirport }}
+          </option>
+        </select>
+      </div>
 
-    <!-- To -->
-    <div class="flex flex-col">
-      <label class="text-xs text-gray-600 mb-2">To</label>
-      <select [(ngModel)]="searchParams.arrivalLocation" 
-              class="px-4 py-3 border border-gray-300 rounded focus:border-green-700"
-              required>
-        <option [ngValue]="null" disabled selected >Select Arrival Airport</option>
-        <option *ngFor="let arrivalAirport of arrivalAirports" [ngValue]="arrivalAirport">
-          {{ arrivalAirport }}
-        </option>
-      </select>
-    </div>
+      <!-- To -->
+      <div class="flex flex-col">
+        <label class="text-xs text-gray-600 mb-2">To</label>
+        <select [(ngModel)]="searchParams.arrivalLocation"
+          class="px-4 py-3 border border-gray-300 rounded focus:border-green-700" required>
+          <option [ngValue]="null" disabled selected>Select Arrival Airport</option>
+          <option *ngFor="let arrivalAirport of arrivalAirports" [ngValue]="arrivalAirport">
+            {{ arrivalAirport }}
+          </option>
+        </select>
+      </div>
       <div class="flex flex-col">
         <label class="text-xs text-gray-600 mb-2">Departure Date</label>
-        <input type="date" [(ngModel)]="searchParams.departureDate" class="px-4 py-3 border border-gray-300 rounded focus:border-green-700">
+        <input type="date" [(ngModel)]="searchParams.departureDate"
+          class="px-4 py-3 border border-gray-300 rounded focus:border-green-700">
       </div>
       <div class="flex flex-col">
         <label class="text-xs text-gray-600 mb-2">Return Date</label>
-        <input type="date" [(ngModel)]="searchParams.returnDate" class="px-4 py-3 border border-gray-300 rounded focus:border-green-700">
+        <input type="date" [(ngModel)]="searchParams.returnDate"
+          class="px-4 py-3 border border-gray-300 rounded focus:border-green-700">
       </div>
-      <button class="bg-green-700 text-white px-8 py-3 rounded font-medium hover:bg-green-800" (click)="searchflight()">Search Flights</button>
+      <button class="bg-green-700 text-white px-8 py-3 rounded font-medium hover:bg-green-800"
+        (click)="searchflight()">Search Flights</button>
     </div>
   </div>
 
-  <div *ngIf="errorMessage" class="text-red-900 bg-red-200 border border-red-300 p-4 rounded mb-4">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage" class="text-red-900 bg-red-200 border border-red-300 p-4 rounded mb-4">{{ errorMessage }}
+  </div>
 
   <!-- Flight Cards -->
-  <div *ngFor="let flight of flights" class="bg-white p-8 rounded shadow mb-6 grid grid-cols-1 md:grid-cols-[80px_1fr_auto] gap-6 items-center">
-    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xl">{{ flight.carrierName.substring(0,2) }}</div>
+  <div *ngFor="let flight of flights"
+    class="bg-white p-8 rounded shadow mb-6 grid grid-cols-1 md:grid-cols-[80px_1fr_auto] gap-6 items-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xl">{{
+      flight.carrierName.substring(0,2) }}</div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
       <div>
         <h3 class="text-lg font-medium">{{ flight.carrierName }}</h3>
@@ -239,7 +122,8 @@
       <div>
         <div class="text-xs text-gray-500 uppercase">Duration</div>
         <div class="text-sm font-medium flex items-center gap-1">
-          <span class="material-icons text-sm align-middle">schedule</span> {{ flight.duration.slice(0, 2) +"d - " + flight.duration.slice(3, 5) + " h - " + flight.duration.slice(6, 8) + "m" }}
+          <span class="material-icons text-sm align-middle">schedule</span> {{ flight.duration.slice(0, 2) +"d - " +
+          flight.duration.slice(3, 5) + " h - " + flight.duration.slice(6, 8) + "m" }}
         </div>
       </div>
       <div>
@@ -248,7 +132,8 @@
       </div>
       <div>
         <div class="text-xs text-gray-500 uppercase">Stops</div>
-        <div *ngIf="flight.stops=='0'" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">Direct</div>
+        <div *ngIf="flight.stops=='0'" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+          Direct</div>
       </div>
     </div>
     <div class="text-right">
@@ -258,7 +143,8 @@
         <li class="flex items-center gap-1"><span class="material-icons text-green-700">check</span> 30kg baggage</li>
         <li class="flex items-center gap-1"><span class="material-icons text-green-700">check</span> Entertainment</li>
       </ul>
-      <button class="bg-green-700 text-white px-6 py-2 rounded font-medium hover:bg-green-800" (click)="bookFlight(flight)">Book Flight</button>
+      <button class="bg-green-700 text-white px-6 py-2 rounded font-medium hover:bg-green-800"
+        (click)="bookFlight(flight)">Book Flight</button>
     </div>
   </div>
 </div>
@@ -268,21 +154,30 @@
 <div class="container mx-auto px-6 max-w-[1200px] mt-16">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-2">Transport Within Saudi Arabia</h1>
-    <p class="text-gray-600 text-sm">Choose your preferred mode of transport for travel between cities in Saudi Arabia</p>
+    <p class="text-gray-600 text-sm">Choose your preferred mode of transport for travel between cities in Saudi Arabia
+    </p>
   </div>
 
   <!-- Tabs -->
   <div class="flex gap-2 mb-8">
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900" (click)="searchByType('PublicBus')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
+      (click)="searchByType('PublicBus')">
       <span class="material-icons">directions_bus</span> Public Bus
     </button>
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900" (click)="searchByType('Train')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
+      (click)="searchByType('Train')">
       <span class="material-icons">train</span> Train
     </button>
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900" (click)="searchByType('UberCareem')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
+      (click)="searchByType('UberCareem')">
       <span class="material-icons">local_taxi</span> Uber/Careem
     </button>
-    <button class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900" (click)="searchByType('PrivateCar')">
+    <button
+      class="flex items-center gap-2 px-6 py-3 rounded bg-white text-gray-600 shadow hover:bg-gray-100 hover:text-gray-900"
+      (click)="searchByType('PrivateCar')">
       <span class="material-icons">directions_car</span> Private Car
     </button>
   </div>
@@ -323,19 +218,12 @@
       <div class="flex justify-between items-center">
         <div>
           <span class="text-xs text-gray-500">From</span>
-          <div class="text-2xl font-bold text-green-700">{{ transport.pricePerPerson | currency:'EGP':'symbol':'1.0-0' }}</div>
+          <div class="text-2xl font-bold text-green-700">{{ transport.pricePerPerson | currency:'EGP':'symbol':'1.0-0'
+            }}</div>
         </div>
         <button class="bg-green-700 text-white px-6 py-2 rounded font-medium hover:bg-green-800">Book Now</button>
->>>>>>> origin/main
       </div>
     </div>
 
   </div>
-<<<<<<< HEAD
-</section>
-=======
 </div>
-
-<!-- TypeScript helper to format duration -->
-
->>>>>>> origin/main
