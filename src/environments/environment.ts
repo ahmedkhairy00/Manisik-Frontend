@@ -14,8 +14,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5037/api',
-  apiUrlForImages: 'http://localhost:5037',
+  apiUrl: 'https://manisik.runasp.net/api',
+  apiUrlForImages: 'https://manisik.runasp.net',
   appName: 'Manisik Umrah Booking Platform',
   version: '1.0.0',
   stripe: {
