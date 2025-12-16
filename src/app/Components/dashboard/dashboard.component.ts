@@ -169,6 +169,7 @@ export class DashboardComponent implements OnInit {
   internationalTransportsLoading = signal<boolean>(false);
   selectedInternationalTransport = signal<InternationalTransportDto | null>(null);
   showInternationalTransportModal = signal<boolean>(false);
+  roomTypes = signal<string[]>([]);
 
   // Dropdown options for International Transport form
   departureAirports = [
@@ -459,8 +460,8 @@ export class DashboardComponent implements OnInit {
         this.toastr.success(`${documentType === 'visa' ? 'Visa' : 'Ticket'} downloaded successfully`);
       },
       error: (err) => {
-        // Silent fail - the browser download dialog handles this naturally
-        console.log(`Document download completed or no document available for ${documentType}`);
+        console.error('Download failed', err);
+        this.toastr.error('Download failed. Please try again. ' + (err?.message || err?.statusText || ''));
       }
     });
   }
@@ -536,10 +537,13 @@ export class DashboardComponent implements OnInit {
       this.loadAllUsers();
       this.loadHotels();
       this.loadInternationalTransports();
+      this.loadInternationalTransports();
       this.loadGroundTransports();
+      this.loadRoomTypes();
     } else if (userRole === 'HotelManager') {
       this.loadMyBookings();
       this.loadHotels();
+      this.loadRoomTypes();
     }
   }
 
@@ -1246,6 +1250,17 @@ export class DashboardComponent implements OnInit {
         console.error('Failed to save hotel', err);
         const serverMessage = err?.error?.message || err?.error?.errors?.join(', ') || err?.message || 'Failed to save hotel';
         this.toastr.error(serverMessage);
+      }
+    });
+  }
+
+  loadRoomTypes() {
+    this.http.get<{ data: string[] }>(`${environment.apiUrl}/Enum/RoomTypes`, { withCredentials: true }).subscribe({
+      next: (response) => {
+        this.roomTypes.set(response.data);
+      },
+      error: (err) => {
+        console.error('Failed to load room types', err);
       }
     });
   }
