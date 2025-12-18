@@ -29,6 +29,7 @@ export interface InternationalTransportDto {
   arrivalAirport?: string | null;
   arrivalAirportCode?: string | null;
   departureDate?: string | null;
+  returnDate?: string | null; // Added for round trips
   arrivalDate?: string | null;
   price?: number | null;
   totalSeats?: number | null;
@@ -64,6 +65,7 @@ export interface TransportBookingDto {
   arrivalAirport?: string | null;
   arrivalAirportCode?: string | null;
   departureDate?: string | null;
+  returnDate?: string | null;
   arrivalDate?: string | null;
   numberOfSeats?: number | null;
   pricePerSeat?: number | null;
@@ -157,4 +159,8 @@ export interface BookingDto {
   groundTransportPrice?: number | null;
   paymentDate?: string | null;
   paymentIntentId?: string | null;
+  // Navigation / detailed properties from backend
+  bookingInternationalTransport?: any[]; 
+  bookingGroundTransport?: any[];
+  hotels?: any[]; 
 }

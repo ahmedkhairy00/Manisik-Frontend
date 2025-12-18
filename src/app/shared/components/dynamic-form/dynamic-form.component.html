@@ -45,7 +45,7 @@
             <!-- Inline Error Messages -->
             @if (form.get(field.name)?.touched && form.get(field.name)?.invalid) {
             <div class="text-red-500 text-xs font-medium mt-0.5 animate-fadeIn flex items-center gap-1">
-                <span class="material-icons text-[14px]">error_outline</span>
+                <lucide-icon name="alert-circle" class="w-4 h-4"></lucide-icon>
                 {{ getErrorMessage(field) }}
             </div>
             }

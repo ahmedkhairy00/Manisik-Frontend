@@ -1,37 +1,50 @@
-import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { Notification, NotificationType } from '../../interfaces';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { getErrorMessage } from '../utils/error.utils';
+
+export enum NotificationType {
+  SUCCESS = 'success',
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info'
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationService {
-  private readonly notificationSubject = new Subject<Notification>();
-  public readonly notifications$: Observable<Notification> =
-    this.notificationSubject.asObservable();
+  private toastr = inject(ToastrService);
 
   show(
     message: string,
     type: NotificationType = NotificationType.INFO,
     title?: string
   ): void {
-    const notification: Notification = {
-      id: this.generateId(),
-      title: title || this.getDefaultTitle(type),
-      message,
-      type,
-      read: false,
-      createdAt: new Date().toISOString(),
-    };
-    this.notificationSubject.next(notification);
+    switch (type) {
+      case NotificationType.SUCCESS:
+        this.toastr.success(message, title || 'Success');
+        break;
+      case NotificationType.ERROR:
+        this.toastr.error(message, title || 'Error');
+        break;
+      case NotificationType.WARNING:
+        this.toastr.warning(message, title || 'Warning');
+        break;
+      case NotificationType.INFO:
+        this.toastr.info(message, title || 'Info');
+        break;
+    }
   }
 
   success(message: string, title?: string): void {
     this.show(message, NotificationType.SUCCESS, title);
   }
 
-  error(message: string, title?: string): void {
+  error(messageOrError: string | any, title?: string): void {
+    const message = typeof messageOrError === 'string' 
+      ? messageOrError 
+      : getErrorMessage(messageOrError, 'An error occurred');
+      
     this.show(message, NotificationType.ERROR, title);
   }
 
@@ -41,24 +54,5 @@ export class NotificationService {
 
   info(message: string, title?: string): void {
     this.show(message, NotificationType.INFO, title);
-  }
-
-  private getDefaultTitle(type: NotificationType): string {
-    switch (type) {
-      case NotificationType.SUCCESS:
-        return 'Success';
-      case NotificationType.ERROR:
-        return 'Error';
-      case NotificationType.WARNING:
-        return 'Warning';
-      case NotificationType.INFO:
-        return 'Information';
-      default:
-        return 'Notification';
-    }
-  }
-
-  private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 }

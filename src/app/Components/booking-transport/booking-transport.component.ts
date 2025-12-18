@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,13 +6,14 @@ import { TransportService } from 'src/app/core/services/transport.service';
 import { BookingTransportService } from 'src/app/core/services/booking-transport.service';
 import { BookingsService } from 'src/app/core/services/bookings.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-booking-transport',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './booking-transport.component.html'
+  templateUrl: './booking-transport.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookingTransportComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -21,7 +22,8 @@ export class BookingTransportComponent implements OnInit {
   private readonly bookingTransportService = inject(BookingTransportService);
   private readonly bookingsService = inject(BookingsService);
   private readonly auth = inject(AuthService);
-  private readonly toastr = inject(ToastrService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   transport: any = null;
   seats: number = 1;
@@ -47,15 +49,16 @@ export class BookingTransportComponent implements OnInit {
           this.transport = res;
           this.pricePerSeat = Number(res?.price || res?.pricePerSeat || 0);
           this.recalculateTotal();
+          this.cdr.markForCheck();
         },
         error: (err) => {
 
-          this.toastr.error('Failed to load transport details', 'Error');
+          this.notificationService.error('Failed to load transport details', 'Error');
           this.router.navigate(['/transport']);
         }
       });
     } else {
-      this.toastr.error('Missing transport id', 'Error');
+      this.notificationService.error('Missing transport id', 'Error');
       this.router.navigate(['/transport']);
     }
   }
@@ -76,7 +79,7 @@ export class BookingTransportComponent implements OnInit {
 
     this.bookingTransportService.bookTransport(payload).subscribe({
       next: (res: any) => {
-        this.toastr.success('Transport booked successfully', 'Success');
+        this.notificationService.success('Transport booked successfully', 'Success');
         // Refresh pending transport drafts and save to local draft
         this.bookingsService.getMyPendingTransportBookings().subscribe({
           next: (pending) => {
@@ -110,10 +113,14 @@ export class BookingTransportComponent implements OnInit {
       error: (err: any) => {
 
         const msg = err?.error?.message || 'Failed to book transport';
-        this.toastr.error(msg);
+        this.notificationService.error(msg);
         this.isSubmitting = false;
+        this.cdr.markForCheck();
       },
-      complete: () => (this.isSubmitting = false),
+      complete: () => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      },
     });
   }
 

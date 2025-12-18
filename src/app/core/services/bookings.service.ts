@@ -50,7 +50,7 @@ export class BookingsService {
       const key = user && (user as any).id ? `user_bookings_${(user as any).id}` : 'user_bookings_anonymous';
       localStorage.removeItem(key);
     } catch (e) {
-      console.warn('Failed to clear booking cache', e);
+      // Failed to clear booking cache
     }
   }
 
@@ -148,7 +148,7 @@ export class BookingsService {
   deletePendingHotelBooking(payload: any): Observable<any> {
     const id = this.extractPendingId(payload);
     if (!id) {
-      console.warn('deletePendingHotelBooking: invalid id or payload', payload);
+      // Invalid id or payload
       return of(null);
     }
 
@@ -159,7 +159,7 @@ export class BookingsService {
   deletePendingGroundBooking(payload: any): Observable<any> {
     const id = this.extractPendingId(payload);
     if (!id) {
-      console.warn('deletePendingGroundBooking: invalid id or payload', payload);
+      // Invalid id or payload
       return of(null);
     }
 
@@ -170,7 +170,7 @@ export class BookingsService {
   deletePendingTransportBooking(payload: any): Observable<any> {
     const id = this.extractPendingId(payload);
     if (!id) {
-      console.warn('deletePendingTransportBooking: invalid id or payload', payload);
+      // Invalid id or payload
       return of(null);
     }
 

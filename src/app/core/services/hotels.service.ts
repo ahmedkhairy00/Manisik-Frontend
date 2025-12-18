@@ -24,8 +24,7 @@ export class HotelsService {
   getHotels(params?: HotelSearchParams): Observable<Hotel[]> {
     const cacheKey = `hotels:${params?.city || 'all'}:${params?.sortBy || 'default'}`;
 
-    // Invalidate old cache when filter changes
-    this.cacheService.invalidate('hotels');
+    // Cache key includes city and sort params for proper invalidation
 
     return this.cacheService.getOrFetch(
       cacheKey,

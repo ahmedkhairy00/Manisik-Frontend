@@ -4,51 +4,35 @@
 -->
 <!-- Show minimized floating icon when closed -->
 <div *ngIf="!open()" class="fixed right-6 bottom-6 z-50">
-  <button
-    aria-label="Open AI chat"
-    (click)="openChat()"
-    class="w-12 h-12 rounded-full bg-[var(--primary)] text-white flex items-center justify-center shadow-lg"
-  >
-    🤖
+  <button aria-label="Open AI chat" (click)="openChat()"
+    class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg overflow-hidden">
+    <img src="/images/hero/rahim.jpg" alt="Rahim" class="w-full h-full object-cover"
+      style="image-rendering: -webkit-optimize-contrast; filter: contrast(1.1) brightness(1.05);" />
   </button>
 </div>
-  
+
 <!-- Full chat panel when open -->
-<div
-  *ngIf="open()"
-  class="ai-chat-widget"
-  role="region"
-  aria-label="AI chat widget"
->
-  <div
-    class="ai-chat-header flex items-center justify-between px-3 py-2 border-b"
-    [attr.title]="i18n.translate('chat.assistant')"
-  >
+<div *ngIf="open()" class="ai-chat-widget" role="region" aria-label="AI chat widget">
+  <div class="ai-chat-header flex items-center justify-between px-3 py-2 border-b"
+    [attr.title]="i18n.translate('chat.assistant')">
     <div class="flex items-center gap-2">
-      <div
-        class="w-8 h-8 rounded-full bg-[var(--color-surface)] flex items-center justify-center"
-      >
-        🤖
+      <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden">
+        <img src="/images/hero/rahim.jpg" alt="Rahim" class="w-full h-full object-cover"
+          style="image-rendering: -webkit-optimize-contrast; filter: contrast(1.1) brightness(1.05);" />
       </div>
       <div>
         <div class="font-semibold text-sm">
-          {{ i18n.translate("chat.assistant") }}
+          rahim
         </div>
-        <div class="text-xs text-[var(--color-text-muted)]">AI helper</div>
+        <div class="text-xs text-[var(--color-text-muted)]">I'm your expert on Manisik</div>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button
-        (click)="newChat()"
-        class="text-sm px-3 py-1 border rounded bg-[var(--color-bg)]"
-      >
+      <button (click)="newChat()" class="text-sm px-3 py-1 border rounded bg-[var(--color-bg)]">
         {{ i18n.translate("chat.new") }}
       </button>
-      <button
-        [attr.aria-label]="i18n.translate('chat.close')"
-        (click)="closeChat()"
-        class="ml-2 text-sm px-2 py-1 rounded bg-transparent"
-      >
+      <button [attr.aria-label]="i18n.translate('chat.close')" (click)="closeChat()"
+        class="ml-2 text-sm px-2 py-1 rounded bg-transparent">
         {{ i18n.translate("chat.close") }}
       </button>
     </div>
@@ -57,18 +41,14 @@
   <div #messagesList class="ai-chat-messages p-3 overflow-auto">
     <div *ngFor="let msg of messages()" class="mb-3">
       <div *ngIf="msg.from === 'user'" class="text-right">
-        <div
-          class="inline-block bg-[var(--primary)] text-white px-3 py-2 rounded-lg max-w-[75%]"
-        >
+        <div class="inline-block bg-[var(--primary)] text-white px-3 py-2 rounded-lg max-w-[75%]">
           <div class="text-xs font-semibold">{{ msg.name }}</div>
           <div class="mt-1">{{ msg.text }}</div>
         </div>
       </div>
 
       <div *ngIf="msg.from === 'assistant'" class="text-left">
-        <div
-          class="inline-block bg-[var(--color-surface)] text-[var(--color-text)] px-3 py-2 rounded-lg max-w-[75%]"
-        >
+        <div class="inline-block bg-[var(--color-surface)] text-[var(--color-text)] px-3 py-2 rounded-lg max-w-[75%]">
           <div class="text-xs font-semibold mb-1">{{ msg.name }}</div>
           <div class="markdown-content text-sm leading-relaxed" [innerHTML]="msg.text | markdown"></div>
         </div>
@@ -76,22 +56,12 @@
     </div>
   </div>
 
-  <form
-    (ngSubmit)="send()"
-    class="ai-chat-input p-3 border-t flex gap-2 items-center"
-  >
-    <input
-      [(ngModel)]="input"
-      name="message"
-      [placeholder]="i18n.translate('chat.placeholder')"
-      class="flex-1 px-3 py-2 rounded border"
-    />
+  <form (ngSubmit)="send()" class="ai-chat-input p-3 border-t flex gap-2 items-center">
+    <input [(ngModel)]="input" name="message" [placeholder]="i18n.translate('chat.placeholder')"
+      class="flex-1 px-3 py-2 rounded border" />
 
     <!-- Send button -->
-    <button
-      type="submit"
-      class="bg-[var(--primary)] text-white px-3 py-2 rounded"
-    >
+    <button type="submit" class="bg-[var(--primary)] text-white px-3 py-2 rounded">
       {{ i18n.translate("chat.send") || "Send" }}
     </button>
   </form>

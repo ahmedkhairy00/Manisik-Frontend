@@ -83,7 +83,7 @@ export class AIChatComponent implements OnInit {
         // Update conversation ID if it was null (first message)
         if (!this.conversationId) this.conversationId = res.conversationId;
         
-        this.addMessage('assistant', res.answer ?? 'Sorry, I could not generate a response.', 'Assistant');
+        this.addMessage('assistant', res.answer ?? 'Sorry, I could not generate a response.', 'rahim');
         this.loading.set(false);
       },
       error: (err) => {
@@ -104,7 +104,7 @@ export class AIChatComponent implements OnInit {
     this.messages.set([
       {
         from: 'assistant',
-        name: this.i18n.translate('chat.assistant'),
+        name: 'rahim',
         text: this.i18n.translate(textKey),
       },
     ]);
@@ -114,7 +114,7 @@ export class AIChatComponent implements OnInit {
   /** Helper: handle errors from AI service */
   private handleError(err: any) {
 
-    this.addMessage('assistant', 'An error occurred. Please try again later.', 'Assistant');
+    this.addMessage('assistant', 'An error occurred. Please try again later.', 'rahim');
     this.loading.set(false);
   }
 

@@ -112,19 +112,21 @@
         </button>
 
         <!-- Auth Buttons (Desktop) -->
-        <ng-container *ngIf="!UserStatus(); else loggedIn">
-          <a routerLink="/signIn"
-            class="px-4 py-2 bg-[var(--primary)] text-[var(--color-bg)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.signUp')}}</a>
-          <a routerLink="/login"
-            class="px-4 py-2 bg-[var(--color-surface)] text-[var(--color-text)] rounded-lg hover:bg-[var(--primary)] hover:text-[var(--color-bg)] nav-link-transition focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.login')}}</a>
-        </ng-container>
+        <div class="hidden lg:flex items-center gap-3">
+          <ng-container *ngIf="!UserStatus(); else loggedIn">
+            <a routerLink="/signIn"
+              class="px-4 py-2 bg-[var(--primary)] text-[var(--color-bg)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.signUp')}}</a>
+            <a routerLink="/login"
+              class="px-4 py-2 bg-[var(--color-surface)] text-[var(--color-text)] rounded-lg hover:bg-[var(--primary)] hover:text-[var(--color-bg)] nav-link-transition focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('auth.login')}}</a>
+          </ng-container>
 
-        <ng-template #loggedIn>
-          <a routerLink="/dashboard"
-            class="px-4 py-2 bg-[var(--primary)] text-[var(--color-bg)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('dashboard.menu.dashboard')}}</a>
-          <button (click)="logOut()"
-            class="px-4 py-2 bg-[var(--error)] text-white rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--error)] focus:ring-offset-2">{{i18n.translate('nav.logout')}}</button>
-        </ng-template>
+          <ng-template #loggedIn>
+            <a routerLink="/dashboard"
+              class="px-4 py-2 bg-[var(--primary)] text-[var(--color-bg)] rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">{{i18n.translate('dashboard.menu.dashboard')}}</a>
+            <button (click)="logOut()"
+              class="px-4 py-2 bg-[var(--error)] text-white rounded-lg hover:opacity-90 transition-opacity duration-200 focus:outline-none text-[var(--color-text)] focus:ring-2 focus:ring-[var(--error)] focus:ring-offset-2">{{i18n.translate('nav.logout')}}</button>
+          </ng-template>
+        </div>
 
         <!-- Mobile Menu Button -->
         <button

@@ -6,7 +6,7 @@
 .slider-root {
   position: relative;
   width: 100%;
-  height: 90vh; /* visible even if Tailwind is inactive */
+  height: 100dvh; /* visible even if Tailwind is inactive */
   overflow: hidden;
   background: #000; /* prevents white flashes before image loads */
 }

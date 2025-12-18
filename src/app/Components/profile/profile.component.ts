@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, Inject, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { I18nService } from 'src/app/core/services/i18n.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -20,14 +20,19 @@ import { AuthService } from 'src/app/core/services/auth.service';
       </div>
       <div *ngIf="!user">Loading...</div>
     </div>
-  `
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileComponent implements OnInit {
   readonly i18n = inject(I18nService);
   readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
   user: any = null;
 
   ngOnInit(): void {
-    this.auth.currentUser$.subscribe(u => this.user = u);
+    this.auth.currentUser$.subscribe(u => {
+      this.user = u;
+      this.cdr.markForCheck();
+    });
   }
 }

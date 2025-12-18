@@ -337,7 +337,6 @@ export class AuthService {
             }
             
             this.saveBookingData(current);
-            // console.log('Synced pending bookings from server to localStorage', { ground: groundData.length, transport: transportData.length });
           }
         } catch (e) {
 

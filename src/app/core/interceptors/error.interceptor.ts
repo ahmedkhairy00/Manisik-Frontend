@@ -1,10 +1,10 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../services/notification.service';
 import { catchError, throwError } from 'rxjs';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const toastr = inject(ToastrService);
+  const notificationService = inject(NotificationService);
 
   // Endpoints that should NOT show error toasters (background/silent requests)
   const silentEndpoints = [
@@ -44,7 +44,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // Only show toast for user-initiated actions, skip background requests
       const shouldSkipToast = silentEndpoints.some(ep => req.url.includes(ep));
       if (!shouldSkipToast) {
-        toastr.error(errorMessage, 'Error');
+        notificationService.error(errorMessage, 'Error');
       }
 
       // Re-throw error so components can handle it if needed

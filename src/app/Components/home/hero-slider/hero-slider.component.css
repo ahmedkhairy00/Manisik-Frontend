@@ -4,6 +4,14 @@
 */
 :host {
   display: block;
+  min-height: 100dvh;
+  background: #f3f4f6;
+}
+
+@media (min-width: 1024px) {
+  :host {
+    min-height: 700px;
+  }
 }
 
 button:focus {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { I18nService } from 'src/app/core/services/i18n.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -15,7 +15,8 @@ import { AirArrivalAirport, SeaArrivalAirport, TransportSearchParams, AirDepartu
 import { TransportService } from 'src/app/core/services/transport.service';
 import { BookingsService } from 'src/app/core/services/bookings.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-transport',
@@ -29,30 +30,52 @@ import { ToastrService } from 'ngx-toastr';
     MatInputModule,
     MatSelectModule,
     FormsModule,
-    CommonModule
+    CommonModule,
+    LucideAngularModule
   ],
   templateUrl: './transport.component.html',
-  styleUrls: ['./transport.component.css']
+  styleUrls: ['./transport.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransportComponent implements OnInit {
   readonly i18n = inject(I18nService);
-  private readonly toastr = inject(ToastrService);
+  private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly bookingsService = inject(BookingsService);
   private readonly transportService = inject(TransportService);
   private readonly authService = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  // Active filter tracking
+  activeGroundFilter: string = 'All';
+  activeInternationalFilter: string = 'All';
+
+  /**
+   * Helper to merge Air and Sea airports for "All" view
+   */
+  get allDepartureAirports() {
+    const air = Object.keys(AirDepartureAirport).map(k => ({ key: k, label: (AirDepartureAirport as any)[k] }));
+    const sea = Object.keys(SeaDepartureAirport).map(k => ({ key: k, label: (SeaDepartureAirport as any)[k] }));
+    return [...air, ...sea];
+  }
+
+  get allArrivalAirports() {
+    const air = Object.keys(AirArrivalAirport).map(k => ({ key: k, label: (AirArrivalAirport as any)[k] }));
+    const sea = Object.keys(SeaArrivalAirport).map(k => ({ key: k, label: (SeaArrivalAirport as any)[k] }));
+    return [...air, ...sea];
+  }
 
   // Airports represented as `{ key, label }` so frontend sends enum key (expected by backend)
-  arrivalAirports: Array<{ key: string; label: string }> = Object.keys(AirArrivalAirport).map(k => ({ key: k, label: (AirArrivalAirport as any)[k] }));
-  departureAirports: Array<{ key: string; label: string }> = Object.keys(AirDepartureAirport).map(k => ({ key: k, label: (AirDepartureAirport as any)[k] }));
+  arrivalAirports: Array<{ key: string; label: string }> = [];
+  departureAirports: Array<{ key: string; label: string }> = [];
 
   searchParams: TransportSearchParams = {
     departureLocation: '',
     arrivalLocation: '',
     departureDate: undefined,
     returnDate: undefined,
-    type: 'Plane'
+    type: 'All'
   };
 
   flights: TransportOption[] = [];
@@ -65,9 +88,6 @@ export class TransportComponent implements OnInit {
   pendingGroundBooking: any = null;
   pendingTransportBooking: any = null;
 
-  // Active filter tracking
-  activeGroundFilter: string = 'All';
-  activeInternationalFilter: string = 'Plane';
 
   // Theme handling removed to avoid conflict with Navbar/App component
   // isDarkTheme: boolean = false;
@@ -75,6 +95,10 @@ export class TransportComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    // Initialize airports (default All)
+    this.departureAirports = this.allDepartureAirports;
+    this.arrivalAirports = this.allArrivalAirports;
+
     // Load all data by default
     this.loadAllGroundTransports();
     this.loadAllInternationalTransports();
@@ -115,11 +139,12 @@ export class TransportComponent implements OnInit {
         }));
         // Ground transports mapped successfully
         this.groundErrorMessage = '';
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.groundTransports = [];
         this.groundErrorMessage = 'Failed to load ground transports';
-
+        this.cdr.markForCheck();
       }
     });
   }
@@ -137,7 +162,32 @@ export class TransportComponent implements OnInit {
   loadAllInternationalTransports() {
     this.transportService.getTransportOptions().subscribe({
       next: (response) => {
-        this.flights = (response.data || []).map((f: any) => ({
+        this.mapFlights(response.data || []);
+        this.errorMessage = '';
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.flights = [];
+        this.errorMessage = 'Failed to load international transports';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private mapFlights(data: any[]) {
+     this.flights = data.map((f: any) => {
+        // Enforce Round Trip: Data must have return date. If missing, default to +14 days (Umrah standard)
+        let depDate = f.departureDate || f.DepartureDate || f.departure || '';
+        let retDate = f.returnDate || f.ReturnDate || f.return || '';
+
+        // If no return date, synthesize one (Departure + 14 days) to strictly support "Go and Back"
+        if (depDate && !retDate) {
+            const d = new Date(depDate);
+            d.setDate(d.getDate() + 14);
+            retDate = d.toISOString();
+        }
+
+        return {
           ...f,
           id: f.id || f.Id || f.internationalTransportId || f.InternationalTransportId,
           carrierName: f.carrierName || f.CarrierName,
@@ -146,18 +196,12 @@ export class TransportComponent implements OnInit {
           price: f.price || f.Price,
           duration: f.duration || f.Duration,
           internationalTransportType: f.transportType || f.TransportType || f.internationalTransportType || f.InternationalTransportType,
-          // ensure departure/arrival values are present (prefer provided field or fallback to any casing)
           departureAirport: f.departureAirport || f.DepartureAirport || f.departure || f.departureAirportCode,
-          arrivalAirport: f.arrivalAirport || f.ArrivalAirport || f.arrival || f.arrivalAirportCode
-        }));
-        this.errorMessage = '';
-      },
-      error: (err) => {
-        this.flights = [];
-        this.errorMessage = 'Failed to load international transports';
-
-      }
-    });
+          arrivalAirport: f.arrivalAirport || f.ArrivalAirport || f.arrival || f.arrivalAirportCode,
+          departureDate: depDate,
+          returnDate: retDate 
+        };
+     });
   }
 
   setTransportType(type: string) {
@@ -165,93 +209,91 @@ export class TransportComponent implements OnInit {
     this.searchParams.type = type;
 
     // Reset select values
-    this.searchParams.departureLocation = null;
-    this.searchParams.arrivalLocation = null;
+    this.searchParams.departureLocation = '';
+    this.searchParams.arrivalLocation = '';
 
-    if (type === 'Plane') {
+    if (type === 'All') {
+        this.departureAirports = this.allDepartureAirports;
+        this.arrivalAirports = this.allArrivalAirports;
+        this.loadAllInternationalTransports();
+    } else if (type === 'Plane') {
       this.arrivalAirports = Object.keys(AirArrivalAirport).map(k => ({ key: k, label: (AirArrivalAirport as any)[k] }));
       this.departureAirports = Object.keys(AirDepartureAirport).map(k => ({ key: k, label: (AirDepartureAirport as any)[k] }));
+      this.getAllTransportFilteredByType(type);
     } else if (type === 'Ship') {
       this.arrivalAirports = Object.keys(SeaArrivalAirport).map(k => ({ key: k, label: (SeaArrivalAirport as any)[k] }));
       this.departureAirports = Object.keys(SeaDepartureAirport).map(k => ({ key: k, label: (SeaDepartureAirport as any)[k] }));
+      this.getAllTransportFilteredByType(type);
     }
-
-    this.getAllTransportFilteredByType(type);
   }
 
   searchflight() {
+    const processResult = (response: any) => {
+            let results = response.data || [];
+            
+            // Client-side filter by type if a specific type is selected
+            if (this.searchParams.type && this.searchParams.type !== 'All') {
+                const wanted = this.searchParams.type.toLowerCase();
+                results = results.filter((f: any) => {
+                    const type = (f.transportType ?? f.TransportType ?? f.internationalTransportType ?? f.InternationalTransportType ?? '').toString().toLowerCase();
+                    return type === wanted;
+                });
+            }
+
+            this.mapFlights(results);
+            this.errorMessage = '';
+            this.cdr.markForCheck();
+    };
+
     if (this.searchParams.departureLocation && this.searchParams.arrivalLocation) {
       this.transportService
         .searchByRoute(this.searchParams.departureLocation, this.searchParams.arrivalLocation)
         .subscribe({
-          next: (response) => {
-            this.flights = (response.data || []).map((f: any) => ({
-              ...f,
-              id: f.id || f.Id || f.internationalTransportId || f.InternationalTransportId,
-              carrierName: f.carrierName || f.CarrierName,
-              flightClass: f.flightClass || f.FlightClass,
-              stops: f.stops || f.Stops,
-              price: f.price || f.Price,
-              duration: f.duration || f.Duration,
-              internationalTransportType: f.transportType || f.TransportType || f.internationalTransportType || f.InternationalTransportType,
-              departureAirport: f.departureAirport || f.DepartureAirport || f.departure || f.departureAirportCode,
-              arrivalAirport: f.arrivalAirport || f.ArrivalAirport || f.arrival || f.arrivalAirportCode
-            }));
-            this.errorMessage = '';
-          },
+          next: processResult,
           error: (err) => {
             this.errorMessage = err.error?.message || 'حدث خطأ أثناء البحث';
             this.flights = [];
+            this.cdr.markForCheck();
           }
         });
     } else if (this.searchParams.departureDate && this.searchParams.returnDate) {
       this.transportService
         .searchByDateRange(this.searchParams.departureDate, this.searchParams.returnDate)
         .subscribe({
-          next: (response) => {
-            this.flights = (response.data || []).map((f: any) => ({
-              ...f,
-              id: f.id || f.Id || f.internationalTransportId || f.InternationalTransportId,
-              carrierName: f.carrierName || f.CarrierName,
-              flightClass: f.flightClass || f.FlightClass,
-              stops: f.stops || f.Stops,
-              price: f.price || f.Price,
-              duration: f.duration || f.Duration,
-              internationalTransportType: f.transportType || f.TransportType || f.internationalTransportType || f.InternationalTransportType,
-              departureAirport: f.departureAirport || f.DepartureAirport || f.departure || f.departureAirportCode,
-              arrivalAirport: f.arrivalAirport || f.ArrivalAirport || f.arrival || f.arrivalAirportCode
-            }));
-            this.errorMessage = '';
-          },
+          next: processResult,
           error: (err) => {
             this.errorMessage = err.error?.message || 'حدث خطأ أثناء البحث';
             this.flights = [];
+            this.cdr.markForCheck();
           }
         });
+    } else {
+        // Validation/Fallback if empty
+        this.notificationService.warning('Please select Route or Dates to search');
+        // Optionally load all if empty?
+        // this.setTransportType(this.searchParams.type || 'All'); 
     }
   }
 
   getAllTransportFilteredByType(type: string) {
+    if (type === 'All') {
+        this.loadAllInternationalTransports();
+        return;
+    }
     this.transportService.getTransportOptions().subscribe({
       next: (response) => {
         const wanted = (type || '').toString().toLowerCase();
-        this.flights = (response.data || []).filter((f: any) => {
+        const filtered = (response.data || []).filter((f: any) => {
           const a = (f.transportType ?? f.TransportType ?? f.internationalTransportType ?? f.InternationalTransportType ?? '').toString().toLowerCase();
           return a === wanted;
-        }).map((f: any) => ({
-          ...f,
-          id: f.id || f.Id || f.internationalTransportId || f.InternationalTransportId,
-          carrierName: f.carrierName || f.CarrierName,
-          flightClass: f.flightClass || f.FlightClass,
-          stops: f.stops || f.Stops,
-          price: f.price || f.Price,
-          duration: f.duration || f.Duration,
-          internationalTransportType: f.transportType || f.TransportType || f.internationalTransportType || f.InternationalTransportType
-        }));
+        });
+        this.mapFlights(filtered);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'فشل في جلب الرحلات';
         this.flights = [];
+        this.cdr.markForCheck();
       }
     });
   }
@@ -276,11 +318,13 @@ export class TransportComponent implements OnInit {
           } as any;
         });
         this.groundErrorMessage = '';
+        this.cdr.markForCheck();
       },
       error: (err) => {
 
         this.groundTransports = [];
         this.groundErrorMessage = 'Failed to load transport data';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -299,6 +343,7 @@ export class TransportComponent implements OnInit {
       next: (bookings) => {
         if (bookings && bookings.length > 0) {
           this.pendingGroundBooking = bookings[0];
+          this.cdr.markForCheck();
         }
       }
     });
@@ -308,6 +353,7 @@ export class TransportComponent implements OnInit {
       next: (bookings) => {
         if (bookings && bookings.length > 0) {
           this.pendingTransportBooking = bookings[0];
+          this.cdr.markForCheck();
         }
       }
     });
@@ -320,16 +366,16 @@ export class TransportComponent implements OnInit {
       this.bookingsService.deletePendingGroundBooking(this.pendingGroundBooking.id).subscribe({
         next: () => {
           this.pendingGroundBooking = null;
-          this.toastr.success(
-            this.i18n.isRTL() ? 'تم حذف الحجز المعلق' : 'Pending booking discarded',
-            this.i18n.translate('success')
+          this.notificationService.success(
+            this.i18n.isRTL() ? 'تم حذف الحجز المعلق' : 'Pending booking discarded'
           );
+          this.cdr.markForCheck();
         },
         error: () => {
-          this.toastr.error(
-            this.i18n.isRTL() ? 'فشل حذف الحجز' : 'Failed to discard booking',
-            this.i18n.translate('error')
+          this.notificationService.error(
+            this.i18n.isRTL() ? 'فشل حذف الحجز' : 'Failed to discard booking'
           );
+          this.cdr.markForCheck();
         }
       });
     }
@@ -342,16 +388,16 @@ export class TransportComponent implements OnInit {
       this.bookingsService.deletePendingTransportBooking(this.pendingTransportBooking.id).subscribe({
         next: () => {
           this.pendingTransportBooking = null;
-          this.toastr.success(
-            this.i18n.isRTL() ? 'تم حذف الحجز المعلق' : 'Pending booking discarded',
-            this.i18n.translate('success')
+          this.notificationService.success(
+            this.i18n.isRTL() ? 'تم حذف الحجز المعلق' : 'Pending booking discarded'
           );
+          this.cdr.markForCheck();
         },
         error: () => {
-          this.toastr.error(
-            this.i18n.isRTL() ? 'فشل حذف الحجز' : 'Failed to discard booking',
-            this.i18n.translate('error')
+          this.notificationService.error(
+            this.i18n.isRTL() ? 'فشل حذف الحجز' : 'Failed to discard booking'
           );
+          this.cdr.markForCheck();
         }
       });
     }

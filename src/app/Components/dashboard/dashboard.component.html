@@ -333,9 +333,18 @@
 
                                     <!-- Flight Info -->
                                     <div *ngIf="booking.internationalTransport"
-                                        class="flex items-center gap-2 text-[var(--color-text-muted)]">
-                                        <lucide-icon name="plane" class="w-4 h-4 text-blue-500"></lucide-icon>
-                                        <span>{{ booking.internationalTransport.carrierName || 'Flight' }}</span>
+                                        class="flex flex-col gap-1 text-[var(--color-text-muted)]">
+                                        <div class="flex items-center gap-2">
+                                            <lucide-icon name="plane" class="w-4 h-4 text-blue-500"></lucide-icon>
+                                            <span class="font-medium">{{ booking.internationalTransport.carrierName ||
+                                                'Flight' }}</span>
+                                        </div>
+                                        <div class="text-xs pl-6">
+                                            <div>GO: {{ booking.internationalTransport.departureDate | date:'shortDate'
+                                                }}</div>
+                                            <div *ngIf="booking.internationalTransport.returnDate">BACK: {{
+                                                booking.internationalTransport.returnDate | date:'shortDate' }}</div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -607,21 +616,52 @@
                                             {{ transport.transportType }}
                                         </span>
                                     </div>
-                                    <div class="space-y-2 mt-2">
-                                        <div>🛫 {{ transport.departureAirport }} → 🛬 {{ transport.arrivalAirport }}
+                                    <div class="space-y-3 mt-2">
+                                        <!-- GO LEG -->
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="px-2 py-0.5 rounded bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold uppercase tracking-wider shrink-0 mt-0.5">
+                                                GO
+                                            </div>
+                                            <div class="text-sm">
+                                                <div class="font-medium text-[var(--color-text)]">
+                                                    {{ transport.departureAirport }} ➝ {{ transport.arrivalAirport }}
+                                                </div>
+                                                <div class="text-[var(--color-text-muted)] flex items-center gap-2">
+                                                    <span>📅 {{ formatDate(transport.departureDate) }}</span>
+                                                    <span>• {{ transport.departureDate | date:'shortTime' }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>📅 {{ formatDate(transport.departureDate) }} - {{
-                                            formatDate(transport.arrivalDate) }}</div>
-                                        <div>⏱️ Duration: {{ transport.duration || 'N/A' }} | Stops: {{ transport.stops
-                                            || 'Direct' }}
+
+                                        <!-- BACK LEG (If return date exists) -->
+                                        <div *ngIf="transport.returnDate" class="flex items-start gap-2">
+                                            <div
+                                                class="px-2 py-0.5 rounded bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wider shrink-0 mt-0.5">
+                                                BACK
+                                            </div>
+                                            <div class="text-sm">
+                                                <div class="font-medium text-[var(--color-text)]">
+                                                    {{ transport.arrivalAirport }} ➝ {{ transport.departureAirport }}
+                                                </div>
+                                                <div class="text-[var(--color-text-muted)] flex items-center gap-2">
+                                                    <span>📅 {{ formatDate(transport.returnDate) }}</span>
+                                                    <span>• {{ transport.returnDate | date:'shortTime' }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>🎫 Flight #: {{ transport.flightNumber || 'N/A' }} | Class: {{
-                                            transport.flightClass ||
-                                            'Economy' }}</div>
-                                        <div>💺 Seats: {{ transport.availableSeats }} / {{ transport.totalSeats ||
-                                            transport.availableSeats
-                                            }} available</div>
-                                        <div class="text-xs"
+
+                                        <div
+                                            class="pt-2 border-t border-[var(--border)] mt-2 flex flex-wrap gap-3 text-xs text-[var(--color-text-muted)]">
+                                            <div title="Duration">⏱️ {{ transport.duration || 'N/A' }}</div>
+                                            <div title="Stops">🛑 {{ transport.stops || 'Direct' }}</div>
+                                            <div title="Flight Number">🎫 #{{ transport.flightNumber || 'N/A' }}</div>
+                                            <div title="Class">💺 {{ transport.flightClass || 'Economy' }}</div>
+                                            <div title="Available Seats">👥 {{ transport.availableSeats }} / {{
+                                                transport.totalSeats }}</div>
+                                        </div>
+
+                                        <div class="text-xs font-medium"
                                             [ngClass]="{'text-green-600': transport.isActive, 'text-red-600': !transport.isActive}">
                                             ● {{ transport.isActive ? 'Active' : 'Inactive' }}
                                         </div>
@@ -1065,8 +1105,9 @@
                         <div>
                             <label for="depDate" class="block text-sm font-medium mb-1.5 text-[var(--color-text)]">{{
                                 i18n.t('dashboard.departureDate') }} <span class="text-red-500">*</span></label>
-                            <input id="depDate" type="date" [(ngModel)]="internationalTransportFormData.departureDate"
-                                name="departureDate" required
+                            <input id="depDate" type="datetime-local"
+                                [(ngModel)]="internationalTransportFormData.departureDate" name="departureDate" required
+                                (ngModelChange)="onDepartureDateChange()"
                                 class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] outline-none">
                         </div>
 
@@ -1074,8 +1115,17 @@
                             <label for="arrDate" class="block text-sm font-medium mb-1.5 text-[var(--color-text)]">{{
                                 i18n.t('dashboard.arrivalDate')
                                 }} <span class="text-red-500">*</span></label>
-                            <input id="arrDate" type="date" [(ngModel)]="internationalTransportFormData.arrivalDate"
-                                name="arrivalDate" required
+                            <input id="arrDate" type="datetime-local"
+                                [(ngModel)]="internationalTransportFormData.arrivalDate" name="arrivalDate" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] outline-none">
+                        </div>
+
+                        <div>
+                            <label for="retDate"
+                                class="block text-sm font-medium mb-1.5 text-[var(--color-text)]">Return Date & Time
+                                <span class="text-red-500">*</span></label>
+                            <input id="retDate" type="datetime-local"
+                                [(ngModel)]="internationalTransportFormData.returnDate" name="returnDate" required
                                 class="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] outline-none">
                         </div>
 
@@ -1341,12 +1391,22 @@
                         <!-- Int Transport -->
                         <div *ngIf="selectedBookingForPayment?.internationalTransport"
                             class="flex justify-between items-center">
-                            <span class="text-[var(--color-text-muted)] flex items-center gap-2">
-                                <lucide-icon name="plane" class="w-3.5 h-3.5"></lucide-icon>
-                                Flight
-                                <span class="text-xs opacity-60">({{
-                                    selectedBookingForPayment?.internationalTransport?.carrierName
-                                    }})</span>
+                            <span class="text-[var(--color-text-muted)] flex flex-col gap-0.5">
+                                <span class="flex items-center gap-2">
+                                    <lucide-icon name="plane" class="w-3.5 h-3.5"></lucide-icon>
+                                    Flight
+                                    <span class="text-xs opacity-60">({{
+                                        selectedBookingForPayment?.internationalTransport?.carrierName
+                                        }})</span>
+                                </span>
+                                <span class="text-xs pl-5.5 opacity-75">
+                                    GO: {{ selectedBookingForPayment?.internationalTransport?.departureDate |
+                                    date:'shortDate' }}
+                                    <span *ngIf="selectedBookingForPayment?.internationalTransport?.returnDate">
+                                        | BACK: {{ selectedBookingForPayment?.internationalTransport?.returnDate |
+                                        date:'shortDate' }}
+                                    </span>
+                                </span>
                             </span>
                             <span class="text-[var(--color-text)] font-medium">{{
                                 selectedBookingForPayment?.internationalTransportPrice | currency:'SAR' }}</span>
@@ -1570,22 +1630,58 @@
                     <div class="space-y-3">
                         <div *ngIf="selectedBookingDetails()?.internationalTransport"
                             class="p-3 bg-[var(--color-surface)] rounded-lg border border-[var(--border)]">
-                            <p class="text-xs text-[var(--color-text-muted)] mb-1">✈️ International Flight</p>
-                            <p class="font-medium text-[var(--color-text)]">{{
-                                selectedBookingDetails()?.internationalTransport?.carrierName }}</p>
-                            <p class="text-sm text-[var(--color-text-muted)]">{{
-                                selectedBookingDetails()?.internationalTransport?.departureAirport }} → {{
-                                selectedBookingDetails()?.internationalTransport?.arrivalAirport }}</p>
-                            <div class="mt-2 text-xs text-[var(--color-text-muted)] flex items-center gap-2">
-                                <span>📅</span>
-                                <span>{{ selectedBookingDetails()?.internationalTransport?.departureDate |
-                                    date:'shortDate' }}
-                                    <span *ngIf="selectedBookingDetails()?.internationalTransport?.arrivalDate">→
-                                        {{ selectedBookingDetails()?.internationalTransport?.arrivalDate |
-                                        date:'shortDate' }}</span>
-                                </span>
+                            <div class="flex items-center gap-2 mb-2">
+                                <lucide-icon name="plane" class="w-4 h-4 text-blue-500"></lucide-icon>
+                                <div>
+                                    <p class="text-xs text-[var(--color-text-muted)]">International Flight</p>
+                                    <p class="font-medium text-[var(--color-text)]">{{
+                                        selectedBookingDetails()?.internationalTransport?.carrierName || 'Flight' }}</p>
+                                </div>
                             </div>
-                            <p class="text-sm font-semibold text-[var(--primary)] mt-1">{{
+
+                            <div class="space-y-2 text-sm mt-3 border-t border-[var(--border)] pt-2">
+                                <!-- GO -->
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span
+                                            class="px-1.5 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold uppercase rounded">GO</span>
+                                        <span class="text-[var(--color-text)] font-medium">
+                                            {{ selectedBookingDetails()?.internationalTransport?.departureAirport }}
+                                            <span class="text-[var(--color-text-muted)] mx-1">➝</span>
+                                            {{ selectedBookingDetails()?.internationalTransport?.arrivalAirport }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[var(--color-text-muted)] text-xs pl-9">
+                                        📅 {{ selectedBookingDetails()?.internationalTransport?.departureDate |
+                                        date:'mediumDate' }} • {{
+                                        selectedBookingDetails()?.internationalTransport?.departureDate |
+                                        date:'shortTime' }}
+                                    </div>
+                                </div>
+
+                                <!-- BACK -->
+                                <div *ngIf="selectedBookingDetails()?.internationalTransport?.returnDate">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span
+                                            class="px-1.5 py-0.5 bg-orange-100 text-orange-700 text-[10px] font-bold uppercase rounded">BACK</span>
+                                        <span class="text-[var(--color-text)] font-medium">
+                                            {{ selectedBookingDetails()?.internationalTransport?.arrivalAirport }}
+                                            <span class="text-[var(--color-text-muted)] mx-1">➝</span>
+                                            {{ selectedBookingDetails()?.internationalTransport?.departureAirport }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[var(--color-text-muted)] text-xs pl-9">
+                                        📅 {{ selectedBookingDetails()?.internationalTransport?.returnDate |
+                                        date:'mediumDate' }} • {{
+                                        selectedBookingDetails()?.internationalTransport?.returnDate | date:'shortTime'
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p
+                                class="text-sm font-semibold text-[var(--primary)] mt-3 pt-2 border-t border-[var(--border)] text-right">
+                                {{
                                 selectedBookingDetails()?.internationalTransport?.totalPrice | currency:'SAR' }}</p>
                         </div>
                         <div *ngIf="selectedBookingDetails()?.groundTransport"
@@ -1688,6 +1784,15 @@
                 <div class="text-center text-sm text-[var(--color-text-muted)]">
                     Booked on {{ selectedBookingDetails()?.createdAt | date:'medium' }}
                 </div>
+            </div>
+
+            <!-- DEBUG: Raw JSON View (Remove in production) -->
+            <div class="mt-4 p-4 bg-gray-100 rounded-xl border border-gray-300 overflow-x-auto text-xs font-mono"
+                *ngIf="selectedBookingDetails()?.internationalTransport">
+                <details>
+                    <summary class="cursor-pointer font-bold text-gray-700">Debug: Raw Transport Data</summary>
+                    <pre class="mt-2 text-gray-600">{{ selectedBookingDetails()?.internationalTransport | json }}</pre>
+                </details>
             </div>
 
             <!-- Footer -->

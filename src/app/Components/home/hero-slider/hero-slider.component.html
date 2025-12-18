@@ -3,15 +3,14 @@
      - Auto-advances every 5 seconds, supports prev/next buttons and dots
      - Uses CSS variables for consistent colors with the design system
 -->
-<div class="relative min-h-[420px] lg:min-h-[700px] overflow-hidden">
+<div class="relative min-h-[100dvh] lg:min-h-[700px] overflow-hidden">
   <!-- Slides: iterate slides array so each slide can carry content -->
   <ng-container *ngFor="let slide of slides; let i = index">
-    <div class="absolute inset-0 transition-all duration-1000" [ngClass]="
-        i === index() ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 -z-10'
-      " [attr.aria-hidden]="i !== index()">
-      <img [src]="slide.image" [alt]="i18n.translate(slide.titleKey)" class="w-full h-full object-cover"
-        [attr.fetchpriority]="i === 0 ? 'high' : 'low'" [attr.loading]="i === 0 ? 'eager' : 'lazy'" width="1920"
-        height="700" />
+    <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out bg-black/10"
+      [class.opacity-100]="index() === i" [class.opacity-0]="index() !== i" [attr.aria-hidden]="index() !== i">
+      <img [ngSrc]="slide.image" [alt]="i18n.translate(slide.titleKey)"
+        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" fill
+        [priority]="i === 0" />
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30"></div>
 
       <!-- Content overlay -->
@@ -36,13 +35,13 @@
               </div>
 
               <div class="flex flex-wrap gap-4">
-                <a routerLink="/packages"
+                <a routerLink="/booking-package"
                   class="bg-[var(--primary)] text-white hover:opacity-90 h-14 px-8 inline-flex items-center justify-center rounded"
                   style="border-radius: var(--radius-button)">
                   {{ i18n.translate('hero.cta.book') }}
                 </a>
-                <a routerLink="/packages"
-                  class="border border-white text-white hover:bg-[var(--color-bg)] hover:text-[var(--primary)] h-14 px-8 inline-flex items-center justify-center rounded"
+                <a routerLink="/booking-package"
+                  class="border border-white text-[#ffffff] hover:bg-[var(--color-bg)] hover:text-[var(--primary)] h-14 px-8 inline-flex items-center justify-center rounded transition-colors duration-300"
                   style="border-radius: var(--radius-button)">
                   {{ i18n.translate('hero.cta.explore') }}
                 </a>

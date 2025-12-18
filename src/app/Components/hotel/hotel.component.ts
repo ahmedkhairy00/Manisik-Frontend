@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HotelsService } from 'src/app/core/services/hotels.service';
 import { I18nService } from 'src/app/core/services/i18n.service';
@@ -12,6 +12,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   imports: [FormsModule, CommonModule, LucideAngularModule],
   templateUrl: './hotel.component.html',
   styleUrl: './hotel.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HotelComponent implements OnInit {
   readonly i18n = inject(I18nService);
@@ -29,6 +30,7 @@ export class HotelComponent implements OnInit {
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor(private hotelService: HotelsService) { }
 
@@ -38,6 +40,7 @@ export class HotelComponent implements OnInit {
         this.city = params['city'];
       }
       this.loadHotels();
+      this.cdr.markForCheck();
     });
   }
 
@@ -64,16 +67,18 @@ export class HotelComponent implements OnInit {
         break;
     }
 
-    console.log('City sent to API:', params.city);
+
 
     this.hotelService.getHotels(params).subscribe({
       next: (data) => {
         this.hotels = data;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.hotels = [];
         this.loading = false;
+        this.cdr.markForCheck();
       },
     });
   }

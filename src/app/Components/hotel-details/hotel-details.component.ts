@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HotelsService } from 'src/app/core/services/hotels.service';
@@ -19,6 +19,7 @@ import { I18nService } from 'src/app/core/services/i18n.service';
   imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './hotel-details.component.html',
   styleUrls: ['./hotel-details.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HotelDetailsComponent implements OnInit {
   readonly i18n = inject(I18nService);
@@ -27,6 +28,7 @@ export class HotelDetailsComponent implements OnInit {
   loading = true;
   hotel: any = null;
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private hotelsService: HotelsService, private router: Router) {}
 
@@ -45,10 +47,12 @@ export class HotelDetailsComponent implements OnInit {
       next: (h) => {
         this.hotel = h;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
 
         this.loading = false;
+        this.cdr.markForCheck();
       },
     });
   }

@@ -56,7 +56,20 @@ import {
   Building,
   Plane,
   Flag,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Eye,
+  EyeOff,
+  LayoutGrid,
+  PlaneTakeoff,
+  PlaneLanding,
+  Ship,
+  Train,
+  Car
 } from 'lucide-angular';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -141,7 +154,20 @@ bootstrapApplication(AppComponent, {
         Building,
         Plane,
         Flag,
-        AlertCircle
+        AlertCircle,
+        Facebook,
+        Twitter,
+        Instagram,
+        Youtube,
+        Eye,
+        EyeOff,
+        LayoutGrid,
+        PlaneTakeoff,
+        PlaneLanding,
+        Ship,
+        Train,
+        Car,
+        Camera
       })
     ),
     provideHttpClient(

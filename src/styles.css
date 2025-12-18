@@ -335,8 +335,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 /* Ensure all text inherits theme color */
+html, body {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
 body {
   color: var(--color-text);
+  margin: 0;
+  padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -374,3 +382,17 @@ p {
     display: none !important;
   }
 }
+/* Fix for Home Page Spacing */
+main:has(app-home) { padding-top: 0 !important; }
+
+/* Performance Optimizations */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+/* Ensure font swap is applied even if inherited properties are weird */
+* {
+  font-display: swap !important;
+}
+

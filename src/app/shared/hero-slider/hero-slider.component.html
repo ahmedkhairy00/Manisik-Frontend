@@ -1,15 +1,8 @@
 <div class="slider-root">
   <!-- Slides -->
-  <div
-    *ngFor="let slide of slides; let i = index"
-    class="slide w-[600px] h-[600px]"
-    [class.active]="i === currentIndex"
-  >
-    <img
-      [src]="slide.image"
-      [alt]="slide.title"
-      class="slide-image w-[600px] h-[600px] object-cover"
-    />
+  <div *ngFor="let slide of slides; let i = index" class="slide w-full h-full" [class.active]="i === currentIndex">
+    <img [src]="slide.image" [alt]="slide.title" class="slide-image w-full h-full object-cover"
+      [attr.fetchpriority]="i === 0 ? 'high' : null" [attr.loading]="i === 0 ? 'eager' : 'lazy'" />
     <div class="overlay"></div>
 
     <div class="content">
@@ -20,30 +13,17 @@
   </div>
 
   <!-- Navigation Arrows -->
-  <button
-    (click)="prevSlide()"
-    class="nav prev"
-    [attr.aria-label]="'Previous slide'"
-  >
+  <button (click)="prevSlide()" class="nav prev" [attr.aria-label]="'Previous slide'">
     ‹
   </button>
 
-  <button
-    (click)="nextSlide()"
-    class="nav next"
-    [attr.aria-label]="'Next slide'"
-  >
+  <button (click)="nextSlide()" class="nav next" [attr.aria-label]="'Next slide'">
     ›
   </button>
 
   <!-- Indicators -->
   <div class="indicators">
-    <button
-      *ngFor="let slide of slides; let i = index"
-      (click)="goToSlide(i)"
-      class="dot"
-      [class.active]="i === currentIndex"
-      [attr.aria-label]="'Go to slide ' + (i + 1)"
-    ></button>
+    <button *ngFor="let slide of slides; let i = index" (click)="goToSlide(i)" class="dot"
+      [class.active]="i === currentIndex" [attr.aria-label]="'Go to slide ' + (i + 1)"></button>
   </div>
 </div>

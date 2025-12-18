@@ -17,7 +17,7 @@ export class BookingInternationalTransportService {
 
    // return this.http.post(`${this.apiUrl}/BookingInternationalTransport/BookInteranationalTransport`, dto, { responseType: 'text'});
    return this.http.post<ApiResponse<BookingInternationalTransport>>(
-     `${this.apiUrl}/BookingInternationalTransport/BookInteranationalTransport`,
+     `${this.apiUrl}/InternationalTransportBooking/BookInternationalTransport`,
      dto
    );
   }

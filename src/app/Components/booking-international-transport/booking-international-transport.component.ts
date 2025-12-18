@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,9 +10,10 @@ import { TransportOption } from 'src/app/interfaces';
 import { BookingInternationalTransport } from 'src/app/interfaces/booking-international-transport';
 import { BookingInternationalTransportService } from 'src/app/core/services/booking-international-transport.service';
 import { RouterModule, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BookingsService } from 'src/app/core/services/bookings.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-booking-international-transport',
@@ -20,8 +21,9 @@ import { BookingsService } from 'src/app/core/services/bookings.service';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './booking-international-transport.component.html',
   styleUrls: ['./booking-international-transport.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookingInternationalTransportComponent implements OnInit {
+export class BookingInternationalTransportComponent implements OnInit, OnDestroy {
   @Input() selectedDepartureFlight!: TransportOption;
 
   private readonly auth = inject(AuthService);
@@ -31,11 +33,13 @@ export class BookingInternationalTransportComponent implements OnInit {
   bookingForm!: FormGroup;
 
   totalBookingPrice = 0;
+  private subs = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private bookingService: BookingInternationalTransportService,
-    private toastr: ToastrService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +64,18 @@ export class BookingInternationalTransportComponent implements OnInit {
     });
     
     this.calculateTotals();
+
+    // Subscribe to changes to update price live
+    this.subs.add(
+      this.bookingForm.get('departureBooking.numberOfSeats')?.valueChanges.subscribe(() => {
+        this.calculateTotals();
+        this.cdr.markForCheck();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+      this.subs.unsubscribe();
   }
 
   calculateTotals() {
@@ -99,7 +115,7 @@ export class BookingInternationalTransportComponent implements OnInit {
           this.auth.saveBookingData(current);
         }
 
-        this.toastr.success('Flight booked successfully!', 'Success');
+        this.notificationService.success('Flight booked successfully!', 'Success');
 
         // Sync transport data to localStorage
         this.bookingsService.getMyPendingTransportBookings().subscribe({
@@ -148,7 +164,8 @@ export class BookingInternationalTransportComponent implements OnInit {
       },
       error: (err) => {
         const backendMessage = err?.error?.message ?? 'Something went wrong';
-        this.toastr.error(backendMessage, 'Booking Failed');
+        this.notificationService.error(backendMessage, 'Booking Failed');
+        this.cdr.markForCheck();
       },
     });
   }

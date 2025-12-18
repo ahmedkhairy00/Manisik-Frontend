@@ -14,22 +14,27 @@
         <p class="text-[var(--color-text-muted)] mb-4">
           {{ i18n.translate('footer.aboutText') }}
         </p>
-        <div class="flex gap-3">
-          <a href="#"
-            class="w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)] transition-colors">
-            <i class="fa-brands fa-facebook-f"></i>
+        <!-- Social Links -->
+        <div class="flex gap-4">
+          <a routerLink="#"
+            class="social-icon-link w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--color-bg)]"
+            aria-label="Facebook">
+            <lucide-icon name="facebook" class="w-5 h-5"></lucide-icon>
           </a>
-          <a href="#"
-            class="w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)] transition-colors">
-            <i class="fa-brands fa-twitter"></i>
+          <a routerLink="#"
+            class="social-icon-link w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--color-bg)]"
+            aria-label="Twitter">
+            <lucide-icon name="twitter" class="w-5 h-5"></lucide-icon>
           </a>
-          <a href="#"
-            class="w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)] transition-colors">
-            <i class="fa-brands fa-instagram"></i>
+          <a routerLink="#"
+            class="social-icon-link w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--color-bg)]"
+            aria-label="Instagram">
+            <lucide-icon name="instagram" class="w-5 h-5"></lucide-icon>
           </a>
-          <a href="#"
-            class="w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--primary)] hover:border-[var(--primary)] transition-colors">
-            <i class="fa-brands fa-youtube"></i>
+          <a routerLink="#"
+            class="social-icon-link w-10 h-10 rounded-full bg-[var(--color-bg)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--color-bg)]"
+            aria-label="Youtube">
+            <lucide-icon name="youtube" class="w-5 h-5"></lucide-icon>
           </a>
         </div>
       </div>
@@ -38,17 +43,18 @@
       <div>
         <h4 class="mb-4 text-[var(--color-text)]">{{ i18n.translate('footer.quickLinks') }}</h4>
         <ul class="space-y-2">
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('nav.home') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/" fragment="about" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('nav.about') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/" fragment="how-it-works"
+              class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('home.howItWorks') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/blog" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.blog') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/careers" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.careers') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/press" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.press') }}</a></li>
         </ul>
       </div>
@@ -57,17 +63,18 @@
       <div>
         <h4 class="mb-4 text-[var(--color-text)]">{{ i18n.translate('footer.services') }}</h4>
         <ul class="space-y-2">
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/booking-package" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.umrahPackages') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/hotels" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.hotelsMakkah') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/hotels" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.hotelsMadinah') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/booking/international"
+              class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.airTransport') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/booking-ground" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.groundTransport') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/insurance" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.services.travelInsurance') }}</a></li>
         </ul>
       </div>
@@ -76,17 +83,17 @@
       <div>
         <h4 class="mb-4 text-[var(--color-text)]">{{ i18n.translate('footer.support') }}</h4>
         <ul class="space-y-2">
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/help" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.helpCenter') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/contact" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.contactUs') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/faq" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.faqs') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/terms" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.terms') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/privacy" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.privacy') }}</a></li>
-          <li><a href="#" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
+          <li><a routerLink="/cookies" class="text-[var(--color-text-muted)] hover:text-[var(--primary)]">{{
               i18n.translate('footer.cookies') }}</a></li>
         </ul>
       </div>
@@ -96,18 +103,18 @@
         <h4 class="mb-4 text-[var(--color-text)]">{{ i18n.translate('footer.contact') }}</h4>
         <ul class="space-y-3">
           <li class="flex gap-2 text-[var(--color-text-muted)]">
-            <i class="fa-solid fa-phone"></i>
+            <lucide-icon name="phone" class="w-4 h-4"></lucide-icon>
             <div>
               <div>+966 12 345 6789</div>
               <div>+1 800 123 4567</div>
             </div>
           </li>
           <li class="flex gap-2 text-[var(--color-text-muted)]">
-            <i class="fa-solid fa-envelope"></i>
+            <lucide-icon name="mail" class="w-4 h-4"></lucide-icon>
             <span>manisik.info&#64;gmail.com</span>
           </li>
           <li class="flex gap-2 text-[var(--color-text-muted)]">
-            <i class="fa-solid fa-map-pin"></i>
+            <lucide-icon name="map-pin" class="w-4 h-4"></lucide-icon>
             <span>Jeddah, Saudi Arabia</span>
           </li>
         </ul>

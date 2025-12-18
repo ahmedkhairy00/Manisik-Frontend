@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,30 +6,33 @@ import { TransportService } from 'src/app/core/services/transport.service';
 import { BookingGroundService } from 'src/app/core/services/booking-ground.service';
 import { BookingsService } from 'src/app/core/services/bookings.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ToastrService } from 'ngx-toastr';
-import { switchMap, map, finalize, catchError, of } from 'rxjs';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { switchMap, map, finalize, catchError, of, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-booking-ground',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './booking-ground.component.html'
+  templateUrl: './booking-ground.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookingGroundComponent implements OnInit {
+export class BookingGroundComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly transportService = inject(TransportService);
   private readonly bookingGroundService = inject(BookingGroundService);
   private readonly bookingsService = inject(BookingsService);
   private readonly auth = inject(AuthService);
-  private readonly toastr = inject(ToastrService);
+  private readonly notificationService = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   ground: any = null;
   bookingForm!: FormGroup;
   pricePerPerson: number = 0;
   total: number = 0;
   isSubmitting = false;
+  private subs = new Subscription();
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.queryParamMap.get('groundTransportId')) || null;
@@ -42,9 +45,12 @@ export class BookingGroundComponent implements OnInit {
     });
 
     // Subscribe to passenger changes to recalculate total
-    this.bookingForm.get('passengers')?.valueChanges.subscribe(() => {
-      this.recalculateTotal();
-    });
+    this.subs.add(
+      this.bookingForm.get('passengers')?.valueChanges.subscribe(() => {
+        this.recalculateTotal();
+        this.cdr.markForCheck();
+      })
+    );
 
     const navState: any = (history && (history.state as any)) || {};
     if (navState && navState.groundTransport) {
@@ -58,17 +64,22 @@ export class BookingGroundComponent implements OnInit {
         next: (res) => {
           this.ground = res;
           this.setupGroundData(res);
+          this.cdr.markForCheck();
         },
         error: (err) => {
 
-          this.toastr.error('Failed to load ground transport details', 'Error');
+          this.notificationService.error('Failed to load ground transport details', 'Error');
           this.router.navigate(['/transport']);
         }
       });
     } else {
-      this.toastr.error('Missing ground transport id', 'Error');
+      this.notificationService.error('Missing ground transport id', 'Error');
       this.router.navigate(['/transport']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   setupGroundData(data: any) {
@@ -93,7 +104,7 @@ export class BookingGroundComponent implements OnInit {
     
     if (this.bookingForm.invalid) {
       this.bookingForm.markAllAsTouched();
-      this.toastr.warning('Please fill in all required fields correctly', 'Validation');
+      this.notificationService.warning('Please fill in all required fields correctly', 'Validation');
       return;
     }
 
@@ -112,7 +123,7 @@ export class BookingGroundComponent implements OnInit {
       .pipe(
         // Switch context to fetch pending bookings immediately after success
         switchMap((res: any) => {
-          this.toastr.success('Ground transport booked successfully', 'Success');
+          this.notificationService.success('Ground transport booked successfully', 'Success');
           // Return the pending bookings observable stream
           return this.bookingsService.getMyPendingGroundBookings().pipe(
              // Map result to include the original response if needed, or just process here
@@ -120,7 +131,10 @@ export class BookingGroundComponent implements OnInit {
              catchError(() => of({ res, pending: [] })) // Fallback if fetch fails
           );
         }),
-        finalize(() => this.isSubmitting = false)
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
+        })
       )
       .subscribe({
         next: ({ res, pending }) => {
@@ -141,14 +155,15 @@ export class BookingGroundComponent implements OnInit {
             
             this.auth.saveBookingData(draft);
           } catch (e) {
-            console.warn('Error updating local booking state', e);
+            // Error updating local booking state
           }
 
           this.router.navigate(['/booking-package']);
         },
         error: (err: any) => {
           const msg = err?.error?.message || 'Failed to book ground transport';
-          this.toastr.error(msg);
+          this.notificationService.error(msg);
+          this.cdr.markForCheck();
         }
       });
   }

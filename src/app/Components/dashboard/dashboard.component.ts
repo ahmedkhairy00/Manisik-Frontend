@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { CacheService } from 'src/app/core/services/cache.service';
 import { I18nService } from 'src/app/core/services/i18n.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { BookingsService } from 'src/app/core/services/bookings.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { BookingDto, UserDto, AssignRoleDto, HotelDto, RoomDto } from 'src/app/models/api';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -34,6 +34,7 @@ export interface InternationalTransportDto {
   arrivalAirportCode?: string;
   departureDate: string;
   arrivalDate: string;
+  returnDate?: string;
   price: number;
   totalSeats?: number;
   availableSeats: number;
@@ -75,19 +76,21 @@ export interface GroundTransportDto {
   ],
   providers: [],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
   // ----- Injected services -----
   readonly i18n = inject(I18nService);
   readonly auth = inject(AuthService);
   readonly bookings = inject(BookingsService);
-  readonly toastr = inject(ToastrService);
+  readonly notificationService = inject(NotificationService);
   readonly http = inject(HttpClient);
   readonly router = inject(Router);
   readonly hotels = inject(HotelsService);
   readonly paymentService = inject(PaymentService);
   readonly cacheService = inject(CacheService);
+  readonly cdr = inject(ChangeDetectorRef);
 
   // ----- Initial model defaults -----
   hotel: HotelDto = {
@@ -198,6 +201,12 @@ export class DashboardComponent implements OnInit {
     { value: 'NileAir', label: 'Nile Air' }
   ];
 
+  shipCompanies = [
+    { value: 'Cairo Ferry', label: 'Cairo Ferry' },
+    { value: 'MSC Cruises', label: 'MSC Cruises' },
+    { value: 'Red Sea Jet', label: 'Red Sea Jet' }
+  ];
+
   internationalTransportFormData: InternationalTransportDto = {
     carrierName: '',
     transportType: 'Plane',
@@ -207,6 +216,7 @@ export class DashboardComponent implements OnInit {
     arrivalAirportCode: '',
     departureDate: '',
     arrivalDate: '',
+    returnDate: '',
     price: 0,
     totalSeats: 0,
     availableSeats: 0,
@@ -271,7 +281,7 @@ export class DashboardComponent implements OnInit {
 
   sendBroadcast() {
     if (!this.broadcastSubject() || !this.broadcastBody()) {
-      this.toastr.warning('Please enter both subject and body');
+      this.notificationService.warning('Please enter both subject and body');
       return;
     }
 
@@ -285,14 +295,16 @@ export class DashboardComponent implements OnInit {
 
     this.http.post(`${environment.apiUrl}/Subscriber/Broadcast`, payload, { withCredentials: true }).subscribe({
       next: (res: any) => {
-        this.toastr.success(res.message || 'Broadcast queued successfully');
+        this.notificationService.success(res.message || 'Broadcast queued successfully');
         this.closeBroadcastModal();
         this.isSendingBroadcast.set(false);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to send broadcast', err);
-        this.toastr.error('Failed to send broadcast');
+        this.notificationService.error('Failed to send broadcast');
         this.isSendingBroadcast.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -427,7 +439,106 @@ export class DashboardComponent implements OnInit {
 
   // Booking Details Modal Methods
   viewBookingDetails(booking: BookingDto) {
-    this.selectedBookingDetails.set(booking);
+    // Clone to safely map nested data without mutating original view model if needed
+    const details = { ...booking }; 
+
+    // Map International Transport
+    // We consolidate data from multiple potential sources:
+    // 1. The root 'internationalTransport' object on the booking
+    // 2. The junction table 'bookingInternationalTransport' (which may contain overrides or nested objects)
+    
+    let transportSources: any[] = [];
+    
+    // Add root object if exists
+    if (details.internationalTransport) {
+        transportSources.push(details.internationalTransport);
+    }
+    
+    // Add junction object and its nested transport if exists
+    if (details.bookingInternationalTransport && details.bookingInternationalTransport.length > 0) {
+        const bit = details.bookingInternationalTransport[0];
+        transportSources.push(bit);
+        if (bit.internationalTransport) transportSources.push(bit.internationalTransport);
+        if (bit.InternationalTransport) transportSources.push(bit.InternationalTransport);
+        if (bit.transport) transportSources.push(bit.transport);
+        if (bit.Transport) transportSources.push(bit.Transport);
+    }
+    
+    if (transportSources.length > 0) {
+        // Helper to find first non-empty value for a set of keys
+        const getValue = (keys: string[]) => {
+            for (const src of transportSources) {
+                for (const key of keys) {
+                    if (src[key] !== undefined && src[key] !== null && src[key] !== '') return src[key];
+                }
+            }
+            return undefined;
+        };
+
+        // Debug logging removed
+
+        details.internationalTransport = {
+            // Base on the first source (usually root or junction)
+            ...transportSources[0],
+            
+            // Carrier
+            carrierName: getValue(['carrierName', 'CarrierName', 'carrier', 'Carrier', 'airline', 'Airline']) || 'Unknown Carrier',
+            
+            // Airports
+            departureAirport: getValue(['departureAirport', 'DepartureAirport', 'fromCity', 'FromCity', 'from', 'From']),
+            departureAirportCode: getValue(['departureAirportCode', 'DepartureAirportCode', 'fromCode']),
+            arrivalAirport: getValue(['arrivalAirport', 'ArrivalAirport', 'toCity', 'ToCity', 'to', 'To']),
+            arrivalAirportCode: getValue(['arrivalAirportCode', 'ArrivalAirportCode', 'toCode']),
+            
+            // Dates
+            departureDate: getValue(['departureDate', 'DepartureDate', 'flightDate', 'FlightDate', 'date', 'Date']),
+            arrivalDate: getValue(['arrivalDate', 'ArrivalDate']),
+            returnDate: getValue(['returnDate', 'ReturnDate']),
+            
+            // Flight Info
+            flightNumber: getValue(['flightNumber', 'FlightNumber', 'flightNo', 'FlightNo']),
+            transportType: getValue(['transportType', 'TransportType', 'type', 'Type']),
+            
+            // Price (prioritize junction which often has the specific booking price)
+            totalPrice: getValue(['totalPrice', 'TotalPrice', 'price', 'Price']) || 0
+        } as any;
+        
+        details.internationalTransportPrice = details.internationalTransport?.totalPrice || 0;
+    }
+
+    // Map Ground Transport (flat map)
+    if (!details.groundTransport && details.bookingGroundTransport && details.bookingGroundTransport.length > 0) {
+        const bgt = details.bookingGroundTransport[0];
+        details.groundTransport = bgt.groundTransport;
+        details.groundTransportPrice = bgt.totalPrice;
+    }
+
+    // Map Hotels (ensure prices and dates are accessible)
+    if (details.hotels && details.hotels.length > 0) {
+        const makkah = details.hotels.find((h: any) => h.hotelCity === 0 || h.hotelCity === 'Makkah' || h.hotel?.city === 'Makkah');
+        if (makkah && !details.makkahHotel) {
+            details.makkahHotel = makkah.hotel;
+            details.makkahHotelPrice = makkah.totalPrice;
+            if (details.makkahHotel) {
+                details.makkahHotel.checkInDate = makkah.checkInDate;
+                details.makkahHotel.checkOutDate = makkah.checkOutDate;
+                details.makkahHotel.roomType = makkah.roomType;
+            }
+        }
+        
+        const madinah = details.hotels.find((h: any) => h.hotelCity === 1 || h.hotelCity === 'Madinah' || h.hotel?.city === 'Madinah');
+        if (madinah && !details.madinahHotel) {
+            details.madinahHotel = madinah.hotel;
+            details.madinahHotelPrice = madinah.totalPrice;
+             if (details.madinahHotel) {
+                details.madinahHotel.checkInDate = madinah.checkInDate;
+                details.madinahHotel.checkOutDate = madinah.checkOutDate;
+                details.madinahHotel.roomType = madinah.roomType;
+            }
+        }
+    }
+
+    this.selectedBookingDetails.set(details);
     this.showBookingDetailsModal.set(true);
   }
 
@@ -441,11 +552,11 @@ export class DashboardComponent implements OnInit {
     const bookingId = booking.id;
     const travelerId = traveler.id;
     if (!bookingId || !travelerId) {
-      this.toastr.error('Missing booking or traveler information');
+      this.notificationService.error('Missing booking or traveler information');
       return;
     }
 
-    this.toastr.info(`Downloading ${documentType === 'visa' ? 'Visa' : 'Ticket'}...`);
+    this.notificationService.info(`Downloading ${documentType === 'visa' ? 'Visa' : 'Ticket'}...`);
 
     this.bookings.downloadDocument(bookingId, travelerId, documentType).subscribe({
       next: (blob) => {
@@ -457,11 +568,13 @@ export class DashboardComponent implements OnInit {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        this.toastr.success(`${documentType === 'visa' ? 'Visa' : 'Ticket'} downloaded successfully`);
+        this.notificationService.success(`${documentType === 'visa' ? 'Visa' : 'Ticket'} downloaded successfully`);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Download failed', err);
-        this.toastr.error('Download failed. Please try again. ' + (err?.message || err?.statusText || ''));
+        this.notificationService.error('Download failed. Please try again. ' + (err?.message || err?.statusText || ''));
+        this.cdr.markForCheck();
       }
     });
   }
@@ -557,18 +670,19 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
 
-        this.toastr.error('Failed to load bookings');
+        this.notificationService.error('Failed to load bookings');
         this.bookingsLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
 
   updateBookingStatus(id: number, status: string): void {
-    this.toastr.info(this.i18n.t('dashboard.updatingStatus') || 'Updating status...');
+    this.notificationService.info(this.i18n.t('dashboard.updatingStatus') || 'Updating status...');
     this.bookings.updateStatus(String(id), status).subscribe({
       next: (res: any) => {
         // Show success message from backend if available (which might include email status)
-        this.toastr.success(res.message || 'Status updated successfully');
+        this.notificationService.success(res.message || 'Status updated successfully');
 
         // Optimistic update to reduce perceived lag
         // Update local lists immediately without waiting for full reload
@@ -578,11 +692,13 @@ export class DashboardComponent implements OnInit {
 
         // Use setTimeout to reload in background to ensure consistency, but UI is already updated
         setTimeout(() => this.loadAllBookings(), 500);
+        this.cdr.markForCheck();
       },
       error: err => {
-        this.toastr.error(err?.error?.message || 'Failed to update status');
+        this.notificationService.error(err?.error?.message || 'Failed to update status');
         // Revert optimistic update if necessary (reloading handles it)
         this.loadAllBookings();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -596,11 +712,13 @@ export class DashboardComponent implements OnInit {
       () => {
         this.hotels.deleteHotel(String(id)).subscribe({
           next: () => {
-            this.toastr.success('Hotel deleted successfully');
+            this.notificationService.success('Hotel deleted successfully');
             this.loadHotels();
+            this.cdr.markForCheck();
           },
           error: err => {
-            this.toastr.error('Failed to delete hotel');
+            this.notificationService.error('Failed to delete hotel');
+            this.cdr.markForCheck();
           }
         });
       }
@@ -643,8 +761,9 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
 
-        this.toastr.error('Failed to load all bookings');
+        this.notificationService.error('Failed to load all bookings');
         this.bookingsLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -766,7 +885,7 @@ export class DashboardComponent implements OnInit {
 
       if (result.error) {
         this.cardErrors = result.error.message || 'Payment failed';
-        this.toastr.error(this.cardErrors);
+        this.notificationService.error(this.cardErrors);
         this.router.navigate(['/booking-cancellation']);
       } else if (result.paymentIntent?.status === 'succeeded') {
         // 3. Notify backend to update booking status to Paid
@@ -781,10 +900,10 @@ export class DashboardComponent implements OnInit {
           // ConfirmPayment call failed, but payment succeeded on Stripe
           // Log for debugging but proceed with success
           console.error("Backend ConfirmPayment failed:", confirmErr);
-          this.toastr.warning('Payment received. Booking status will update shortly.', 'Processing');
+          this.notificationService.warning('Payment received. Booking status will update shortly.', 'Processing');
         }
 
-        this.toastr.success('Payment completed successfully!', 'Success');
+        this.notificationService.success('Payment completed successfully!', 'Success');
 
         // Capture ID before closing modal (which might clear the selection)
         const paidBookingId = this.selectedBookingForPayment?.id;
@@ -820,7 +939,7 @@ export class DashboardComponent implements OnInit {
   cancelBooking(booking: BookingDto) {
     // Keep original business rules while making code clearer
     if (booking.status === 'Cancelled') {
-      this.toastr.error('Booking already cancelled');
+      this.notificationService.error('Booking already cancelled');
       return;
     }
 
@@ -830,7 +949,7 @@ export class DashboardComponent implements OnInit {
       const daysSinceCreation = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
 
       if (daysSinceCreation > 7) {
-        this.toastr.error('Cannot cancel booking after 7 days');
+        this.notificationService.error('Cannot cancel booking after 7 days');
         return;
       }
     }
@@ -839,17 +958,19 @@ export class DashboardComponent implements OnInit {
 
     this.bookings.cancelBooking(String(booking.id)).subscribe({
       next: () => {
-        this.toastr.success('Booking cancelled successfully');
+        this.notificationService.success('Booking cancelled successfully');
         if (this.role() === 'Admin') {
           this.loadAllBookings();
         } else {
           this.loadMyBookings();
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
 
         const serverMessage = err?.error?.message || 'Failed to cancel booking';
-        this.toastr.error(serverMessage);
+        this.notificationService.error(serverMessage);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -857,7 +978,7 @@ export class DashboardComponent implements OnInit {
   // Delete booking permanently (Admin only)
   deleteBooking(booking: BookingDto) {
     if (this.role() !== 'Admin') {
-      this.toastr.error('Only administrators can delete bookings');
+      this.notificationService.error('Only administrators can delete bookings');
       return;
     }
 
@@ -869,12 +990,14 @@ export class DashboardComponent implements OnInit {
       () => {
         this.bookings.deleteBooking(String(booking.id)).subscribe({
           next: () => {
-            this.toastr.success('Booking deleted successfully');
+            this.notificationService.success('Booking deleted successfully');
             this.loadAllBookings();
+            this.cdr.markForCheck();
           },
           error: (err) => {
             const serverMessage = err?.error?.message || 'Failed to delete booking';
-            this.toastr.error(serverMessage);
+            this.notificationService.error(serverMessage);
+            this.cdr.markForCheck();
           }
         });
       }
@@ -891,8 +1014,9 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
 
-        this.toastr.error('Failed to load users');
+        this.notificationService.error('Failed to load users');
         this.usersLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -906,8 +1030,9 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load users by role', err);
-        this.toastr.error('Failed to load users by role');
+        this.notificationService.error('Failed to load users by role');
         this.usersLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -929,13 +1054,15 @@ export class DashboardComponent implements OnInit {
 
     this.http.post(`${environment.apiUrl}/Auth/AssignRole`, payload, { withCredentials: true }).subscribe({
       next: () => {
-        this.toastr.success('Role assigned successfully');
+        this.notificationService.success('Role assigned successfully');
         this.showRoleModal.set(false);
         this.loadAllUsers();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to assign role', err);
-        this.toastr.error('Failed to assign role');
+        this.notificationService.error('Failed to assign role');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -951,12 +1078,14 @@ export class DashboardComponent implements OnInit {
 
     this.http.post(`${environment.apiUrl}/Auth/RemoveRole`, payload, { withCredentials: true }).subscribe({
       next: () => {
-        this.toastr.success('Role removed successfully');
+        this.notificationService.success('Role removed successfully');
         this.loadAllUsers();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to remove role', err);
-        this.toastr.error('Failed to remove role');
+        this.notificationService.error('Failed to remove role');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1036,11 +1165,13 @@ export class DashboardComponent implements OnInit {
     this.showUserMenu.set(false);
     this.auth.logout().subscribe({
       next: () => {
-        this.toastr.success('Logged out successfully');
+        this.notificationService.success('Logged out successfully');
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Logout failed:', err);
-        this.toastr.error('Logout failed');
+        this.notificationService.error('Logout failed');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1092,7 +1223,7 @@ export class DashboardComponent implements OnInit {
     try {
       this.router.navigate(['/profile']);
     } catch (e) {
-      console.warn('Profile route not available');
+      // Profile route not available
     }
   }
 
@@ -1116,6 +1247,7 @@ export class DashboardComponent implements OnInit {
         console.error('Failed to load hotels', err);
         // Don't show toastr error for loading hotels - silent fail
         this.hotelsLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1167,30 +1299,30 @@ export class DashboardComponent implements OnInit {
 
     // Frontend validation
     if (!hotelData.name?.trim()) {
-      this.toastr.error('Hotel name is required');
+      this.notificationService.error('Hotel name is required');
       return;
     }
     if (!hotelData.address?.trim()) {
-      this.toastr.error('Address is required');
+      this.notificationService.error('Address is required');
       return;
     }
     if (!hotelData.rooms || hotelData.rooms.length === 0) {
-      this.toastr.error('Hotel must have at least one room');
+      this.notificationService.error('Hotel must have at least one room');
       return;
     }
     if (hotelData.rooms && hotelData.rooms.length > 0) {
       for (let i = 0; i < hotelData.rooms.length; i++) {
         const room = hotelData.rooms[i];
         if (!room.roomType) {
-          this.toastr.error(`Room ${i + 1}: Type is required`);
+          this.notificationService.error(`Room ${i + 1}: Type is required`);
           return;
         }
         if (!room.pricePerNight || room.pricePerNight < 1) {
-          this.toastr.error(`Room ${i + 1}: Price must be greater than 0`);
+          this.notificationService.error(`Room ${i + 1}: Price must be greater than 0`);
           return;
         }
         if (!room.capacity || room.capacity < 1) {
-          this.toastr.error(`Room ${i + 1}: Capacity must be at least 1`);
+          this.notificationService.error(`Room ${i + 1}: Capacity must be at least 1`);
           return;
         }
       }
@@ -1241,15 +1373,17 @@ export class DashboardComponent implements OnInit {
 
     request.subscribe({
       next: (resp: any) => {
-        this.toastr.success(isEdit ? 'Hotel updated successfully' : 'Hotel created successfully');
+        this.notificationService.success(isEdit ? 'Hotel updated successfully' : 'Hotel created successfully');
         this.showHotelModal.set(false);
         this.cacheService.invalidate('hotels');
         this.loadHotels();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to save hotel', err);
         const serverMessage = err?.error?.message || err?.error?.errors?.join(', ') || err?.message || 'Failed to save hotel';
-        this.toastr.error(serverMessage);
+        this.notificationService.error(serverMessage);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1310,6 +1444,16 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  formatDateTimeForInput(dateStr: string | undefined | null): string {
+    if (!dateStr) return '';
+    try {
+      // datetime-local expects YYYY-MM-DDTHH:mm
+      return new Date(dateStr).toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  }
+
   // ----- International transport -----
   loadInternationalTransports() {
     this.internationalTransportsLoading.set(true);
@@ -1320,21 +1464,24 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load international transports', err);
-        this.toastr.error('Failed to load international transports');
+        this.notificationService.error('Failed to load international transports');
         this.internationalTransportsLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
 
   openInternationalTransportModal(transport?: InternationalTransportDto) {
     if (transport) {
-      this.internationalTransportFormData = {
-        ...transport,
-        departureDate: this.formatForInput(transport.departureDate),
-        arrivalDate: this.formatForInput(transport.arrivalDate)
-      } as InternationalTransportDto;
       this.selectedInternationalTransport.set(transport);
+      this.internationalTransportFormData = { 
+          ...transport,
+          departureDate: this.formatDateTimeForInput(transport.departureDate),
+          arrivalDate: this.formatDateTimeForInput(transport.arrivalDate),
+          returnDate: this.formatDateTimeForInput(transport.returnDate)
+      } as InternationalTransportDto;
     } else {
+      this.selectedInternationalTransport.set(null);
       this.internationalTransportFormData = {
         carrierName: '',
         transportType: 'Plane',
@@ -1344,16 +1491,29 @@ export class DashboardComponent implements OnInit {
         arrivalAirportCode: '',
         departureDate: '',
         arrivalDate: '',
+        returnDate: '',
         price: 0,
-        totalSeats: 0,
-        availableSeats: 0,
+        totalSeats: 100,
+        availableSeats: 100,
         flightNumber: '',
         isActive: true,
-        duration: ''
+        stops: 'Direct',
+        flightClass: 'Economy'
       } as InternationalTransportDto;
-      this.selectedInternationalTransport.set(null);
     }
     this.showInternationalTransportModal.set(true);
+  }
+
+  onDepartureDateChange() {
+      const depDateStr = this.internationalTransportFormData.departureDate;
+      if (depDateStr) {
+          const depDate = new Date(depDateStr);
+          if (!isNaN(depDate.getTime())) {
+              const returnDate = new Date(depDate);
+              returnDate.setDate(returnDate.getDate() + 14);
+              this.internationalTransportFormData.returnDate = this.formatDateTimeForInput(returnDate.toISOString());
+          }
+      }
   }
 
   saveInternationalTransport() {
@@ -1361,21 +1521,45 @@ export class DashboardComponent implements OnInit {
 
     // Validation
     if (!transportData.carrierName?.trim()) {
-      this.toastr.error('Carrier Name is required');
+      this.notificationService.error('Carrier Name is required');
       return;
     }
     if (!transportData.departureAirport?.trim() || !transportData.arrivalAirport?.trim()) {
-      this.toastr.error('Departure and Arrival Airports are required');
+      this.notificationService.error('Departure and Arrival Airports are required');
       return;
     }
     if (!transportData.price || transportData.price <= 0) {
-      this.toastr.error('Price must be greater than 0');
+      this.notificationService.error('Price must be greater than 0');
       return;
     }
-    if (!transportData.departureDate || !transportData.arrivalDate) {
-      this.toastr.error('Dates are required');
+    if (!transportData.departureDate || !transportData.arrivalDate || !transportData.returnDate) {
+      this.notificationService.error('Dates are required (Departure, Arrival, and Return)');
       return;
     }
+
+    const dep = new Date(transportData.departureDate);
+    const arr = new Date(transportData.arrivalDate);
+    const ret = new Date(transportData.returnDate);
+
+    if (isNaN(dep.getTime()) || isNaN(arr.getTime()) || isNaN(ret.getTime())) {
+      this.notificationService.error('Invalid date format');
+      return;
+    }
+
+    if (arr <= dep) {
+      this.notificationService.error('Arrival date must be after departure date');
+      return;
+    }
+    if (ret <= arr) {
+      this.notificationService.error('Return date must be after arrival date');
+      return;
+    }
+
+    // Calculate duration automatically
+    const diffMs = arr.getTime() - dep.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    transportData.duration = `${diffHrs}h ${diffMins}m`;
 
     const isEdit = !!this.selectedInternationalTransport();
     const url = isEdit
@@ -1388,12 +1572,14 @@ export class DashboardComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.toastr.success(isEdit ? 'Transport updated successfully' : 'Transport created successfully');
+        this.notificationService.success(isEdit ? 'Transport updated successfully' : 'Transport created successfully');
         this.showInternationalTransportModal.set(false);
         this.loadInternationalTransports();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
-        this.toastr.error('Failed to save transport');
+        this.notificationService.error('Failed to save transport');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1407,12 +1593,14 @@ export class DashboardComponent implements OnInit {
       () => {
         this.http.delete(`${environment.apiUrl}/InternationalTransport/DeleteTransport/${id}`, { withCredentials: true }).subscribe({
           next: () => {
-            this.toastr.success('Transport deleted successfully');
+            this.notificationService.success('Transport deleted successfully');
             this.loadInternationalTransports();
+            this.cdr.markForCheck();
           },
           error: (err) => {
             console.error('Failed to delete transport', err);
-            this.toastr.error('Failed to delete transport');
+            this.notificationService.error('Failed to delete transport');
+            this.cdr.markForCheck();
           }
         });
       }
@@ -1429,8 +1617,9 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load ground transports', err);
-        this.toastr.error('Failed to load ground transports');
+        this.notificationService.error('Failed to load ground transports');
         this.groundTransportsLoading.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1462,15 +1651,15 @@ export class DashboardComponent implements OnInit {
 
     // Validation - validate both destinationFrom (route) and destinationTo (duration)
     if (!transportData.route?.trim()) {
-      this.toastr.error('Destination From is required');
+      this.notificationService.error('Destination From is required');
       return;
     }
     if (!transportData.duration?.trim()) {
-      this.toastr.error('Destination To is required');
+      this.notificationService.error('Destination To is required');
       return;
     }
     if (!transportData.pricePerPerson || transportData.pricePerPerson <= 0) {
-      this.toastr.error('Price must be greater than 0');
+      this.notificationService.error('Price must be greater than 0');
       return;
     }
 
@@ -1488,12 +1677,14 @@ export class DashboardComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.toastr.success(isEdit ? 'Transport updated successfully' : 'Transport created successfully');
+        this.notificationService.success(isEdit ? 'Transport updated successfully' : 'Transport created successfully');
         this.showGroundTransportModal.set(false);
         this.loadGroundTransports();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
-        this.toastr.error('Failed to save transport');
+        this.notificationService.error('Failed to save transport');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -1507,12 +1698,14 @@ export class DashboardComponent implements OnInit {
       () => {
         this.http.delete(`${environment.apiUrl}/GroundTransport/DeleteGroundTransport/${id}`, { withCredentials: true }).subscribe({
           next: () => {
-            this.toastr.success('Transport deleted successfully');
+            this.notificationService.success('Transport deleted successfully');
             this.loadGroundTransports();
+            this.cdr.markForCheck();
           },
           error: (err) => {
             console.error('Failed to delete transport', err);
-            this.toastr.error('Failed to delete transport');
+            this.notificationService.error('Failed to delete transport');
+            this.cdr.markForCheck();
           }
         });
       }

@@ -17,7 +17,7 @@
         <div>
           <label for="email" class="block font-bold text-[var(--color-text)] mb-1 text-left">Email Address</label>
           <div class="flex items-center border border-[var(--border)] rounded px-3 py-2 bg-[var(--color-bg)]">
-            <i class="fas fa-envelope text-[var(--color-text-muted)] mr-2"></i>
+            <lucide-icon name="mail" class="w-4 h-4 text-[var(--color-text-muted)] mr-2"></lucide-icon>
             <input type="email" id="email" formControlName="email" placeholder="Enter your Email"
               class="w-full outline-none text-[var(--color-text)] bg-transparent text-left text-[var(--color-text)]" />
           </div>
@@ -33,11 +33,12 @@
         <div>
           <label for="password" class="block font-bold text-[var(--color-text)] mb-1 text-left">Password</label>
           <div class="flex items-center border border-[var(--border)] rounded px-3 py-2 bg-[var(--color-bg)]">
-            <i class="fas fa-lock text-[var(--color-text-muted)] mr-2"></i>
+            <lucide-icon name="lock" class="w-4 h-4 text-[var(--color-text-muted)] mr-2"></lucide-icon>
             <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-              placeholder="Enter your Password" class="w-full outline-none text-[var(--color-text)] bg-transparent text-left text-[var(--color-text)]" />
+              placeholder="Enter your Password"
+              class="w-full outline-none text-[var(--color-text)] bg-transparent text-left text-[var(--color-text)]" />
             <button type="button" (click)="showPassword = !showPassword" class="ml-2 text-[var(--color-text-muted)]">
-              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <lucide-icon [name]="showPassword ? 'eye-off' : 'eye'" class="w-4 h-4"></lucide-icon>
             </button>
           </div>
           @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {

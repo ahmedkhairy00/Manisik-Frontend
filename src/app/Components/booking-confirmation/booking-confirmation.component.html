@@ -83,7 +83,7 @@
             }}</p>
           <p class="text-sm text-purple-600 dark:text-purple-400 mt-1 font-semibold print:text-gray-800"
             *ngIf="booking.type !== undefined">
-            Trip Type: {{ (booking.type === '1' || booking.type === 'Hajj' || booking.type?.toString()?.toLowerCase()
+            Trip Type: {{ (booking.type === '1' || booking.type === 'Hajj' || booking.type.toString().toLowerCase()
             ===
             'hajj') ? 'Hajj ✨' :
             'Umrah 🕋' }}
@@ -168,6 +168,10 @@
               <span class="text-xs text-gray-500 print:text-gray-600"
                 *ngIf="booking.internationalTransport?.departureDate">
                 Departure: {{ booking.internationalTransport?.departureDate | date:'medium' }}
+              </span>
+              <span class="text-xs text-gray-500 print:text-gray-600"
+                *ngIf="booking.internationalTransport?.returnDate">
+                Return: {{ booking.internationalTransport?.returnDate | date:'medium' }}
               </span>
               <span class="text-xs text-gray-500 print:text-gray-600"
                 *ngIf="booking.internationalTransport?.arrivalDate">

@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import { DynamicFieldConfig } from '../../../interfaces/dynamic-field.interface';
 
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './dynamic-form.component.html',
   styles: [`
     :host {
@@ -24,7 +25,8 @@ import { DynamicFieldConfig } from '../../../interfaces/dynamic-field.interface'
       background-color: var(--border, #e5e7eb);
       border-radius: 20px;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicFormComponent implements OnInit {
   @Input() config: DynamicFieldConfig[] = [];

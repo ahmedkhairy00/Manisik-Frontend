@@ -15,7 +15,7 @@
     <div
       class="bg-(--color-surface) border-l-4 border-(--primary) p-4 rounded-md shadow-sm flex items-start justify-between gap-4">
       <div class="flex items-start gap-3">
-        <span class="material-icons text-(--primary) mt-1" aria-hidden="true">check_circle</span>
+        <lucide-icon name="check-circle" class="w-4 h-4 text-(--primary) mt-1"></lucide-icon>
         <div>
           <p class="text-sm font-semibold text-(--color-text)">{{
             i18n.translate('transport.pending.international.title') || 'Active Flight Booking' }}</p>
@@ -36,7 +36,7 @@
     <div
       class="bg-(--color-surface) border-l-4 border-(--primary) p-4 rounded-md shadow-sm flex items-start justify-between gap-4">
       <div class="flex items-start gap-3">
-        <span class="material-icons text-(--primary) mt-1" aria-hidden="true">check_circle</span>
+        <lucide-icon name="check-circle" class="w-4 h-4 text-(--primary) mt-1"></lucide-icon>
         <div>
           <p class="text-sm font-semibold text-(--color-text)">{{ i18n.translate('transport.pending.ground.title') ||
             'Active Ground Transport Booking' }}</p>
@@ -62,18 +62,18 @@
   <div class="flex gap-2 mb-8 flex-wrap">
     <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
       [ngClass]="activeInternationalFilter === 'All' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-bg) hover:text-(--color-text)'"
-      (click)="loadAllInternationalTransports(); activeInternationalFilter = 'All'">
-      <span class="material-icons">apps</span> {{ i18n.translate('common.all') }}
+      (click)="setTransportType('All')">
+      <lucide-icon name="layout-grid" class="w-4 h-4"></lucide-icon> {{ i18n.translate('common.all') }}
     </button>
     <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
       [ngClass]="activeInternationalFilter === 'Plane' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-bg) hover:text-(--color-text)'"
       (click)="setTransportType('Plane')">
-      <span class="material-icons">flight</span> {{ i18n.translate('transport.international.air') }}
+      <lucide-icon name="plane" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.international.air') }}
     </button>
     <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
       [ngClass]="activeInternationalFilter === 'Ship' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted) hover:bg-(--color-bg) hover:text-(--color-text)'"
       (click)="setTransportType('Ship')">
-      <span class="material-icons">directions_boat</span> {{ i18n.translate('transport.international.sea') }}
+      <lucide-icon name="ship" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.international.sea') }}
     </button>
   </div>
 
@@ -108,18 +108,18 @@
         </select>
       </div>
       <div class="flex flex-col">
-        <label class="text-xs text-(--color-text-muted) mb-2 uppercase font-semibold">{{
+        <label class="text-xs text-[var(--color-text-muted)] mb-2 uppercase font-semibold">{{
           i18n.translate('transport.search.departureDateTime') || i18n.translate('transport.search.departure') ||
-          'Departure' }}</label>
-        <input type="datetime-local" [(ngModel)]="searchParams.departureDate"
-          class="px-4 py-3 border border-(--border) rounded bg-(--color-bg) text-(--color-text) focus:border-(--primary) focus:ring-(--primary) outline-none transition-colors">
+          'Departure Date' }}</label>
+        <input type="date" [(ngModel)]="searchParams.departureDate"
+          class="px-4 py-3 border border-[var(--border)] rounded bg-[var(--color-bg)] text-[var(--color-text)] focus:border-[var(--primary)] focus:ring-[var(--primary)] outline-none transition-colors">
       </div>
       <div class="flex flex-col">
-        <label class="text-xs text-(--color-text-muted) mb-2 uppercase font-semibold">{{
+        <label class="text-xs text-[var(--color-text-muted)] mb-2 uppercase font-semibold">{{
           i18n.translate('transport.search.returnDateTime') || i18n.translate('booking.checkOut') || 'Return Date'
           }}</label>
-        <input type="datetime-local" [(ngModel)]="searchParams.returnDate"
-          class="px-4 py-3 border border-(--border) rounded bg-(--color-bg) text-(--color-text) focus:border-(--primary) focus:ring-(--primary) outline-none transition-colors">
+        <input type="date" [(ngModel)]="searchParams.returnDate"
+          class="px-4 py-3 border border-[var(--border)] rounded bg-[var(--color-bg)] text-[var(--color-text)] focus:border-[var(--primary)] focus:ring-[var(--primary)] outline-none transition-colors">
       </div>
       <div>
         <button class="btn-primary" (click)="searchflight()">{{ i18n.translate('transport.search.button') }}</button>
@@ -127,43 +127,79 @@
     </div>
   </div>
 
-  <div *ngIf="errorMessage"
-    class="text-(--color-error) bg-(--color-surface) border border-(--color-error) p-4 rounded mb-4">{{ errorMessage }}
+  <div *ngIf="errorMessage" class="text-red-500 bg-[var(--color-surface)] border border-red-500 p-4 rounded mb-4">{{
+    errorMessage }}
   </div>
 
   <!-- Flight Cards -->
   <div *ngFor="let flight of flights"
-    class="card grid grid-cols-1 md:grid-cols-[72px_1fr_auto] gap-4 items-center animate-fade-in">
+    class="card grid grid-cols-1 md:grid-cols-[72px_1fr_auto] gap-4 items-center animate-fade-in mb-4">
     <div
-      class="flex items-center justify-center w-16 h-16 bg-(--color-bg) rounded-full border border-(--border) text-xl font-bold">
+      class="flex items-center justify-center w-16 h-16 bg-[var(--color-bg)] rounded-full border border-[var(--border)] text-xl font-bold">
       {{ (flight.carrierName || '').substring(0,2) }}</div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <div>
         <h3 class="text-lg font-semibold">{{ flight.carrierName }}</h3>
-        <div class="text-sm text-(--color-text-muted) mt-1">
-          <strong>{{ i18n.translate('transport.search.from') }}:</strong> {{ flight.departureAirport }}
-          &nbsp; • &nbsp;
-          <strong>{{ i18n.translate('transport.search.to') }}:</strong> {{ flight.arrivalAirport }}
+
+        <!-- GO TRIP -->
+        <div class="text-sm text-[var(--color-text-muted)] mt-2 bg-[var(--color-bg-secondary)] p-2 rounded">
+          <div class="flex items-center gap-2 mb-1">
+            <span
+              class="font-bold text-[var(--primary)] bg-[var(--primary)] text-white text-xs px-2 py-0.5 rounded">GO</span>
+            <span class="font-medium">{{ flight.departureAirport }}</span>
+            <lucide-icon name="arrow-right" class="w-3 h-3 text-[var(--color-text-muted)]"></lucide-icon>
+            <span class="font-medium">{{ flight.arrivalAirport }}</span>
+          </div>
+          <div class="text-xs font-medium flex items-center gap-2 mt-1">
+            <lucide-icon name="plane-takeoff" class="w-3 h-3"></lucide-icon>
+            <span>{{ flight.departureDate | date:'mediumDate' }}</span>
+            <span class="text-[var(--primary)] font-bold">{{ flight.departureDate | date:'shortTime' }}</span>
+
+            <span class="mx-1 text-[var(--color-text-muted)]">-</span>
+
+            <lucide-icon name="plane-landing" class="w-3 h-3"></lucide-icon>
+            <span class="text-[var(--primary)] font-bold">{{ flight.arrivalDate | date:'shortTime' }}</span>
+            <span *ngIf="(flight.arrivalDate | date:'mediumDate') !== (flight.departureDate | date:'mediumDate')"
+              class="text-[var(--color-text-muted)] text-[10px]">({{ flight.arrivalDate | date:'mediumDate' }})</span>
+          </div>
         </div>
-        <div class="flex items-center gap-2 text-(--color-text-muted) text-sm mt-2">
-          <span class="material-icons text-(--color-warning)">star</span>
+
+        <!-- RETURN TRIP (BACK) -->
+        <div class="text-sm text-[var(--color-text-muted)] mt-2 p-2 rounded border border-[var(--border)]"
+          *ngIf="flight.returnDate">
+          <div class="flex items-center gap-2 mb-1">
+            <span
+              class="font-bold text-[var(--color-text-muted)] border border-[var(--color-text-muted)] text-[var(--color-text-muted)] text-xs px-2 py-0.5 rounded">BACK</span>
+            <span class="font-medium">{{ flight.arrivalAirport }}</span>
+            <lucide-icon name="arrow-right" class="w-3 h-3 text-[var(--color-text-muted)]"></lucide-icon>
+            <span class="font-medium">{{ flight.departureAirport }}</span>
+          </div>
+          <div class="text-xs font-medium flex items-center gap-2 mt-1">
+            <lucide-icon name="calendar" class="w-3 h-3"></lucide-icon>
+            <span>{{ flight.returnDate | date:'mediumDate' }}</span>
+            <span class="text-[var(--primary)] font-bold">{{ flight.returnDate | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-[var(--color-text-muted)] text-sm mt-3">
+          <lucide-icon name="star" class="w-3 h-3 text-yellow-500"></lucide-icon>
           <strong>4.8</strong>
           <span class="text-xs">(2340 {{ i18n.translate('transport.reviews') }})</span>
         </div>
       </div>
 
       <div class="text-sm">
-        <div class="text-xs text-(--color-text-muted) uppercase font-semibold">{{
+        <div class="text-xs text-[var(--color-text-muted)] uppercase font-semibold">{{
           i18n.translate('transport.flight.duration') }}</div>
         <div class="font-medium mt-1 flex items-center gap-2">
-          <span class="material-icons">schedule</span>
+          <lucide-icon name="clock" class="w-4 h-4"></lucide-icon>
           <span *ngIf="flight.duration">{{ flight.duration }}</span>
           <span *ngIf="!flight.duration && flight.departureDate && flight.arrivalDate">{{
             (getDurationInHours(flight.departureDate, flight.arrivalDate) | number:'1.0-1') + 'h' }}</span>
         </div>
         <div class="mt-2">
-          <div class="text-xs text-(--color-text-muted) uppercase font-semibold">{{
+          <div class="text-xs text-[var(--color-text-muted)] uppercase font-semibold">{{
             i18n.translate('transport.flight.class') }}</div>
           <div class="font-medium">{{ flight.flightClass }}</div>
         </div>
@@ -171,11 +207,13 @@
     </div>
 
     <div class="price-section text-right">
-      <div class="text-2xl font-bold text-(--primary)">{{ flight.price | currency:'SAR':'symbol':'1.0-0' }}</div>
-      <ul class="text-sm text-(--color-text-muted) mt-2 mb-3">
-        <li class="flex items-center gap-2 justify-end"><span class="material-icons text-(--primary)">check</span>{{
+      <div class="text-2xl font-bold text-[var(--primary)]">{{ flight.price | currency:'SAR':'symbol':'1.0-0' }}</div>
+      <ul class="text-sm text-[var(--color-text-muted)] mt-2 mb-3">
+        <li class="flex items-center gap-2 justify-end"><span
+            class="material-icons text-[var(--primary)]">check</span>{{
           i18n.translate('transport.flight.meals') }}</li>
-        <li class="flex items-center gap-2 justify-end"><span class="material-icons text-(--primary)">check</span>30kg
+        <li class="flex items-center gap-2 justify-end"><span
+            class="material-icons text-[var(--primary)]">check</span>30kg
           {{ i18n.translate('transport.flight.baggage') }}</li>
       </ul>
       <button class="btn-primary" (click)="bookFlight(flight)">{{ i18n.translate('transport.book.button') }}</button>
@@ -194,27 +232,27 @@
       <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
         [ngClass]="activeGroundFilter === 'All' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted)'"
         (click)="loadAllGroundTransports()">
-        <span class="material-icons">apps</span> {{ i18n.translate('common.all') }}
+        <lucide-icon name="layout-grid" class="w-4 h-4"></lucide-icon> {{ i18n.translate('common.all') }}
       </button>
       <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
         [ngClass]="activeGroundFilter === 'PublicBus' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted)'"
         (click)="searchByType('PublicBus')">
-        <span class="material-icons">directions_bus</span> {{ i18n.translate('transport.tabs.publicBus') }}
+        <lucide-icon name="bus" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.tabs.publicBus') }}
       </button>
       <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
         [ngClass]="activeGroundFilter === 'Train' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted)'"
         (click)="searchByType('Train')">
-        <span class="material-icons">train</span> {{ i18n.translate('transport.tabs.train') }}
+        <lucide-icon name="train" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.tabs.train') }}
       </button>
       <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
         [ngClass]="activeGroundFilter === 'UberCareem' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted)'"
         (click)="searchByType('UberCareem')">
-        <span class="material-icons">local_taxi</span> {{ i18n.translate('transport.tabs.uber') }}
+        <lucide-icon name="car" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.tabs.uber') }}
       </button>
       <button class="flex items-center gap-2 px-6 py-3 rounded shadow transition-all duration-300"
         [ngClass]="activeGroundFilter === 'PrivateCar' ? 'bg-(--primary) text-white' : 'bg-(--color-surface) text-(--color-text-muted)'"
         (click)="searchByType('PrivateCar')">
-        <span class="material-icons">directions_car</span> {{ i18n.translate('transport.tabs.private') }}
+        <lucide-icon name="car" class="w-4 h-4"></lucide-icon> {{ i18n.translate('transport.tabs.private') }}
       </button>
     </div>
 
@@ -256,7 +294,7 @@
         <div>
           <div *ngFor="let amenity of transport.amenities"
             class="flex items-center gap-2 text-sm text-(--color-text-muted) mb-1">
-            <span class="material-icons text-(--primary)">check_circle</span>
+            <lucide-icon name="check-circle" class="w-4 h-4 text-(--primary)"></lucide-icon>
             {{ amenity }}
           </div>
         </div>

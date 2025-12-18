@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookingsService } from '../../core/services/bookings.service';
 import { BookingDto } from '../../models/api/booking.models';
 import { AuthService } from '../../core/services/auth.service';
 
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -26,6 +26,9 @@ import html2canvas from 'html2canvas';
       }
     }
     /* Force black text in receipt container always */
+    #receipt-container {
+        background-color: white !important; /* Ensure content is readable if we force black text */
+    }
     #receipt-container * {
       color: black !important;
     }
@@ -46,7 +49,8 @@ import html2canvas from 'html2canvas';
     {
         color: black !important;
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookingConfirmationComponent implements OnInit {
   bookingId: string | null = null;
@@ -61,7 +65,8 @@ export class BookingConfirmationComponent implements OnInit {
     private router: Router,
     private bookingsService: BookingsService,
     private authService: AuthService,
-    private toastr: ToastrService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -69,10 +74,11 @@ export class BookingConfirmationComponent implements OnInit {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         this.currentUser = user;
-
+        this.cdr.markForCheck();
       },
       error: (err) => {
-
+        // Silent error
+        this.cdr.markForCheck();
       }
     });
 
@@ -94,11 +100,13 @@ export class BookingConfirmationComponent implements OnInit {
         this.booking = this.mapUiProperties(response);
 
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error fetching booking details:', err);
-        this.toastr.error('Failed to load booking details');
+        this.notificationService.error('Failed to load booking details');
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -185,7 +193,7 @@ export class BookingConfirmationComponent implements OnInit {
   async downloadReceipt() {
     const data = document.getElementById('receipt-container');
     if (data) {
-      this.toastr.info('Generating PDF...', 'Please wait');
+      this.notificationService.info('Generating PDF...', 'Please wait');
       
       try {
         // Use html2canvas to render the element
@@ -208,10 +216,10 @@ export class BookingConfirmationComponent implements OnInit {
         // Save
         pdf.save(`Manasik_Receipt_${this.booking?.bookingNumber || this.bookingId}.pdf`);
         
-        this.toastr.success('Receipt downloaded successfully');
+        this.notificationService.success('Receipt downloaded successfully');
       } catch (error) {
         console.error('PDF Generation Error:', error);
-        this.toastr.error('Failed to generate PDF. Printing instead.');
+        this.notificationService.error('Failed to generate PDF. Printing instead.');
         window.print();
       }
     } else {

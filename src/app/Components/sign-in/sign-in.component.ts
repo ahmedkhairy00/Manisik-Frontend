@@ -1,17 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RegisterDto } from 'src/app/models/api';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 
 @Component({
   selector: 'app-sign-in',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, LucideAngularModule],
   templateUrl: './sign-in.component.html',
-  styleUrl: './sign-in.component.css'
+  styleUrl: './sign-in.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SignInComponent {
   registrationForm!: FormGroup;
@@ -24,19 +26,29 @@ export class SignInComponent {
   // Store API validation errors for each field
   apiErrors: { [key: string]: string[] } = {};
 
-  constructor(private fb: FormBuilder, private registerService: AuthService, private router: Router, private toastr: ToastrService) {
+  constructor(
+    private fb: FormBuilder,
+    private registerService: AuthService,
+    private router: Router,
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
+  ) {
 
     this.registrationForm = this.fb.group({
       FirstName: ['', [Validators.required, Validators.minLength(2)]],
       LastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: [''],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{6,}$/)]],
       confirmPassword: ['', [Validators.required]],
       agreeToTerms: [false, [Validators.requiredTrue]]
     }, {
       validators: this.passwordMatchValidator
     });
+  }
+
+  get passwordControl() {
+    return this.registrationForm.get('password');
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -54,7 +66,7 @@ export class SignInComponent {
 
     if (this.registrationForm.invalid) {
       this.registrationForm.markAllAsTouched();
-      this.toastr.error('Please fill in all required fields correctly', 'Form Invalid');
+      this.notificationService.error('Please fill in all required fields correctly', 'Form Invalid');
       return;
     }
 
@@ -72,16 +84,17 @@ export class SignInComponent {
       next: (response) => {
         this.isLoading = false;
         if (response?.data?.user) {
-          this.toastr.success('Account created successfully! Please login.', 'Success');
+          this.notificationService.success('Account created successfully! Please login.', 'Success');
           this.router.navigate(['/login']);
         } else {
           this.errorMessage = 'Registration failed. Please try again.';
-          this.toastr.error(this.errorMessage, 'Error');
+          this.notificationService.error(this.errorMessage, 'Error');
+          this.cdr.markForCheck();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        console.log('Registration error:', error);
+
         
         // Handle validation errors from API
         if (error.error?.errors) {
@@ -100,11 +113,12 @@ export class SignInComponent {
             }
           });
           
-          this.toastr.error('Please fix the validation errors', 'Validation Error');
+          this.notificationService.error('Please fix the validation errors', 'Validation Error');
         } else {
           this.errorMessage = error.error?.message || error.error?.title || 'Registration failed. Please try again.';
-          this.toastr.error(this.errorMessage, 'Error');
+          this.notificationService.error(this.errorMessage, 'Error');
         }
+        this.cdr.markForCheck();
       }
     });
   }

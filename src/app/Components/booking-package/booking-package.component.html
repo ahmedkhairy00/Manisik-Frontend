@@ -23,7 +23,7 @@
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             alt="Umrah pilgrimage" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-            <h3 class="text-xl font-bold text-white">🕋 {{ i18nService.t('docs.umrah.title') }}</h3>
+            <h3 class="text-xl font-bold !text-white">🕋 {{ i18nService.t('docs.umrah.title') }}</h3>
           </div>
           <div *ngIf="selectedTripType === 'umrah'"
             class="absolute top-3 right-3 bg-[var(--primary)] text-white p-1 rounded-full shadow-lg">
@@ -43,7 +43,7 @@
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             alt="Hajj pilgrimage" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-            <h3 class="text-xl font-bold text-white">✈ {{ i18nService.t('docs.hajj.title') }}</h3>
+            <h3 class="text-xl font-bold !text-white">✈ {{ i18nService.t('docs.hajj.title') }}</h3>
           </div>
           <div *ngIf="selectedTripType === 'hajj'"
             class="absolute top-3 right-3 bg-[var(--primary)] text-white p-1 rounded-full shadow-lg">
@@ -293,15 +293,20 @@
       <!-- Date of Birth -->
       <div>
         <label for="dateOfBirth" class="block text-sm font-medium mb-2 text-[var(--color-text)]">{{
-          i18nService.t('booking.form.dateOfBirth') }} *</label>
+          i18nService.t('booking.form.dateOfBirth') }} * (Age 18+)</label>
         <div class="relative">
           <input id="dateOfBirth" name="dateOfBirth" autocomplete="bday"
             class="w-full ps-4 pe-10 py-3 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
             type="date" [(ngModel)]="passenger.dateOfBirth" (ngModelChange)="savePassengerData()" required
-            #dob="ngModel" [class.border-red-500]="dob.invalid && dob.touched" />
+            #dob="ngModel"
+            [class.border-red-500]="(dob.invalid && dob.touched) || (passenger.dateOfBirth && !isAgeValid(passenger.dateOfBirth))" />
         </div>
         <span *ngIf="dob.invalid && dob.touched" class="text-xs text-red-500 mt-1 block">{{
           i18nService.t('common.required') }}</span>
+        <span *ngIf="passenger.dateOfBirth && !isAgeValid(passenger.dateOfBirth)"
+          class="text-xs text-red-500 mt-1 block">
+          {{ i18nService.language() === 'ar' ? 'يجب أن يكون العمر أكبر من 18 عامًا' : 'Must be at least 18 years old' }}
+        </span>
       </div>
 
       <!-- Gender -->
@@ -351,6 +356,7 @@
         <div class="flex gap-2">
           <div class="relative w-1/3">
             <select id="phoneCountryCode" name="phoneCountryCode" autocomplete="tel-country-code"
+              aria-label="Phone country code"
               class="w-full px-2 py-3 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all appearance-none text-sm"
               [(ngModel)]="selectedPhoneCountry" (ngModelChange)="savePassengerData()">
               <option [ngValue]="null" disabled>{{ i18nService.t('booking.form.phoneCode') }}</option>
@@ -403,13 +409,22 @@
       <!-- Passport Expiry -->
       <div>
         <label for="passportExpiry" class="block text-sm font-medium mb-2 text-[var(--color-text)]">{{
-          i18nService.t('booking.form.passportExpiry') }} *</label>
+          i18nService.t('booking.form.passportExpiry') }} * (> 6 Months)</label>
         <div class="relative">
           <input id="passportExpiry" name="passportExpiry" type="date" autocomplete="off"
             class="w-full ps-4 pe-10 py-3 rounded-xl border border-[var(--border)] bg-[var(--color-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
-            [(ngModel)]="passenger.passportExpiry" (ngModelChange)="savePassengerData()" />
-
+            [(ngModel)]="passenger.passportExpiry" (ngModelChange)="savePassengerData()" required
+            #passportExpiry="ngModel"
+            [class.border-red-500]="(passportExpiry.invalid && passportExpiry.touched) || (passenger.passportExpiry && !isPassportExpiryValid(passenger.passportExpiry))" />
         </div>
+        <span *ngIf="passportExpiry.invalid && passportExpiry.touched" class="text-xs text-red-500 mt-1 block">
+          {{ i18nService.t('common.required') }}
+        </span>
+        <span *ngIf="passenger.passportExpiry && !isPassportExpiryValid(passenger.passportExpiry)"
+          class="text-xs text-red-500 mt-1 block">
+          {{ i18nService.language() === 'ar' ? 'يجب أن يكون جواز السفر صالحًا لأكثر من 6 أشهر' : 'Passport valid > 6
+          months required' }}
+        </span>
       </div>
 
       <!-- Photo Upload for Visa -->
@@ -420,31 +435,26 @@
         <div class="relative">
           <div class="flex items-center gap-4">
             <!-- Photo Preview -->
-            <div class="w-24 h-28 rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--color-bg)] flex items-center justify-center overflow-hidden"
-                 [class.border-solid]="passenger.photoPreview"
-                 [class.border-[var(--primary)]]="passenger.photoPreview">
-              <img *ngIf="passenger.photoPreview" 
-                   [src]="passenger.photoPreview" 
-                   alt="Traveler photo preview"
-                   class="w-full h-full object-cover" />
-              <lucide-icon *ngIf="!passenger.photoPreview" name="user" class="w-8 h-8 text-[var(--color-text-muted)]"></lucide-icon>
+            <div
+              class="w-24 h-28 rounded-xl border-2 border-dashed border-[var(--border)] bg-[var(--color-bg)] flex items-center justify-center overflow-hidden"
+              [class.border-solid]="passenger.photoPreview" [class.border-[var(--primary)]]="passenger.photoPreview">
+              <img *ngIf="passenger.photoPreview" [src]="passenger.photoPreview" alt="Traveler photo preview"
+                class="w-full h-full object-cover" />
+              <lucide-icon *ngIf="!passenger.photoPreview" name="user"
+                class="w-8 h-8 text-[var(--color-text-muted)]"></lucide-icon>
             </div>
-            
+
             <!-- Upload Button -->
             <div class="flex-1">
-              <input type="file" 
-                     id="travelerPhoto" 
-                     name="travelerPhoto"
-                     accept="image/jpeg,image/png,image/jpg"
-                     class="hidden"
-                     (change)="onPhotoSelected($event)" />
+              <input type="file" id="travelerPhoto" name="travelerPhoto" accept="image/jpeg,image/png,image/jpg"
+                class="hidden" (change)="onPhotoSelected($event)" />
               <label for="travelerPhoto"
-                     class="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-[var(--primary)] text-[var(--primary)] font-medium hover:bg-[var(--primary)] hover:text-white transition-all cursor-pointer">
+                class="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-[var(--primary)] text-[var(--primary)] font-medium hover:bg-[var(--primary)] hover:text-white transition-all cursor-pointer">
                 <lucide-icon name="camera" class="w-5 h-5"></lucide-icon>
                 {{ i18nService.language() === 'ar' ? 'اختر صورة' : 'Choose Photo' }}
               </label>
               <p class="text-xs text-[var(--color-text-muted)] mt-2">
-                {{ i18nService.language() === 'ar' ? 'صورة بخلفية بيضاء - JPEG أو PNG' : 'White background photo - JPEG or PNG' }}
+                {{ i18nService.language() === 'ar' ? 'ارفع ملفك' : 'Upload your file' }}
               </p>
             </div>
           </div>

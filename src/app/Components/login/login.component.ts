@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, Inject, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { LucideAngularModule } from 'lucide-angular';
+
 
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule ,CommonModule],
+  imports: [ReactiveFormsModule ,CommonModule, LucideAngularModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  standalone : true
+  standalone : true,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   loginForm!: FormGroup;
@@ -24,7 +27,8 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.pattern(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com$/)]],
@@ -47,17 +51,23 @@ export class LoginComponent {
       next: (response) => {
         if (response?.data?.token) {
           const name = response.data.user?.firstName ?? '';
-          this.toastr.success(`Login successful! Welcome ${name}`, 'Success');
-          const navigateTo = this.returnUrl || '/';
+          this.notificationService.success(`Login successful! Welcome ${name}`, 'Success');
+          
+          let navigateTo = this.returnUrl || '/';
+          // Fix: Prevent redirecting back to login/signin pages
+          if (navigateTo.toLowerCase().includes('login') || navigateTo.toLowerCase().includes('signin')) {
+            navigateTo = '/';
+          }
+          
           this.router.navigateByUrl(navigateTo).catch(() => {});
         } else {
           this.errorMessage = 'Login failed. Please try again.';
-
+          this.cdr.markForCheck();
         }
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Login failed. Please try again.';
-
+        this.cdr.markForCheck();
       }
     });
   }

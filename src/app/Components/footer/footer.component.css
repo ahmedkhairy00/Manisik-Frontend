@@ -1,0 +1,18 @@
+.social-icon-link {
+  color: var(--color-text-muted);
+  transition: all 0.2s ease-in-out;
+}
+
+:host-context(.dark) .social-icon-link {
+  color: white !important;
+}
+
+/* Fallback if host-context doesn't match but body has dark class */
+.dark .social-icon-link {
+  color: white !important;
+}
+
+.social-icon-link:hover {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { I18nService } from 'src/app/core/services/i18n.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
 /**
@@ -16,7 +16,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-hero-slider',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink],
+  imports: [CommonModule, LucideAngularModule, RouterLink, NgOptimizedImage],
   templateUrl: './hero-slider.component.html',
   styleUrls: ['./hero-slider.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

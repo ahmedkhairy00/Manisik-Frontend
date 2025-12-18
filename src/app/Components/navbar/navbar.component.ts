@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { I18nService } from 'src/app/core/services/i18n.service';
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { User, NavLink, NavIcon } from 'src/app/interfaces';
 import { LucideAngularModule } from 'lucide-angular';
 import { NgZone } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 
 @Component({
@@ -24,7 +24,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private authSubscription?: Subscription;
   private readonly ngZone = inject(NgZone);
-  private readonly toastr = inject(ToastrService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
 
   // Signals
@@ -75,6 +76,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     // Language is now fully managed by i18n.service
     // Apply current language attributes on init
+    // Apply current language attributes on init
     this.applyLanguageAttributes(this.i18n.getCurrentLanguage());
   }
 
@@ -89,19 +91,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logOut(): void {
     this.authService.logout().subscribe({
       next: () => {
-        this.toastr.success(this.i18n.translate('nav.logoutSuccess'), 'Success');
+        this.notificationService.success(this.i18n.translate('nav.logoutSuccess'), 'Success');
         this.closeMobileMenu();
         this.closeUserDropdown();
         this.currentUser.set(null);
         // Navigation is handled by auth service
+        this.cdr.markForCheck();
       },
       error: (err) => {
 
-        this.toastr.error('Logout failed', 'Error');
+        this.notificationService.error('Logout failed', 'Error');
         // Still clear local state on error
         this.closeMobileMenu();
         this.closeUserDropdown();
         this.currentUser.set(null);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -193,6 +197,7 @@ openUserModel(): void {
         this.currentUser.set(user); // must update the local signal
         this.authService.updateCurrentUser(user); // optional: keep service in sync
         this.isLoadingUser.set(false);
+        this.cdr.markForCheck();
         });
       },
       error: (err) => {
@@ -200,6 +205,7 @@ openUserModel(): void {
         console.error('Failed to fetch user:', err);
         this.isLoadingUser.set(false);
         this.closeUserDropdown();
+        this.cdr.markForCheck();
          });
       }
     });

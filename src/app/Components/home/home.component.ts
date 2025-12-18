@@ -6,6 +6,7 @@ import {
   OnDestroy,
   signal,
   computed,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -16,7 +17,7 @@ import { HeroSliderComponent } from './hero-slider/hero-slider.component';
 import { AIChatComponent } from './ai-chat/ai-chat.component';
 import { I18nService } from 'src/app/core/services/i18n.service';
 import { QuickAction, HomePackage, Step, Statistic, Testimonial, FAQ } from 'src/app/interfaces';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 /* ----------  INTERFACES imported from src/app/interfaces  ---------- */
@@ -39,7 +40,8 @@ import { environment } from 'src/environments/environment';
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
-  private readonly toastr = inject(ToastrService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly i18n = inject(I18nService);
 
   t(key: string): string {
@@ -202,21 +204,23 @@ export class HomeComponent implements OnInit, OnDestroy {
   onNewsletterSubmit(): void {
     const email = this.newsletterEmail().trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      this.toastr.warning('Please enter a valid email address');
+      this.notificationService.warning('Please enter a valid email address');
       return;
     }
     this.isSubmittingNewsletter.set(true);
     
     this.http.post<any>(`${environment.apiUrl}/Subscriber/Subscribe`, { email }).subscribe({
       next: (response) => {
-        this.toastr.success(response?.message || 'Successfully subscribed! Check your email for confirmation.');
+        this.notificationService.success(response?.message || 'Successfully subscribed! Check your email for confirmation.');
         this.newsletterEmail.set('');
         this.isSubmittingNewsletter.set(false);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         const message = err?.error?.message || 'Subscription failed. Please try again.';
-        this.toastr.error(message);
+        this.notificationService.error(message);
         this.isSubmittingNewsletter.set(false);
+        this.cdr.markForCheck();
       }
     });
   }
